@@ -45,9 +45,9 @@ export function AreaGraph() {
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
+        <CardTitle>Flujo de Caja (Ingresos vs. Gastos)</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Mostrando el flujo de los últimos 6 meses
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>

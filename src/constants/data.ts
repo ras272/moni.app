@@ -14,49 +14,44 @@ export type Product = {
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Resumen',
     url: '/dashboard/overview',
     icon: 'dashboard',
     isActive: false,
-    shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
+    shortcut: ['r', 'r'],
+    items: []
   },
   {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
+    title: 'Transacciones',
+    url: '/dashboard/transacciones',
+    icon: 'receipt',
+    shortcut: ['t', 't'],
     isActive: false,
-    items: [] // No child items
+    items: []
   },
   {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
-
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
-      },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
-    ]
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
+    title: 'MoneyTags',
+    url: '/dashboard/moneytags',
+    icon: 'tags',
+    shortcut: ['m', 'm'],
     isActive: false,
-    items: [] // No child items
+    items: []
+  },
+  {
+    title: 'Cuentas',
+    url: '/dashboard/cuentas',
+    icon: 'wallet',
+    shortcut: ['c', 'c'],
+    isActive: false,
+    items: []
+  },
+  {
+    title: 'Configuración',
+    url: '/dashboard/configuracion',
+    icon: 'settings',
+    shortcut: ['s', 's'],
+    isActive: false,
+    items: []
   }
 ];
 
@@ -72,42 +67,42 @@ export interface SaleUser {
 export const recentSalesData: SaleUser[] = [
   {
     id: 1,
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
-    amount: '+$1,999.00',
+    name: 'Biggie',
+    email: 'Supermercado',
+    amount: '₲ 450.000',
     image: 'https://api.slingacademy.com/public/sample-users/1.png',
-    initials: 'OM'
+    initials: 'BG'
   },
   {
     id: 2,
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
-    amount: '+$39.00',
+    name: 'Stock',
+    email: 'Supermercado',
+    amount: '₲ 320.000',
     image: 'https://api.slingacademy.com/public/sample-users/2.png',
-    initials: 'JL'
+    initials: 'ST'
   },
   {
     id: 3,
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
-    amount: '+$299.00',
+    name: 'MUV',
+    email: 'Transporte',
+    amount: '₲ 75.000',
     image: 'https://api.slingacademy.com/public/sample-users/3.png',
-    initials: 'IN'
+    initials: 'MV'
   },
   {
     id: 4,
-    name: 'William Kim',
-    email: 'will@email.com',
-    amount: '+$99.00',
+    name: 'Pago ANDE',
+    email: 'Servicios',
+    amount: '₲ 280.000',
     image: 'https://api.slingacademy.com/public/sample-users/4.png',
-    initials: 'WK'
+    initials: 'AN'
   },
   {
     id: 5,
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
-    amount: '+$39.00',
+    name: 'Farmacia Catedral',
+    email: 'Salud',
+    amount: '₲ 120.000',
     image: 'https://api.slingacademy.com/public/sample-users/5.png',
-    initials: 'SD'
+    initials: 'FC'
   }
 ];

@@ -15,6 +15,7 @@ import { PieGraph } from './pie-graph';
 import { RecentSales } from './recent-sales';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrencyPY } from '@/lib/utils';
 
 export default function OverViewPage() {
   return (
@@ -22,7 +23,7 @@ export default function OverViewPage() {
       <div className='flex flex-1 flex-col space-y-2'>
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back 👋
+            ¡Hola! Bienvenido a tu Dashboard 👋
           </h2>
           <div className='hidden items-center space-x-2 md:flex'>
             <Button>Download</Button>
@@ -39,9 +40,9 @@ export default function OverViewPage() {
             <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4'>
               <Card className='@container/card'>
                 <CardHeader>
-                  <CardDescription>Total Revenue</CardDescription>
+                  <CardDescription>Gasto Total (Mes)</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    $1,250.00
+                    {formatCurrencyPY(5250000)}
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
@@ -61,9 +62,9 @@ export default function OverViewPage() {
               </Card>
               <Card className='@container/card'>
                 <CardHeader>
-                  <CardDescription>New Customers</CardDescription>
+                  <CardDescription>Ahorro Neto (Mes)</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    1,234
+                    {formatCurrencyPY(850000)}
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
@@ -83,9 +84,9 @@ export default function OverViewPage() {
               </Card>
               <Card className='@container/card'>
                 <CardHeader>
-                  <CardDescription>Active Accounts</CardDescription>
+                  <CardDescription>Saldo Total en Cuentas</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    45,678
+                    {formatCurrencyPY(12450000)}
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
@@ -105,9 +106,9 @@ export default function OverViewPage() {
               </Card>
               <Card className='@container/card'>
                 <CardHeader>
-                  <CardDescription>Growth Rate</CardDescription>
+                  <CardDescription>vs. Mes Pasado</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    4.5%
+                    +8.2%
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>

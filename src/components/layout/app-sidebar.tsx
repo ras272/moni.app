@@ -31,7 +31,6 @@ import {
 import { UserAvatarProfile } from '@/components/user-avatar-profile';
 import { navItems } from '@/constants/data';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import { useUser } from '@clerk/nextjs';
 import {
   IconBell,
   IconChevronRight,
@@ -41,12 +40,15 @@ import {
   IconPhotoUp,
   IconUserCircle
 } from '@tabler/icons-react';
-import { SignOutButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
 import { OrgSwitcher } from '../org-switcher';
+import { createBrowserClient } from '@supabase/ssr';
+import { signOut } from '@/app/auth/actions';
+import { useTransition } from 'react';
+import { toast } from 'sonner';
 export const company = {
   name: 'Acme Inc',
   logo: IconPhotoUp,
@@ -59,11 +61,22 @@ const tenants = [
   { id: '3', name: 'Gamma Ltd' }
 ];
 
+type User = {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+  };
+};
+
 export default function AppSidebar() {
   const pathname = usePathname();
   const { isOpen } = useMediaQuery();
-  const { user } = useUser();
+  const [user, setUser] = React.useState<User | null>(null);
   const router = useRouter();
+  const [loading, startTransition] = useTransition();
+
   const handleSwitchTenant = (_tenantId: string) => {
     // Tenant switching functionality would be implemented here
   };
@@ -71,8 +84,39 @@ export default function AppSidebar() {
   const activeTenant = tenants[0];
 
   React.useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const fetchUser = async () => {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    fetchUser();
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  React.useEffect(() => {
     // Side effects based on sidebar state changes
   }, [isOpen]);
+
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await signOut();
+      toast.success('Sesión cerrada exitosamente');
+    });
+  };
 
   return (
     <Sidebar collapsible='icon'>
@@ -156,7 +200,13 @@ export default function AppSidebar() {
                     <UserAvatarProfile
                       className='h-8 w-8 rounded-lg'
                       showInfo
-                      user={user}
+                      user={{
+                        imageUrl: user.user_metadata?.avatar_url,
+                        fullName:
+                          user.user_metadata?.full_name ||
+                          user.email?.split('@')[0],
+                        emailAddresses: [{ emailAddress: user.email || '' }]
+                      }}
                     />
                   )}
                   <IconChevronsDown className='ml-auto size-4' />
@@ -174,7 +224,13 @@ export default function AppSidebar() {
                       <UserAvatarProfile
                         className='h-8 w-8 rounded-lg'
                         showInfo
-                        user={user}
+                        user={{
+                          imageUrl: user.user_metadata?.avatar_url,
+                          fullName:
+                            user.user_metadata?.full_name ||
+                            user.email?.split('@')[0],
+                          emailAddresses: [{ emailAddress: user.email || '' }]
+                        }}
                       />
                     )}
                   </div>
@@ -186,21 +242,23 @@ export default function AppSidebar() {
                     onClick={() => router.push('/dashboard/profile')}
                   >
                     <IconUserCircle className='mr-2 h-4 w-4' />
-                    Profile
+                    Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push('/dashboard/settings')}
+                  >
                     <IconCreditCard className='mr-2 h-4 w-4' />
-                    Billing
+                    Configuración
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <IconBell className='mr-2 h-4 w-4' />
-                    Notifications
+                    Notificaciones
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} disabled={loading}>
                   <IconLogout className='mr-2 h-4 w-4' />
-                  <SignOutButton redirectUrl='/auth/sign-in' />
+                  {loading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

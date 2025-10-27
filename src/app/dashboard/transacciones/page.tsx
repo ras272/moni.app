@@ -1,0 +1,56 @@
+import PageContainer from '@/components/layout/page-container';
+import { Heading } from '@/components/ui/heading';
+import { Separator } from '@/components/ui/separator';
+import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
+import { searchParamsCache } from '@/lib/searchparams';
+import { SearchParams } from 'nuqs/server';
+import { Suspense } from 'react';
+import { TransactionsTable } from './components/transactions-table';
+import { columns } from './components/columns';
+import { mockTransactions } from '@/data/mock-transactions';
+import { AddTransactionDialog } from './components/add-transaction-dialog';
+
+export const metadata = {
+  title: 'MONI - Transacciones'
+};
+
+type PageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+async function getTransactions() {
+  return Promise.resolve(mockTransactions);
+}
+
+export default async function TransaccionesPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  searchParamsCache.parse(searchParams);
+
+  const data = await getTransactions();
+
+  return (
+    <PageContainer scrollable={false}>
+      <div className='flex flex-1 flex-col space-y-4'>
+        <div className='flex items-start justify-between'>
+          <Heading
+            title='Transacciones'
+            description='Revisa y gestiona todos tus gastos e ingresos.'
+          />
+          <AddTransactionDialog />
+        </div>
+        <Separator />
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={7} rowCount={10} filterCount={3} />
+          }
+        >
+          <TransactionsTable
+            data={data}
+            totalItems={data.length}
+            columns={columns}
+          />
+        </Suspense>
+      </div>
+    </PageContainer>
+  );
+}

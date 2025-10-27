@@ -61,12 +61,14 @@ export function PieGraph() {
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
+        <CardTitle>Gastos por Categoría</CardTitle>
         <CardDescription>
           <span className='hidden @[540px]/card:block'>
-            Total visitors by browser for the last 6 months
+            Distribución de gastos por categoría en los últimos 6 meses
           </span>
-          <span className='@[540px]/card:hidden'>Browser distribution</span>
+          <span className='@[540px]/card:hidden'>
+            Distribución por categoría
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>

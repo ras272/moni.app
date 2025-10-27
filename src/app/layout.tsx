@@ -16,8 +16,8 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  title: 'MONI - Dashboard',
+  description: 'App de finanzas personales para Paraguay'
 };
 
 export const viewport: Viewport = {

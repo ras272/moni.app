@@ -6,42 +6,43 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
+import { formatCurrencyPY } from '@/lib/utils';
 
 const salesData = [
   {
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
+    name: 'Biggie',
+    email: 'Supermercado',
     avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'OM',
-    amount: '+$1,999.00'
+    fallback: 'BG',
+    amount: 450000
   },
   {
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
+    name: 'Stock',
+    email: 'Supermercado',
     avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'JL',
-    amount: '+$39.00'
+    fallback: 'ST',
+    amount: 320000
   },
   {
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
+    name: 'MUV',
+    email: 'Transporte',
     avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'IN',
-    amount: '+$299.00'
+    fallback: 'MV',
+    amount: 75000
   },
   {
-    name: 'William Kim',
-    email: 'will@email.com',
+    name: 'Pago ANDE',
+    email: 'Servicios',
     avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'WK',
-    amount: '+$99.00'
+    fallback: 'AN',
+    amount: 280000
   },
   {
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
+    name: 'Farmacia Catedral',
+    email: 'Salud',
     avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'SD',
-    amount: '+$39.00'
+    fallback: 'FC',
+    amount: 120000
   }
 ];
 
@@ -49,8 +50,10 @@ export function RecentSales() {
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
+        <CardTitle>Últimas Transacciones</CardTitle>
+        <CardDescription>
+          Registraste 50 transacciones este mes.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-8'>
@@ -64,7 +67,9 @@ export function RecentSales() {
                 <p className='text-sm leading-none font-medium'>{sale.name}</p>
                 <p className='text-muted-foreground text-sm'>{sale.email}</p>
               </div>
-              <div className='ml-auto font-medium'>{sale.amount}</div>
+              <div className='ml-auto font-medium'>
+                {formatCurrencyPY(sale.amount)}
+              </div>
             </div>
           ))}
         </div>

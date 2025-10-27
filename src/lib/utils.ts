@@ -24,3 +24,13 @@ export function formatBytes(
       : (sizes[i] ?? 'Bytes')
   }`;
 }
+
+export function formatCurrencyPY(amount: number): string {
+  const formatter = new Intl.NumberFormat('es-PY', {
+    style: 'currency',
+    currency: 'PYG',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+  return formatter.format(amount).replace('PYG', '₲');
+}
