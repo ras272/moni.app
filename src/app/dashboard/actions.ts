@@ -10,17 +10,33 @@ import type { AccountType, TransactionType } from '@/types/database';
 async function getCurrentProfileId(): Promise<string | null> {
   const supabase = await createClient();
   const {
-    data: { user }
+    data: { user },
+    error: authError
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  console.log('🔍 getCurrentProfileId - Debug:', {
+    hasUser: !!user,
+    userId: user?.id,
+    userEmail: user?.email,
+    authError: authError?.message
+  });
+
+  if (!user) {
+    console.error('❌ No user found in getCurrentProfileId');
+    return null;
+  }
 
   // Get profile_id from profiles table
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('id')
     .eq('auth_id', user.id)
     .single();
+
+  console.log('🔍 Profile lookup:', {
+    profileId: profile?.id,
+    profileError: profileError?.message
+  });
 
   return profile?.id || null;
 }
@@ -520,10 +536,24 @@ export async function deleteTransactionAction(transactionId: string) {
 // =====================================================
 export async function createMoneyTagGroupAction(formData: FormData) {
   try {
+    console.log('🚀 createMoneyTagGroupAction - START');
     const supabase = await createClient();
+
+    // Get session info for debugging
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+    console.log('🔍 Session info:', {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      userEmail: session?.user?.email
+    });
+
     const profileId = await getCurrentProfileId();
+    console.log('🔍 ProfileId obtained:', profileId);
 
     if (!profileId) {
+      console.error('❌ No profileId - user not authenticated');
       return {
         success: false,
         error: 'Usuario no autenticado'
@@ -534,6 +564,8 @@ export async function createMoneyTagGroupAction(formData: FormData) {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string | null;
 
+    console.log('🔍 Form data:', { name, description });
+
     // Validate
     if (!name || name.length < 3) {
       return {
@@ -541,6 +573,13 @@ export async function createMoneyTagGroupAction(formData: FormData) {
         error: 'El nombre del grupo debe tener al menos 3 caracteres'
       };
     }
+
+    console.log('✅ About to INSERT group with data:', {
+      owner_profile_id: profileId,
+      name,
+      description: description || null,
+      is_settled: false
+    });
 
     // 1. Create group
     const { data: group, error: groupError } = await supabase
@@ -555,12 +594,19 @@ export async function createMoneyTagGroupAction(formData: FormData) {
       .single();
 
     if (groupError) {
-      console.error('Error creating group:', groupError);
+      console.error('❌ Error creating group:', {
+        code: groupError.code,
+        message: groupError.message,
+        details: groupError.details,
+        hint: groupError.hint
+      });
       return {
         success: false,
         error: 'Error al crear el grupo: ' + groupError.message
       };
     }
+
+    console.log('✅ Group created successfully:', group.id);
 
     // 2. CRITICAL: Add owner as first participant automatically
     const { data: ownerProfile } = await supabase
