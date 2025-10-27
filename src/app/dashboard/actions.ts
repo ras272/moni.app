@@ -11,33 +11,17 @@ import type { AccountType, TransactionType } from '@/types/database';
 async function getCurrentProfileId(): Promise<string | null> {
   const supabase = await createClient();
   const {
-    data: { user },
-    error: authError
+    data: { user }
   } = await supabase.auth.getUser();
 
-  console.log('🔍 getCurrentProfileId - Debug:', {
-    hasUser: !!user,
-    userId: user?.id,
-    userEmail: user?.email,
-    authError: authError?.message
-  });
-
-  if (!user) {
-    console.error('❌ No user found in getCurrentProfileId');
-    return null;
-  }
+  if (!user) return null;
 
   // Get profile_id from profiles table
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile } = await supabase
     .from('profiles')
     .select('id')
     .eq('auth_id', user.id)
     .single();
-
-  console.log('🔍 Profile lookup:', {
-    profileId: profile?.id,
-    profileError: profileError?.message
-  });
 
   return profile?.id || null;
 }
