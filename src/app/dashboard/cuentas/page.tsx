@@ -1,7 +1,7 @@
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { mockAccounts } from '@/data/mock-accounts';
+import { fetchAccountsServer } from '@/lib/supabase/accounts-server';
 import { AddAccountDialog } from './components/add-account-dialog';
 import { AccountCard } from './components/account-card';
 
@@ -9,8 +9,16 @@ export const metadata = {
   title: 'MONI - Cuentas'
 };
 
+export const dynamic = 'force-dynamic';
+
 async function getAccounts() {
-  return Promise.resolve(mockAccounts);
+  try {
+    const accounts = await fetchAccountsServer(false);
+    return accounts;
+  } catch (error) {
+    console.error('Error loading accounts:', error);
+    return [];
+  }
 }
 
 export default async function CuentasPage() {

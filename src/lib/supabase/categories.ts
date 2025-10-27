@@ -4,7 +4,8 @@ import type { Category, CategoryType } from '@/types/database';
 export async function fetchCategories(type?: CategoryType) {
   let query = supabase
     .from('categories')
-    .select('*')
+    .select('id, name, type, icon, color, is_system')
+    .order('is_system', { ascending: false })
     .order('name', { ascending: true });
 
   if (type) {
@@ -12,8 +13,11 @@ export async function fetchCategories(type?: CategoryType) {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
-  return data as Category[];
+  if (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
+  return (data || []) as Category[];
 }
 
 export async function createCategory(input: {

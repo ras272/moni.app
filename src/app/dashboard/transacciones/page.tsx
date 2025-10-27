@@ -7,19 +7,27 @@ import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { TransactionsTable } from './components/transactions-table';
 import { columns } from './components/columns';
-import { mockTransactions } from '@/data/mock-transactions';
+import { fetchTransactionsServer } from '@/lib/supabase/transactions-server';
 import { AddTransactionDialog } from './components/add-transaction-dialog';
 
 export const metadata = {
   title: 'MONI - Transacciones'
 };
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   searchParams: Promise<SearchParams>;
 };
 
 async function getTransactions() {
-  return Promise.resolve(mockTransactions);
+  try {
+    const transactions = await fetchTransactionsServer();
+    return transactions;
+  } catch (error) {
+    console.error('Error loading transactions:', error);
+    return [];
+  }
 }
 
 export default async function TransaccionesPage(props: PageProps) {

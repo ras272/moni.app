@@ -5,15 +5,18 @@ export async function fetchAccounts(includeInactive = false) {
   let query = supabase
     .from('accounts')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('name', { ascending: true });
 
   if (!includeInactive) {
     query = query.eq('is_active', true);
   }
 
   const { data, error } = await query;
-  if (error) throw error;
-  return data as Account[];
+  if (error) {
+    console.error('Error fetching accounts:', error);
+    throw error;
+  }
+  return (data || []) as Account[];
 }
 
 export async function fetchAccount(id: string) {

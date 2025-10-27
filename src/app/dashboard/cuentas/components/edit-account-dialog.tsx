@@ -8,7 +8,8 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Account, AccountFormValues } from '@/data/mock-accounts';
+import { Account } from '@/types/database';
+import { AccountFormValues } from '@/data/mock-accounts';
 import { useState } from 'react';
 import { AccountForm } from './account-form';
 
@@ -17,7 +18,7 @@ function accountToFormValues(account: Account): AccountFormValues {
     id: account.id,
     name: account.name,
     initial_balance: account.current_balance,
-    currency: account.currency,
+    currency: account.currency as 'PYG' | 'USD',
     is_active: account.is_active
   };
 }

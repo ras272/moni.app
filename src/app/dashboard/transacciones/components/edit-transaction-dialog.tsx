@@ -8,26 +8,26 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Transaction } from '@/data/mock-transactions';
+import { TransactionWithRelations } from '@/types/database';
 import { TransactionFormValues } from '@/lib/schemas';
 import { useState } from 'react';
 import { TransactionForm } from './transaction-form';
 
 function transactionToFormValues(
-  transaction: Transaction
+  transaction: TransactionWithRelations
 ): TransactionFormValues {
   return {
-    descripcion: transaction.descripcion,
-    monto: Math.abs(transaction.monto),
-    fecha: new Date(transaction.fecha),
-    categoria: transaction.categoria,
-    cuenta: transaction.cuenta,
-    tipo: transaction.monto < 0 ? 'EXPENSE' : 'INGRESS'
+    descripcion: transaction.description,
+    monto: Math.abs(transaction.amount),
+    fecha: new Date(transaction.transaction_date),
+    categoria: transaction.category?.name || 'Supermercado',
+    cuenta: transaction.account.name,
+    tipo: transaction.type === 'expense' ? 'EXPENSE' : 'INGRESS'
   };
 }
 
 interface EditTransactionDialogProps {
-  transaction: Transaction;
+  transaction: TransactionWithRelations;
   children: React.ReactNode;
 }
 

@@ -3,7 +3,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
-import { Transaction, getCategoryVariant } from '@/data/mock-transactions';
+import { getCategoryVariant } from '@/data/mock-transactions';
+import { TransactionWithRelations } from '@/types/database';
 import { formatCurrencyPY } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,7 @@ import {
 import { EditTransactionDialog } from './edit-transaction-dialog';
 import { DeleteTransactionDialog } from './delete-transaction-dialog';
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<TransactionWithRelations>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -44,7 +45,7 @@ export const columns: ColumnDef<Transaction>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'fecha',
+    accessorKey: 'transaction_date',
     header: ({ column }) => (
       <Button
         variant='ghost'
@@ -55,16 +56,16 @@ export const columns: ColumnDef<Transaction>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const fecha = new Date(row.getValue('fecha'));
+      const fecha = new Date(row.getValue('transaction_date'));
       const formatted = fecha.toLocaleDateString('es-PY');
       return <div className='font-medium'>{formatted}</div>;
     }
   },
   {
-    accessorKey: 'descripcion',
+    accessorKey: 'description',
     header: 'Descripción',
     cell: ({ row }) => {
-      return <div className='max-w-[300px]'>{row.getValue('descripcion')}</div>;
+      return <div className='max-w-[300px]'>{row.getValue('description')}</div>;
     },
     enableColumnFilter: true,
     meta: {
@@ -74,7 +75,7 @@ export const columns: ColumnDef<Transaction>[] = [
     }
   },
   {
-    accessorKey: 'monto',
+    accessorKey: 'amount',
     header: ({ column }) => (
       <div className='text-right'>
         <Button
@@ -87,9 +88,13 @@ export const columns: ColumnDef<Transaction>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const monto = parseFloat(row.getValue('monto'));
-      const formatted = formatCurrencyPY(monto);
-      const textColor = monto < 0 ? 'text-destructive' : 'text-green-600';
+      const monto = parseFloat(row.getValue('amount'));
+      const tipo = row.original.type;
+      const montoConSigno =
+        tipo === 'expense' ? -Math.abs(monto) : Math.abs(monto);
+      const formatted = formatCurrencyPY(montoConSigno);
+      const textColor =
+        tipo === 'expense' ? 'text-destructive' : 'text-green-600';
 
       return (
         <div className={`text-right font-medium ${textColor}`}>{formatted}</div>
@@ -97,14 +102,18 @@ export const columns: ColumnDef<Transaction>[] = [
     }
   },
   {
-    accessorKey: 'categoria',
+    id: 'category',
     header: 'Categoría',
     cell: ({ row }) => {
-      const categoria = row.getValue('categoria') as Transaction['categoria'];
-      return <Badge variant={getCategoryVariant(categoria)}>{categoria}</Badge>;
+      const categoria = row.original.category?.name || 'Sin categoría';
+      return (
+        <Badge variant={getCategoryVariant(categoria as any)}>
+          {categoria}
+        </Badge>
+      );
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      return value.includes(row.original.category?.name || '');
     },
     enableColumnFilter: true,
     meta: {
@@ -121,10 +130,13 @@ export const columns: ColumnDef<Transaction>[] = [
     }
   },
   {
-    accessorKey: 'cuenta',
+    id: 'account',
     header: 'Cuenta',
     cell: ({ row }) => {
-      return <div className='font-medium'>{row.getValue('cuenta')}</div>;
+      return <div className='font-medium'>{row.original.account.name}</div>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.original.account.name);
     },
     enableColumnFilter: true,
     meta: {
@@ -164,7 +176,7 @@ export const columns: ColumnDef<Transaction>[] = [
             </EditTransactionDialog>
             <DeleteTransactionDialog
               transactionId={transaction.id}
-              transactionDescription={transaction.descripcion}
+              transactionDescription={transaction.description}
             >
               <DropdownMenuItem
                 className='text-destructive'

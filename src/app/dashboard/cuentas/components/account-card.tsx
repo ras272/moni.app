@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Account } from '@/data/mock-accounts';
+import { Account } from '@/types/database';
 import { formatCurrencyPY } from '@/lib/utils';
 import {
   MoreVertical,
