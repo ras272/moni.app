@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { deleteAccountAction } from '../../actions';
 
 interface DeleteAccountDialogProps {
   accountId: string;
@@ -26,15 +27,32 @@ export function DeleteAccountDialog({
   children
 }: DeleteAccountDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = () => {
-    console.log('Eliminando cuenta:', accountId);
+  const handleDelete = async () => {
+    setIsDeleting(true);
 
-    toast.success('Cuenta eliminada', {
-      description: `"${accountName}" ha sido eliminada correctamente.`
-    });
+    try {
+      const result = await deleteAccountAction(accountId);
 
-    setOpen(false);
+      if (result.success) {
+        toast.success('Cuenta eliminada', {
+          description: `"${accountName}" ha sido eliminada correctamente.`
+        });
+        setOpen(false);
+      } else {
+        toast.error('Error al eliminar la cuenta', {
+          description: result.error || 'Ocurrió un error inesperado'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Error al eliminar la cuenta', {
+        description: 'Ocurrió un error inesperado'
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -53,12 +71,13 @@ export function DeleteAccountDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
+            disabled={isDeleting}
             className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
           >
-            Eliminar Cuenta
+            {isDeleting ? 'Eliminando...' : 'Eliminar Cuenta'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

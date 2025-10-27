@@ -11,7 +11,7 @@ import {
 import { TransactionWithRelations } from '@/types/database';
 import { TransactionFormValues } from '@/lib/schemas';
 import { useState } from 'react';
-import { TransactionForm } from './transaction-form';
+import { EditTransactionForm } from './edit-transaction-form';
 
 function transactionToFormValues(
   transaction: TransactionWithRelations
@@ -53,7 +53,11 @@ export function EditTransactionDialog({
             Modifica los detalles de esta transacción. ID: {transaction.id}
           </DialogDescription>
         </DialogHeader>
-        <TransactionForm initialData={initialData} onSuccess={handleSuccess} />
+        <EditTransactionForm
+          transactionId={transaction.id}
+          initialData={initialData}
+          onSuccess={handleSuccess}
+        />
       </DialogContent>
     </Dialog>
   );

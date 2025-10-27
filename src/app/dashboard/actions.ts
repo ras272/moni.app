@@ -351,6 +351,109 @@ export async function deleteAccountAction(accountId: string) {
 }
 
 // =====================================================
+// ACTION: Update Transaction
+// =====================================================
+export async function updateTransactionAction(
+  transactionId: string,
+  formData: FormData
+) {
+  try {
+    const supabase = await createClient();
+    const profileId = await getCurrentProfileId();
+
+    if (!profileId) {
+      return {
+        success: false,
+        error: 'Usuario no autenticado'
+      };
+    }
+
+    // Verify ownership
+    const { data: transaction } = await supabase
+      .from('transactions')
+      .select('id, profile_id')
+      .eq('id', transactionId)
+      .eq('profile_id', profileId)
+      .single();
+
+    if (!transaction) {
+      return {
+        success: false,
+        error: 'Transacción no encontrada'
+      };
+    }
+
+    // Extract updates
+    const updates: any = {};
+    const type = formData.get('type');
+    const amount = formData.get('amount');
+    const description = formData.get('description');
+    const merchant = formData.get('merchant');
+    const categoryId = formData.get('category_id');
+    const accountId = formData.get('account_id');
+    const status = formData.get('status');
+    const notes = formData.get('notes');
+    const transactionDate = formData.get('transaction_date');
+
+    if (type) updates.type = type;
+    if (amount) updates.amount = parseFloat(amount as string);
+    if (description) updates.description = description;
+    if (merchant !== undefined) updates.merchant = merchant || null;
+    if (categoryId !== undefined) updates.category_id = categoryId || null;
+    if (accountId) updates.account_id = accountId;
+    if (status) updates.status = status;
+    if (notes !== undefined) updates.notes = notes || null;
+    if (transactionDate) updates.transaction_date = transactionDate;
+
+    // If account is being changed, verify ownership of the new account
+    if (accountId) {
+      const { data: account } = await supabase
+        .from('accounts')
+        .select('id')
+        .eq('id', accountId as string)
+        .eq('profile_id', profileId)
+        .single();
+
+      if (!account) {
+        return {
+          success: false,
+          error: 'La cuenta seleccionada no existe o no te pertenece'
+        };
+      }
+    }
+
+    // Update transaction
+    const { data, error } = await supabase
+      .from('transactions')
+      .update(updates)
+      .eq('id', transactionId)
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: 'Error al actualizar la transacción: ' + error.message
+      };
+    }
+
+    revalidatePath('/dashboard/transacciones');
+    revalidatePath('/dashboard/cuentas');
+
+    return {
+      success: true,
+      data
+    };
+  } catch (error) {
+    console.error('Unexpected error updating transaction:', error);
+    return {
+      success: false,
+      error: 'Error inesperado al actualizar la transacción'
+    };
+  }
+}
+
+// =====================================================
 // ACTION: Delete Transaction
 // =====================================================
 export async function deleteTransactionAction(transactionId: string) {

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { deleteTransactionAction } from '../../actions';
 
 interface DeleteTransactionDialogProps {
   transactionId: string;
@@ -26,15 +27,32 @@ export function DeleteTransactionDialog({
   children
 }: DeleteTransactionDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = () => {
-    console.log('Eliminando transacción:', transactionId);
+  const handleDelete = async () => {
+    setIsDeleting(true);
 
-    toast.success('Transacción eliminada', {
-      description: `"${transactionDescription}" ha sido eliminada correctamente.`
-    });
+    try {
+      const result = await deleteTransactionAction(transactionId);
 
-    setOpen(false);
+      if (result.success) {
+        toast.success('Transacción eliminada', {
+          description: `"${transactionDescription}" ha sido eliminada correctamente.`
+        });
+        setOpen(false);
+      } else {
+        toast.error('Error al eliminar la transacción', {
+          description: result.error || 'Ocurrió un error inesperado'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      toast.error('Error al eliminar la transacción', {
+        description: 'Ocurrió un error inesperado'
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -52,12 +70,13 @@ export function DeleteTransactionDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
+            disabled={isDeleting}
             className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
           >
-            Eliminar
+            {isDeleting ? 'Eliminando...' : 'Eliminar'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
