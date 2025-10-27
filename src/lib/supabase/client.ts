@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
 // Configuración del cliente de Supabase
-// Para Next.js App Router, usamos un cliente único compartido
+// Para Next.js App Router con SSR, usamos createBrowserClient
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -14,15 +14,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 /**
  * Cliente de Supabase para uso en componentes cliente (Client Components)
- * Usa las credenciales anónimas públicas
+ * Usa @supabase/ssr para manejar cookies correctamente en Next.js
+ * La sesión se sincroniza automáticamente desde las cookies del navegador
  * RLS se encarga de la seguridad a nivel de base de datos
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true
-  }
-});
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Helper para obtener el usuario actual
