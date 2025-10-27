@@ -233,7 +233,7 @@ export default async function GroupDetailPage(props: PageProps) {
                       </div>
                       <div className='text-right'>
                         <p className='text-xl font-bold'>
-                          {formatCurrencyPY(debt.amount)}
+                          {formatCurrencyPY(debt.debt_amount)}
                         </p>
                       </div>
                     </div>
