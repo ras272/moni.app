@@ -10,6 +10,10 @@ import { transactionSchema, TransactionFormValues } from '@/lib/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { createTransactionAction } from '../../actions';
+import { useState } from 'react';
+import { useAccounts } from '@/hooks/accounts/use-accounts';
+import { useCategories } from '@/hooks/categories/use-categories';
 
 interface TransactionFormProps {
   initialData?: TransactionFormValues;
@@ -21,6 +25,12 @@ export function TransactionForm({
   onSuccess
 }: TransactionFormProps) {
   const isEditing = !!initialData;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load accounts and categories
+  const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useCategories();
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -34,25 +44,77 @@ export function TransactionForm({
     }
   });
 
-  function onSubmit(values: TransactionFormValues) {
-    if (isEditing) {
-      console.log('Transacción actualizada:', values);
-      toast.success('¡Transacción actualizada con éxito!', {
-        description: `${values.descripcion} - ${values.monto.toLocaleString('es-PY')} Gs.`
-      });
+  const transactionType = form.watch('tipo');
+
+  // Filter categories by type
+  const filteredCategories = categories.filter((cat) => {
+    if (transactionType === 'EXPENSE') {
+      return cat.type === 'expense';
     } else {
-      console.log('Transacción creada:', values);
-      toast.success('¡Transacción registrada con éxito!', {
-        description: `${values.descripcion} - ${values.monto.toLocaleString('es-PY')} Gs.`
+      return cat.type === 'income';
+    }
+  });
+
+  async function onSubmit(values: TransactionFormValues) {
+    setIsSubmitting(true);
+
+    try {
+      // Find the account_id and category_id from the names
+      const account = accounts.find((acc) => acc.name === values.cuenta);
+      const category = filteredCategories.find(
+        (cat) => cat.name === values.categoria
+      );
+
+      if (!account) {
+        toast.error('Error', {
+          description: 'La cuenta seleccionada no existe'
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append('type', values.tipo === 'EXPENSE' ? 'expense' : 'income');
+      formData.append('amount', values.monto.toString());
+      formData.append('description', values.descripcion);
+      formData.append('account_id', account.id);
+      if (category) {
+        formData.append('category_id', category.id);
+      }
+      formData.append(
+        'transaction_date',
+        values.fecha.toISOString().split('T')[0]
+      );
+      formData.append('currency', 'PYG');
+      formData.append('status', 'completed');
+
+      const result = await createTransactionAction(formData);
+
+      if (result.success) {
+        toast.success('¡Transacción registrada con éxito!', {
+          description: `${values.descripcion} - ${values.monto.toLocaleString('es-PY')} Gs.`
+        });
+
+        if (!isEditing) {
+          form.reset();
+        }
+
+        if (onSuccess) {
+          onSuccess();
+        }
+      } else {
+        toast.error('Error al registrar la transacción', {
+          description: result.error || 'Ocurrió un error inesperado'
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error('Error al registrar la transacción', {
+        description: 'Ocurrió un error inesperado'
       });
-    }
-
-    if (!isEditing) {
-      form.reset();
-    }
-
-    if (onSuccess) {
-      onSuccess();
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -117,16 +179,17 @@ export function TransactionForm({
           control={form.control}
           name='categoria'
           label='Categoría'
-          placeholder='Seleccionar categoría'
+          placeholder={
+            categoriesLoading
+              ? 'Cargando categorías...'
+              : 'Seleccionar categoría'
+          }
           required
-          options={[
-            { label: '🛒 Supermercado', value: 'Supermercado' },
-            { label: '🚗 Transporte', value: 'Transporte' },
-            { label: '🍽️ Restaurante', value: 'Restaurante' },
-            { label: '💡 Servicios', value: 'Servicios' },
-            { label: '🎮 Ocio', value: 'Ocio' },
-            { label: '💊 Salud', value: 'Salud' }
-          ]}
+          disabled={categoriesLoading}
+          options={filteredCategories.map((cat) => ({
+            label: `${cat.icon} ${cat.name}`,
+            value: cat.name
+          }))}
         />
 
         {/* Cuenta */}
@@ -134,13 +197,15 @@ export function TransactionForm({
           control={form.control}
           name='cuenta'
           label='Cuenta'
-          placeholder='Seleccionar cuenta'
+          placeholder={
+            accountsLoading ? 'Cargando cuentas...' : 'Seleccionar cuenta'
+          }
           required
-          options={[
-            { label: '👛 Billetera', value: 'Billetera' },
-            { label: '🏦 Visión Banco', value: 'Visión Banco' },
-            { label: '📱 Tigo Money', value: 'Tigo Money' }
-          ]}
+          disabled={accountsLoading}
+          options={accounts.map((acc) => ({
+            label: `${acc.icon} ${acc.name}`,
+            value: acc.name
+          }))}
         />
       </div>
 
@@ -151,8 +216,11 @@ export function TransactionForm({
             Limpiar
           </Button>
         )}
-        <Button type='submit' disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting
+        <Button
+          type='submit'
+          disabled={isSubmitting || accountsLoading || categoriesLoading}
+        >
+          {isSubmitting
             ? 'Guardando...'
             : isEditing
               ? 'Guardar Cambios'
