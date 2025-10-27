@@ -510,3 +510,374 @@ export async function deleteTransactionAction(transactionId: string) {
     };
   }
 }
+
+// =====================================================
+// MONEYTAGS: Server Actions para Grupos y Gastos
+// =====================================================
+
+// =====================================================
+// ACTION: Create MoneyTag Group
+// =====================================================
+export async function createMoneyTagGroupAction(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const profileId = await getCurrentProfileId();
+
+    if (!profileId) {
+      return {
+        success: false,
+        error: 'Usuario no autenticado'
+      };
+    }
+
+    // Extract form data
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string | null;
+
+    // Validate
+    if (!name || name.length < 3) {
+      return {
+        success: false,
+        error: 'El nombre del grupo debe tener al menos 3 caracteres'
+      };
+    }
+
+    // 1. Create group
+    const { data: group, error: groupError } = await supabase
+      .from('money_tag_groups')
+      .insert({
+        owner_profile_id: profileId,
+        name,
+        description: description || null,
+        is_settled: false
+      })
+      .select()
+      .single();
+
+    if (groupError) {
+      console.error('Error creating group:', groupError);
+      return {
+        success: false,
+        error: 'Error al crear el grupo: ' + groupError.message
+      };
+    }
+
+    // 2. CRITICAL: Add owner as first participant automatically
+    const { data: ownerProfile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', profileId)
+      .single();
+
+    const { error: participantError } = await supabase
+      .from('group_participants')
+      .insert({
+        group_id: group.id,
+        profile_id: profileId,
+        name: ownerProfile?.full_name || 'Yo'
+      });
+
+    if (participantError) {
+      // Rollback: delete the group if participant insertion fails
+      await supabase.from('money_tag_groups').delete().eq('id', group.id);
+
+      console.error('Error adding owner as participant:', participantError);
+      return {
+        success: false,
+        error: 'Error al crear el grupo'
+      };
+    }
+
+    revalidatePath('/dashboard/moneytags');
+
+    return {
+      success: true,
+      data: group
+    };
+  } catch (error) {
+    console.error('Unexpected error creating group:', error);
+    return {
+      success: false,
+      error: 'Error inesperado al crear el grupo'
+    };
+  }
+}
+
+// =====================================================
+// ACTION: Add Participant to Group
+// =====================================================
+export async function addParticipantAction(
+  groupId: string,
+  formData: FormData
+) {
+  try {
+    const supabase = await createClient();
+    const profileId = await getCurrentProfileId();
+
+    if (!profileId) {
+      return {
+        success: false,
+        error: 'Usuario no autenticado'
+      };
+    }
+
+    // Extract form data
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string | null;
+    const phone = formData.get('phone') as string | null;
+
+    // Validate
+    if (!name || name.length < 2) {
+      return {
+        success: false,
+        error: 'El nombre debe tener al menos 2 caracteres'
+      };
+    }
+
+    // CRITICAL: Verify that current user is the owner of the group
+    const { data: group, error: groupError } = await supabase
+      .from('money_tag_groups')
+      .select('owner_profile_id')
+      .eq('id', groupId)
+      .single();
+
+    if (groupError || !group) {
+      return {
+        success: false,
+        error: 'Grupo no encontrado'
+      };
+    }
+
+    if (group.owner_profile_id !== profileId) {
+      return {
+        success: false,
+        error: 'Solo el dueño del grupo puede agregar participantes'
+      };
+    }
+
+    // Check if email exists in profiles (registered user)
+    let participantProfileId: string | null = null;
+
+    if (email) {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('email', email)
+        .single();
+
+      if (existingProfile) {
+        participantProfileId = existingProfile.id;
+        // If profile exists, use their name from DB
+      }
+    }
+
+    // Insert participant
+    const { data, error } = await supabase
+      .from('group_participants')
+      .insert({
+        group_id: groupId,
+        profile_id: participantProfileId,
+        name,
+        phone: phone || null
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding participant:', error);
+      return {
+        success: false,
+        error: 'Error al agregar participante: ' + error.message
+      };
+    }
+
+    revalidatePath('/dashboard/moneytags');
+    revalidatePath(`/dashboard/moneytags/${groupId}`);
+
+    return {
+      success: true,
+      data
+    };
+  } catch (error) {
+    console.error('Unexpected error adding participant:', error);
+    return {
+      success: false,
+      error: 'Error inesperado al agregar participante'
+    };
+  }
+}
+
+// =====================================================
+// ACTION: Create Group Expense (with equal splits)
+// =====================================================
+export async function createGroupExpenseAction(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const profileId = await getCurrentProfileId();
+
+    if (!profileId) {
+      return {
+        success: false,
+        error: 'Usuario no autenticado'
+      };
+    }
+
+    // Extract form data
+    const groupId = formData.get('group_id') as string;
+    const description = formData.get('description') as string;
+    const amount = parseFloat(formData.get('amount') as string);
+    const currency = (formData.get('currency') as string) || 'PYG';
+    const paidByParticipantId = formData.get('paid_by_participant_id') as
+      | string
+      | null;
+    const expenseDate =
+      (formData.get('expense_date') as string) ||
+      new Date().toISOString().split('T')[0];
+
+    // Get participant IDs to split (comma-separated or all)
+    const participantIdsStr = formData.get('participant_ids') as string | null;
+
+    // Validate
+    if (!description || description.length < 3) {
+      return {
+        success: false,
+        error: 'La descripción debe tener al menos 3 caracteres'
+      };
+    }
+
+    if (!amount || amount <= 0) {
+      return {
+        success: false,
+        error: 'El monto debe ser mayor a 0'
+      };
+    }
+
+    if (!groupId) {
+      return {
+        success: false,
+        error: 'Grupo no especificado'
+      };
+    }
+
+    // Verify user is participant or owner of the group
+    const { data: group } = await supabase
+      .from('money_tag_groups')
+      .select('owner_profile_id')
+      .eq('id', groupId)
+      .single();
+
+    const { data: userParticipant } = await supabase
+      .from('group_participants')
+      .select('id')
+      .eq('group_id', groupId)
+      .eq('profile_id', profileId)
+      .single();
+
+    if (!group || (!userParticipant && group.owner_profile_id !== profileId)) {
+      return {
+        success: false,
+        error: 'No tienes permiso para crear gastos en este grupo'
+      };
+    }
+
+    // Get all participants or specified ones
+    let participantIds: string[];
+
+    if (participantIdsStr) {
+      participantIds = participantIdsStr.split(',').filter((id) => id.trim());
+    } else {
+      // Default: split equally among ALL participants
+      const { data: allParticipants } = await supabase
+        .from('group_participants')
+        .select('id')
+        .eq('group_id', groupId);
+
+      participantIds = allParticipants?.map((p) => p.id) || [];
+    }
+
+    if (participantIds.length === 0) {
+      return {
+        success: false,
+        error: 'No hay participantes en el grupo'
+      };
+    }
+
+    // Determine who paid (default to current user's participant ID)
+    let finalPaidByParticipantId = paidByParticipantId;
+
+    if (!finalPaidByParticipantId) {
+      const { data: currentParticipant } = await supabase
+        .from('group_participants')
+        .select('id')
+        .eq('group_id', groupId)
+        .eq('profile_id', profileId)
+        .single();
+
+      if (!currentParticipant) {
+        return {
+          success: false,
+          error: 'No eres participante de este grupo'
+        };
+      }
+
+      finalPaidByParticipantId = currentParticipant.id;
+    }
+
+    // 1. Insert expense
+    const { data: expense, error: expenseError } = await supabase
+      .from('group_expenses')
+      .insert({
+        group_id: groupId,
+        description,
+        amount,
+        currency,
+        paid_by_participant_id: finalPaidByParticipantId,
+        expense_date: expenseDate
+      })
+      .select()
+      .single();
+
+    if (expenseError) {
+      console.error('Error creating expense:', expenseError);
+      return {
+        success: false,
+        error: 'Error al crear el gasto: ' + expenseError.message
+      };
+    }
+
+    // 2. CRITICAL: Create expense splits (equal division)
+    const splits = participantIds.map((participantId) => ({
+      expense_id: expense.id,
+      participant_id: participantId
+    }));
+
+    const { error: splitsError } = await supabase
+      .from('expense_splits')
+      .insert(splits);
+
+    if (splitsError) {
+      // Rollback: delete expense if splits fail
+      await supabase.from('group_expenses').delete().eq('id', expense.id);
+
+      console.error('Error creating expense splits:', splitsError);
+      return {
+        success: false,
+        error: 'Error al dividir el gasto entre participantes'
+      };
+    }
+
+    revalidatePath('/dashboard/moneytags');
+    revalidatePath(`/dashboard/moneytags/${groupId}`);
+
+    return {
+      success: true,
+      data: expense
+    };
+  } catch (error) {
+    console.error('Unexpected error creating expense:', error);
+    return {
+      success: false,
+      error: 'Error inesperado al crear el gasto'
+    };
+  }
+}
