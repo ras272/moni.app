@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AddExpenseDialog } from '../components/add-expense-dialog';
 import { AddParticipantDialog } from '../components/add-participant-dialog';
+import { SettleDebtDialog } from '../components/settle-debt-dialog';
 import {
   fetchMoneyTagGroupByIdServer,
   fetchGroupExpensesServer,
@@ -49,6 +50,8 @@ export default async function GroupDetailPage(props: PageProps) {
   } = await supabase.auth.getUser();
 
   let isOwner = false;
+  let currentUserParticipantId: string | undefined;
+
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -56,7 +59,15 @@ export default async function GroupDetailPage(props: PageProps) {
       .eq('auth_id', user.id)
       .single();
 
-    isOwner = profile?.id === group.owner_profile_id;
+    if (profile) {
+      isOwner = profile.id === group.owner_profile_id;
+
+      // Find current user's participant ID in this group
+      const currentParticipant = group.participants?.find(
+        (p: any) => p.profile_id === profile.id
+      );
+      currentUserParticipantId = currentParticipant?.id;
+    }
   }
 
   return (
@@ -216,26 +227,37 @@ export default async function GroupDetailPage(props: PageProps) {
                   {debts.map((debt: any, index: number) => (
                     <div
                       key={index}
-                      className='bg-muted/50 flex items-center justify-between rounded-lg border p-4'
+                      className='bg-muted/50 flex flex-col gap-3 rounded-lg border p-4'
                     >
-                      <div className='flex-1'>
-                        <p className='font-medium'>
-                          <span className='text-destructive'>
-                            {debt.debtor_name || 'Desconocido'}
-                          </span>
-                          <span className='text-muted-foreground mx-2'>
-                            debe a
-                          </span>
-                          <span className='text-green-600'>
-                            {debt.creditor_name || 'Desconocido'}
-                          </span>
-                        </p>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex-1'>
+                          <p className='font-medium'>
+                            <span className='text-destructive'>
+                              {debt.debtor_name || 'Desconocido'}
+                            </span>
+                            <span className='text-muted-foreground mx-2'>
+                              debe a
+                            </span>
+                            <span className='text-green-600'>
+                              {debt.creditor_name || 'Desconocido'}
+                            </span>
+                          </p>
+                        </div>
+                        <div className='text-right'>
+                          <p className='text-xl font-bold'>
+                            {formatCurrencyPY(debt.debt_amount)}
+                          </p>
+                        </div>
                       </div>
-                      <div className='text-right'>
-                        <p className='text-xl font-bold'>
-                          {formatCurrencyPY(debt.debt_amount)}
-                        </p>
-                      </div>
+                      <SettleDebtDialog
+                        groupId={group.id}
+                        debtorId={debt.debtor_id}
+                        debtorName={debt.debtor_name}
+                        creditorId={debt.creditor_id}
+                        creditorName={debt.creditor_name}
+                        debtAmount={debt.debt_amount}
+                        currentUserId={currentUserParticipantId}
+                      />
                     </div>
                   ))}
                 </div>
