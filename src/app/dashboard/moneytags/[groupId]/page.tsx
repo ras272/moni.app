@@ -9,40 +9,36 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import {
-  mockMoneyTagGroups,
-  mockGroupExpenses,
-  calculateDebts
-} from '@/data/mock-moneytags';
 import { formatCurrencyPY } from '@/lib/utils';
 import { ArrowLeft, Users, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AddExpenseDialog } from '../components/add-expense-dialog';
+import {
+  fetchMoneyTagGroupByIdServer,
+  fetchGroupExpensesServer,
+  calculateGroupDebtsServer
+} from '@/lib/supabase/moneytags-server';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
 }
 
-async function getGroupData(groupId: string) {
-  const group = mockMoneyTagGroups.find((g) => g.id === groupId);
-  if (!group) return null;
-
-  const expenses = mockGroupExpenses[groupId] || [];
-  const debts = calculateDebts(expenses, group.participants);
-
-  return { group, expenses, debts };
-}
-
 export default async function GroupDetailPage(props: PageProps) {
   const params = await props.params;
-  const data = await getGroupData(params.groupId);
 
-  if (!data) {
+  // Fetch all data with Server-Side functions
+  const group = await fetchMoneyTagGroupByIdServer(params.groupId);
+
+  if (!group) {
     notFound();
   }
 
-  const { group, expenses, debts } = data;
+  const expenses = await fetchGroupExpensesServer(params.groupId);
+  const debts = await calculateGroupDebtsServer(params.groupId);
+
+  // Calculate total spent
+  const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
     <PageContainer scrollable>
@@ -56,10 +52,15 @@ export default async function GroupDetailPage(props: PageProps) {
           </Link>
           <div className='flex-1'>
             <h1 className='text-3xl font-bold tracking-tight'>{group.name}</h1>
+            {group.description && (
+              <p className='text-muted-foreground mt-1 text-sm'>
+                {group.description}
+              </p>
+            )}
             <div className='mt-1 flex items-center gap-2'>
               <Users className='text-muted-foreground h-4 w-4' />
               <span className='text-muted-foreground text-sm'>
-                {group.participants.map((p) => p.name).join(', ')}
+                {group.participant_count} participante(s)
               </span>
             </div>
           </div>
@@ -93,7 +94,7 @@ export default async function GroupDetailPage(props: PageProps) {
                   </div>
                   <AddExpenseDialog
                     groupId={group.id}
-                    participants={group.participants}
+                    participants={group.participants || []}
                   />
                 </div>
               </CardHeader>
@@ -101,7 +102,7 @@ export default async function GroupDetailPage(props: PageProps) {
                 <div className='bg-muted/50 mb-4 rounded-lg border p-4'>
                   <p className='text-muted-foreground text-sm'>Total Gastado</p>
                   <p className='mt-1 text-3xl font-bold'>
-                    {formatCurrencyPY(group.total_spent)}
+                    {formatCurrencyPY(totalSpent)}
                   </p>
                 </div>
 
@@ -118,7 +119,7 @@ export default async function GroupDetailPage(props: PageProps) {
                   </div>
                 ) : (
                   <div className='space-y-3'>
-                    {expenses.map((expense) => (
+                    {expenses.map((expense: any) => (
                       <div
                         key={expense.id}
                         className='flex items-start justify-between rounded-lg border p-3'
@@ -128,12 +129,17 @@ export default async function GroupDetailPage(props: PageProps) {
                           <p className='text-muted-foreground mt-1 text-xs'>
                             Pagado por{' '}
                             <span className='font-medium'>
-                              {expense.paid_by.name}
+                              {expense.paid_by?.name || 'Desconocido'}
                             </span>
                           </p>
                           <p className='text-muted-foreground mt-1 text-xs'>
-                            Dividido entre {expense.split_among.length}{' '}
+                            Dividido entre {expense.splits?.length || 0}{' '}
                             persona(s)
+                          </p>
+                          <p className='text-muted-foreground mt-1 text-xs'>
+                            {new Date(expense.expense_date).toLocaleDateString(
+                              'es-PY'
+                            )}
                           </p>
                         </div>
                         <div className='text-right'>
@@ -142,7 +148,9 @@ export default async function GroupDetailPage(props: PageProps) {
                           </p>
                           <p className='text-muted-foreground mt-1 text-xs'>
                             {formatCurrencyPY(
-                              expense.amount / expense.split_among.length
+                              expense.splits?.length
+                                ? expense.amount / expense.splits.length
+                                : expense.amount
                             )}{' '}
                             c/u
                           </p>
@@ -187,7 +195,7 @@ export default async function GroupDetailPage(props: PageProps) {
                   </div>
                 ) : (
                   <div className='space-y-3'>
-                    {debts.map((debt, index) => (
+                    {debts.map((debt: any, index: number) => (
                       <div
                         key={index}
                         className='bg-muted/50 flex items-center justify-between rounded-lg border p-4'
@@ -195,13 +203,13 @@ export default async function GroupDetailPage(props: PageProps) {
                         <div className='flex-1'>
                           <p className='font-medium'>
                             <span className='text-destructive'>
-                              {debt.from.name}
+                              {debt.debtor_name || 'Desconocido'}
                             </span>
                             <span className='text-muted-foreground mx-2'>
                               debe a
                             </span>
                             <span className='text-green-600'>
-                              {debt.to.name}
+                              {debt.creditor_name || 'Desconocido'}
                             </span>
                           </p>
                         </div>
@@ -237,7 +245,7 @@ export default async function GroupDetailPage(props: PageProps) {
               </CardHeader>
               <CardContent>
                 <div className='space-y-2'>
-                  {group.participants.map((participant) => (
+                  {(group.participants || []).map((participant: any) => (
                     <div
                       key={participant.id}
                       className='flex items-center gap-3 rounded-lg border p-3'
@@ -245,15 +253,20 @@ export default async function GroupDetailPage(props: PageProps) {
                       <div className='bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full'>
                         <span className='text-primary text-sm font-semibold'>
                           {participant.name
-                            .split(' ')
-                            .map((n) => n[0])
+                            ?.split(' ')
+                            .map((n: string) => n[0])
                             .join('')
                             .substring(0, 2)
-                            .toUpperCase()}
+                            .toUpperCase() || '??'}
                         </span>
                       </div>
                       <div className='flex-1'>
                         <p className='font-medium'>{participant.name}</p>
+                        {participant.phone && (
+                          <p className='text-muted-foreground text-xs'>
+                            {participant.phone}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}

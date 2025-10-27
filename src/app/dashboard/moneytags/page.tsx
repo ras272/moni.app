@@ -9,25 +9,20 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { mockMoneyTagGroups } from '@/data/mock-moneytags';
 import { CreateGroupDialog } from './components/create-group-dialog';
-import { columns } from './components/columns';
 import { formatCurrencyPY } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Users, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { fetchMoneyTagGroupsServer } from '@/lib/supabase/moneytags-server';
 
 export const metadata = {
   title: 'MONI - MoneyTags'
 };
 
-async function getGroups() {
-  return Promise.resolve(mockMoneyTagGroups);
-}
-
 export default async function MoneyTagsPage() {
-  const groups = await getGroups();
+  const groups = await fetchMoneyTagGroupsServer(false);
 
   return (
     <PageContainer scrollable>
@@ -83,7 +78,7 @@ export default async function MoneyTagsPage() {
                       <div className='flex items-center gap-2'>
                         <Users className='text-muted-foreground h-4 w-4' />
                         <span className='font-medium'>
-                          {group.participants.length}
+                          {group.participant_count || 0}
                         </span>
                         <span className='text-muted-foreground text-sm'>
                           personas
@@ -91,10 +86,10 @@ export default async function MoneyTagsPage() {
                       </div>
                     </TableCell>
                     <TableCell className='font-medium'>
-                      {formatCurrencyPY(group.total_spent)}
+                      {formatCurrencyPY(0)}
                     </TableCell>
                     <TableCell className='text-muted-foreground'>
-                      {new Date(group.date_created).toLocaleDateString('es-PY')}
+                      {new Date(group.created_at).toLocaleDateString('es-PY')}
                     </TableCell>
                     <TableCell>
                       <Link href={`/dashboard/moneytags/${group.id}`}>
@@ -126,11 +121,7 @@ export default async function MoneyTagsPage() {
             </div>
             <div className='bg-card rounded-lg border p-6'>
               <p className='text-muted-foreground text-sm'>Total Compartido</p>
-              <p className='mt-2 text-2xl font-bold'>
-                {formatCurrencyPY(
-                  groups.reduce((sum, g) => sum + g.total_spent, 0)
-                )}
-              </p>
+              <p className='mt-2 text-2xl font-bold'>{formatCurrencyPY(0)}</p>
             </div>
           </div>
         )}

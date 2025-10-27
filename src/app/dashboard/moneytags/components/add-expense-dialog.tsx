@@ -12,17 +12,30 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
-import { FormCheckboxGroup } from '@/components/forms/form-checkbox-group';
-import {
-  expenseSchema,
-  ExpenseFormValues,
-  Participant
-} from '@/data/mock-moneytags';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { createGroupExpenseAction } from '@/app/dashboard/actions';
+import { useRouter } from 'next/navigation';
+import { z } from 'zod';
+
+const expenseSchema = z.object({
+  description: z
+    .string()
+    .min(3, 'La descripción debe tener al menos 3 caracteres'),
+  amount: z.coerce.number().min(1, 'El monto debe ser mayor a 0'),
+  paid_by_participant_id: z.string().min(1, 'Debes seleccionar quién pagó')
+});
+
+type ExpenseFormValues = z.infer<typeof expenseSchema>;
+
+interface Participant {
+  id: string;
+  name: string;
+  phone?: string | null;
+}
 
 interface AddExpenseDialogProps {
   groupId: string;
@@ -34,29 +47,50 @@ export function AddExpenseDialog({
   participants
 }: AddExpenseDialogProps) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       description: '',
-      amount: undefined,
-      paid_by_id: '',
-      split_among_ids: []
+      amount: 0,
+      paid_by_participant_id: ''
     }
   });
 
-  function onSubmit(values: ExpenseFormValues) {
-    console.log('Gasto agregado al grupo:', groupId, values);
+  async function onSubmit(values: ExpenseFormValues) {
+    try {
+      const formData = new FormData();
+      formData.append('group_id', groupId);
+      formData.append('description', values.description);
+      formData.append('amount', values.amount.toString());
+      formData.append('currency', 'PYG');
+      formData.append('paid_by_participant_id', values.paid_by_participant_id);
 
-    const payer = participants.find((p) => p.id === values.paid_by_id);
-    const splitCount = values.split_among_ids.length;
+      const result = await createGroupExpenseAction(formData);
 
-    toast.success('¡Gasto agregado al grupo!', {
-      description: `${values.description} - ${values.amount.toLocaleString('es-PY')} Gs pagado por ${payer?.name}`
-    });
+      if (result.success) {
+        const payer = participants.find(
+          (p) => p.id === values.paid_by_participant_id
+        );
 
-    form.reset();
-    setOpen(false);
+        toast.success('¡Gasto agregado al grupo!', {
+          description: `${values.description} - ${values.amount.toLocaleString('es-PY')} Gs pagado por ${payer?.name || 'Participante'}`
+        });
+
+        form.reset();
+        setOpen(false);
+        router.refresh();
+      } else {
+        toast.error('Error al agregar gasto', {
+          description: result.error || 'Ocurrió un error inesperado'
+        });
+      }
+    } catch (error) {
+      toast.error('Error al agregar gasto', {
+        description: 'Ocurrió un error inesperado'
+      });
+    }
   }
 
   return (
@@ -107,7 +141,7 @@ export function AddExpenseDialog({
             {/* Quién Pagó */}
             <FormSelect
               control={form.control}
-              name='paid_by_id'
+              name='paid_by_participant_id'
               label='¿Quién pagó?'
               placeholder='Seleccionar'
               required
@@ -118,20 +152,14 @@ export function AddExpenseDialog({
             />
           </div>
 
-          {/* Dividir Entre */}
-          <FormCheckboxGroup
-            control={form.control}
-            name='split_among_ids'
-            label='Dividir entre'
-            description='Selecciona quiénes participan de este gasto'
-            required
-            options={participants.map((p) => ({
-              label: p.name,
-              value: p.id
-            }))}
-            columns={2}
-            showBadges={true}
-          />
+          {/* Nota sobre división */}
+          <div className='bg-muted/50 rounded-lg border p-4'>
+            <p className='text-sm font-medium'>División Automática</p>
+            <p className='text-muted-foreground mt-1 text-xs'>
+              El gasto se dividirá automáticamente en partes iguales entre todos
+              los participantes del grupo.
+            </p>
+          </div>
 
           {/* Botones */}
           <div className='flex justify-end gap-4'>

@@ -11,43 +11,62 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/forms/form-input';
-import { FormCheckboxGroup } from '@/components/forms/form-checkbox-group';
-import {
-  groupSchema,
-  GroupFormValues,
-  mockParticipants
-} from '@/data/mock-moneytags';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { createMoneyTagGroupAction } from '@/app/dashboard/actions';
+import { useRouter } from 'next/navigation';
+import { z } from 'zod';
+
+const createGroupSchema = z.object({
+  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+  description: z.string().optional()
+});
+
+type CreateGroupFormValues = z.infer<typeof createGroupSchema>;
 
 export function CreateGroupDialog() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
-  const form = useForm<GroupFormValues>({
-    resolver: zodResolver(groupSchema),
+  const form = useForm<CreateGroupFormValues>({
+    resolver: zodResolver(createGroupSchema),
     defaultValues: {
       name: '',
-      participant_ids: []
+      description: ''
     }
   });
 
-  function onSubmit(values: GroupFormValues) {
-    console.log('Grupo creado:', values);
+  async function onSubmit(values: CreateGroupFormValues) {
+    try {
+      const formData = new FormData();
+      formData.append('name', values.name);
+      if (values.description) {
+        formData.append('description', values.description);
+      }
 
-    const selectedNames = mockParticipants
-      .filter((p) => values.participant_ids.includes(p.id))
-      .map((p) => p.name)
-      .join(', ');
+      const result = await createMoneyTagGroupAction(formData);
 
-    toast.success('¡Grupo creado con éxito!', {
-      description: `${values.name} con ${values.participant_ids.length} participantes`
-    });
+      if (result.success) {
+        toast.success('¡Grupo creado con éxito!', {
+          description: `${values.name} creado. Ahora puedes agregar participantes.`
+        });
 
-    form.reset();
-    setOpen(false);
+        form.reset();
+        setOpen(false);
+        router.refresh();
+      } else {
+        toast.error('Error al crear el grupo', {
+          description: result.error || 'Ocurrió un error inesperado'
+        });
+      }
+    } catch (error) {
+      toast.error('Error al crear el grupo', {
+        description: 'Ocurrió un error inesperado'
+      });
+    }
   }
 
   return (
@@ -62,8 +81,8 @@ export function CreateGroupDialog() {
         <DialogHeader>
           <DialogTitle>Crear Grupo de Gastos Compartidos</DialogTitle>
           <DialogDescription>
-            Agrega un nombre al grupo y selecciona los participantes que
-            compartirán gastos.
+            Crea un nuevo grupo. Luego podrás agregar participantes desde la
+            página de detalle del grupo.
           </DialogDescription>
         </DialogHeader>
 
@@ -81,19 +100,12 @@ export function CreateGroupDialog() {
             required
           />
 
-          {/* Selección de Participantes */}
-          <FormCheckboxGroup
+          {/* Descripción (opcional) */}
+          <FormInput
             control={form.control}
-            name='participant_ids'
-            label='Seleccionar Participantes'
-            description='Selecciona al menos 2 personas para compartir gastos'
-            required
-            options={mockParticipants.map((p) => ({
-              label: p.name,
-              value: p.id
-            }))}
-            columns={2}
-            showBadges={true}
+            name='description'
+            label='Descripción (opcional)'
+            placeholder='Ej: Gastos del asado del 15 de noviembre'
           />
 
           {/* Botones */}
