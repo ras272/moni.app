@@ -668,8 +668,11 @@ export async function addParticipantAction(
       };
     }
 
+    // Use admin client
+    const adminClient = createAdminClient();
+
     // CRITICAL: Verify that current user is the owner of the group
-    const { data: group, error: groupError } = await supabase
+    const { data: group, error: groupError } = await adminClient
       .from('money_tag_groups')
       .select('owner_profile_id')
       .eq('id', groupId)
@@ -689,11 +692,12 @@ export async function addParticipantAction(
       };
     }
 
-    // Check if email exists in profiles (registered user)
+    // Check if email or phone exists in profiles (registered user)
     let participantProfileId: string | null = null;
+    let participantName = name;
 
     if (email) {
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile } = await adminClient
         .from('profiles')
         .select('id, full_name')
         .eq('email', email)
@@ -701,17 +705,45 @@ export async function addParticipantAction(
 
       if (existingProfile) {
         participantProfileId = existingProfile.id;
-        // If profile exists, use their name from DB
+        participantName = existingProfile.full_name || name;
+      }
+    } else if (phone) {
+      const { data: existingProfile } = await adminClient
+        .from('profiles')
+        .select('id, full_name')
+        .eq('phone', phone)
+        .single();
+
+      if (existingProfile) {
+        participantProfileId = existingProfile.id;
+        participantName = existingProfile.full_name || name;
+      }
+    }
+
+    // Check if already participant
+    if (participantProfileId) {
+      const { data: existingParticipant } = await adminClient
+        .from('group_participants')
+        .select('id')
+        .eq('group_id', groupId)
+        .eq('profile_id', participantProfileId)
+        .single();
+
+      if (existingParticipant) {
+        return {
+          success: false,
+          error: 'Este usuario ya es participante del grupo'
+        };
       }
     }
 
     // Insert participant
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from('group_participants')
       .insert({
         group_id: groupId,
         profile_id: participantProfileId,
-        name,
+        name: participantName,
         phone: phone || null
       })
       .select()

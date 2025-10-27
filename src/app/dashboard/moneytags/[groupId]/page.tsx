@@ -14,11 +14,13 @@ import { ArrowLeft, Users, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AddExpenseDialog } from '../components/add-expense-dialog';
+import { AddParticipantDialog } from '../components/add-participant-dialog';
 import {
   fetchMoneyTagGroupByIdServer,
   fetchGroupExpensesServer,
   calculateGroupDebtsServer
 } from '@/lib/supabase/moneytags-server';
+import { createClient } from '@/lib/supabase/server';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -39,6 +41,23 @@ export default async function GroupDetailPage(props: PageProps) {
 
   // Calculate total spent
   const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
+  // Get current user profile to check ownership
+  const supabase = await createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  let isOwner = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', user.id)
+      .single();
+
+    isOwner = profile?.id === group.owner_profile_id;
+  }
 
   return (
     <PageContainer scrollable>
@@ -240,7 +259,20 @@ export default async function GroupDetailPage(props: PageProps) {
           {/* Columna 3: Participantes */}
           <Card className='md:col-span-1 xl:col-span-1'>
             <CardHeader>
-              <CardTitle>Participantes</CardTitle>
+              <div className='flex items-center justify-between'>
+                <div>
+                  <CardTitle>Participantes</CardTitle>
+                  <CardDescription>
+                    {group.participant_count} miembro(s)
+                  </CardDescription>
+                </div>
+                {isOwner && (
+                  <AddParticipantDialog
+                    groupId={group.id}
+                    groupName={group.name}
+                  />
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className='space-y-2'>
