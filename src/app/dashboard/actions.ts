@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import { revalidatePath } from 'next/cache';
 import type { AccountType, TransactionType } from '@/types/database';
 
@@ -581,8 +582,11 @@ export async function createMoneyTagGroupAction(formData: FormData) {
       is_settled: false
     });
 
+    // Use admin client for INSERT (bypasses RLS, but we already validated auth)
+    const adminClient = createAdminClient();
+
     // 1. Create group
-    const { data: group, error: groupError } = await supabase
+    const { data: group, error: groupError } = await adminClient
       .from('money_tag_groups')
       .insert({
         owner_profile_id: profileId,
@@ -615,7 +619,7 @@ export async function createMoneyTagGroupAction(formData: FormData) {
       .eq('id', profileId)
       .single();
 
-    const { error: participantError } = await supabase
+    const { error: participantError } = await adminClient
       .from('group_participants')
       .insert({
         group_id: group.id,
@@ -625,7 +629,7 @@ export async function createMoneyTagGroupAction(formData: FormData) {
 
     if (participantError) {
       // Rollback: delete the group if participant insertion fails
-      await supabase.from('money_tag_groups').delete().eq('id', group.id);
+      await adminClient.from('money_tag_groups').delete().eq('id', group.id);
 
       console.error('Error adding owner as participant:', participantError);
       return {
