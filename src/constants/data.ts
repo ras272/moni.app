@@ -30,21 +30,27 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'MoneyTags',
-    url: '/dashboard/moneytags',
-    icon: 'tags',
-    shortcut: ['m', 'm'],
-    isActive: false,
-    items: []
-  },
-  {
     title: 'Cuentas',
     url: '/dashboard/cuentas',
     icon: 'wallet',
     shortcut: ['c', 'c'],
     isActive: false,
     items: []
-  },
+  }
+];
+
+export const navItemsTools: NavItem[] = [
+  {
+    title: 'MoneyTags',
+    url: '/dashboard/moneytags',
+    icon: 'tags',
+    shortcut: ['m', 'm'],
+    isActive: false,
+    items: []
+  }
+];
+
+export const navItemsOthers: NavItem[] = [
   {
     title: 'Configuración',
     url: '/dashboard/configuracion',

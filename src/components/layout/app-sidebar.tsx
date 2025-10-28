@@ -5,18 +5,8 @@ import {
   CollapsibleTrigger
 } from '@/components/ui/collapsible';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarHeader,
@@ -26,110 +16,104 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail
+  SidebarRail,
+  useSidebar
 } from '@/components/ui/sidebar';
-import { UserAvatarProfile } from '@/components/user-avatar-profile';
-import { navItems } from '@/constants/data';
+import { Button } from '@/components/ui/button';
+import { navItems, navItemsTools, navItemsOthers } from '@/constants/data';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import {
-  Notification01Icon,
-  ArrowRight01Icon,
-  ArrowDown01Icon,
-  CreditCardAddIcon,
-  Logout01Icon,
-  ImageUpload01Icon,
-  UserCircleIcon
-} from 'hugeicons-react';
+import { ArrowRight01Icon } from 'hugeicons-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
-import { OrgSwitcher } from '../org-switcher';
-import { createBrowserClient } from '@supabase/ssr';
-import { signOut } from '@/app/auth/actions';
-import { useTransition } from 'react';
-import { toast } from 'sonner';
-export const company = {
-  name: 'Acme Inc',
-  logo: ImageUpload01Icon,
-  plan: 'Enterprise'
-};
-
-const tenants = [
-  { id: '1', name: 'Acme Inc' },
-  { id: '2', name: 'Beta Corp' },
-  { id: '3', name: 'Gamma Ltd' }
-];
-
-type User = {
-  id: string;
-  email?: string;
-  user_metadata?: {
-    full_name?: string;
-    avatar_url?: string;
+import { BalanceWidget } from '../balance-widget';
+import { QuickStatsSidebar } from '../quick-stats-sidebar';
+interface AppSidebarProps {
+  stats?: {
+    totalBalance: number;
+    monthlyChange: number;
+    changePercentage: number;
+    todayExpenses: number;
+    monthExpenses: number;
+    pendingPayments: number;
+    moneyTagsCount: number;
   };
-};
+}
 
-export default function AppSidebar() {
+export default function AppSidebar({ stats: initialStats }: AppSidebarProps) {
   const pathname = usePathname();
-  const { isOpen } = useMediaQuery();
-  const [user, setUser] = React.useState<User | null>(null);
   const router = useRouter();
-  const [loading, startTransition] = useTransition();
+  const { isOpen } = useMediaQuery();
+  const { open: sidebarOpen } = useSidebar();
 
-  const handleSwitchTenant = (_tenantId: string) => {
-    // Tenant switching functionality would be implemented here
+  // Valores por defecto si no se pasan stats
+  const stats = initialStats || {
+    totalBalance: 4193000,
+    monthlyChange: 589950,
+    changePercentage: 15.2,
+    todayExpenses: 50000,
+    monthExpenses: 410000,
+    pendingPayments: 3,
+    moneyTagsCount: 2
   };
-
-  const activeTenant = tenants[0];
-
-  React.useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const fetchUser = async () => {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-
-    fetchUser();
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   React.useEffect(() => {
     // Side effects based on sidebar state changes
   }, [isOpen]);
 
-  const handleSignOut = () => {
-    startTransition(async () => {
-      await signOut();
-      toast.success('Sesión cerrada exitosamente');
-    });
+  const handleNewTransaction = () => {
+    router.push('/dashboard/transacciones?new=true');
   };
 
   return (
     <Sidebar collapsible='icon'>
       <SidebarHeader>
-        <OrgSwitcher
-          tenants={tenants}
-          defaultTenant={activeTenant}
-          onTenantSwitch={handleSwitchTenant}
-        />
+        {sidebarOpen ? (
+          <>
+            <BalanceWidget
+              totalBalance={stats.totalBalance}
+              monthlyChange={stats.monthlyChange}
+              changePercentage={stats.changePercentage}
+            />
+            <div className='px-2 py-2'>
+              <Button
+                className='w-full justify-start gap-2'
+                size='sm'
+                onClick={handleNewTransaction}
+              >
+                <Plus className='size-4' />
+                <span>Nueva Transacción</span>
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className='flex items-center justify-center py-4'>
+            <Button
+              size='icon'
+              variant='default'
+              onClick={handleNewTransaction}
+              className='size-10'
+            >
+              <Plus className='size-5' />
+            </Button>
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent className='overflow-x-hidden'>
+        {/* Quick Stats - Solo cuando está expandido */}
+        {sidebarOpen && (
+          <QuickStatsSidebar
+            todayExpenses={stats.todayExpenses}
+            monthExpenses={stats.monthExpenses}
+            pendingPayments={stats.pendingPayments}
+          />
+        )}
+
+        {/* Principal Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Overview</SidebarGroupLabel>
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarMenu>
             {navItems.map((item) => {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo;
@@ -186,85 +170,66 @@ export default function AppSidebar() {
             })}
           </SidebarMenu>
         </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size='lg'
-                  className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-                >
-                  {user && (
-                    <UserAvatarProfile
-                      className='h-8 w-8 rounded-lg'
-                      showInfo
-                      user={{
-                        imageUrl: user.user_metadata?.avatar_url,
-                        fullName:
-                          user.user_metadata?.full_name ||
-                          user.email?.split('@')[0],
-                        emailAddresses: [{ emailAddress: user.email || '' }]
-                      }}
-                    />
-                  )}
-                  <ArrowDown01Icon className='ml-auto size-4' />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className='w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
-                side='bottom'
-                align='end'
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className='p-0 font-normal'>
-                  <div className='px-1 py-1.5'>
-                    {user && (
-                      <UserAvatarProfile
-                        className='h-8 w-8 rounded-lg'
-                        showInfo
-                        user={{
-                          imageUrl: user.user_metadata?.avatar_url,
-                          fullName:
-                            user.user_metadata?.full_name ||
-                            user.email?.split('@')[0],
-                          emailAddresses: [{ emailAddress: user.email || '' }]
-                        }}
-                      />
-                    )}
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
 
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={() => router.push('/dashboard/profile')}
+        {/* Herramientas */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Herramientas</SidebarGroupLabel>
+          <SidebarMenu>
+            {navItemsTools.map((item) => {
+              const Icon = item.icon ? Icons[item.icon] : Icons.logo;
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={pathname === item.url}
                   >
-                    <UserCircleIcon className='mr-2 h-4 w-4' />
-                    Perfil
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push('/dashboard/settings')}
+                    <Link
+                      href={item.url}
+                      className='flex items-center justify-between'
+                    >
+                      <div className='flex items-center gap-2'>
+                        <Icon />
+                        <span>{item.title}</span>
+                      </div>
+                      {item.title === 'MoneyTags' &&
+                        stats.moneyTagsCount > 0 && (
+                          <span className='bg-primary text-primary-foreground min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-xs font-semibold'>
+                            {stats.moneyTagsCount}
+                          </span>
+                        )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Otros */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Otros</SidebarGroupLabel>
+          <SidebarMenu>
+            {navItemsOthers.map((item) => {
+              const Icon = item.icon ? Icons[item.icon] : Icons.logo;
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={pathname === item.url}
                   >
-                    <CreditCardAddIcon className='mr-2 h-4 w-4' />
-                    Configuración
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Notification01Icon className='mr-2 h-4 w-4' />
-                    Notificaciones
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} disabled={loading}>
-                  <Logout01Icon className='mr-2 h-4 w-4' />
-                  {loading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+                    <Link href={item.url}>
+                      <Icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
       <SidebarRail />
     </Sidebar>
   );

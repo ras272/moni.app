@@ -44,7 +44,9 @@ export default async function TransaccionesPage(props: PageProps) {
             title='Transacciones'
             description='Revisa y gestiona todos tus gastos e ingresos.'
           />
-          <AddTransactionDialog />
+          <Suspense fallback={null}>
+            <AddTransactionDialog />
+          </Suspense>
         </div>
         <Separator />
         <Suspense

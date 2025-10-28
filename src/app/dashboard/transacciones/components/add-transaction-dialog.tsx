@@ -10,11 +10,24 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { Add01Icon } from 'hugeicons-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { TransactionForm } from './transaction-form';
 
 export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Detectar query param ?new=true y abrir modal
+  useEffect(() => {
+    const shouldOpen = searchParams.get('new') === 'true';
+    if (shouldOpen) {
+      setOpen(true);
+      // Limpiar el query param de la URL
+      router.replace('/dashboard/transacciones', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const handleSuccess = () => {
     setOpen(false);

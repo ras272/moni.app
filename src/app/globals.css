@@ -120,6 +120,16 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Hide scrollbar */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* View Transition Wave Effect */

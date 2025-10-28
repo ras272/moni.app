@@ -25,18 +25,7 @@ export type DashboardStats = {
   growthPercentage: number;
 };
 
-export type DailyExpense = {
-  date: string;
-  expenses: number;
-  income: number;
-};
-
-export type CategoryExpense = {
-  name: string;
-  amount: number;
-  color: string;
-  icon: string;
-};
+// Types removidos: DailyExpense, CategoryExpense (ya no se usan)
 
 // =====================================================
 // ACCOUNT BALANCE
@@ -118,145 +107,11 @@ export async function getMonthlyStats(): Promise<DashboardStats> {
 }
 
 // =====================================================
-// DAILY CASH FLOW
+// NOTA: Funciones legacy eliminadas
 // =====================================================
-
-/**
- * Obtiene el flujo de caja diario (ingresos vs gastos) para los últimos N días.
- * Usa RPC optimizada que incluye días sin transacciones.
- *
- * @param days - Número de días a incluir (default: 90)
- */
-export async function getDailyCashFlow(
-  days: number = 90
-): Promise<DailyExpense[]> {
-  const supabase = await createClient();
-
-  const today = new Date();
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - days);
-
-  const startDateStr = startDate.toISOString().split('T')[0];
-  const endDateStr = today.toISOString().split('T')[0];
-
-  console.log('📅 Fetching daily cash flow:', { startDateStr, endDateStr });
-
-  const { data, error } = await supabase.rpc('get_daily_cash_flow', {
-    p_start_date: startDateStr,
-    p_end_date: endDateStr
-  });
-
-  console.log('📊 Daily cash flow result:', {
-    dataLength: data?.length,
-    error
-  });
-
-  if (error) {
-    console.error('Error fetching daily cash flow:', error);
-    return [];
-  }
-
-  // Mapear resultado RPC al tipo DailyExpense
-  return (data || []).map((row: any) => ({
-    date: row.date,
-    expenses: Number(row.expense_amount) || 0,
-    income: Number(row.income_amount) || 0
-  }));
-}
-
-// =====================================================
-// EXPENSES BY CATEGORY
-// =====================================================
-
-/**
- * Obtiene la distribución de gastos por categoría.
- * Usa RPC optimizada con JOIN y GROUP BY.
- *
- * @param startDate - Fecha de inicio (opcional, default: 6 meses atrás)
- * @param endDate - Fecha de fin (opcional, default: hoy)
- */
-export async function getExpensesByCategory(
-  startDate?: string,
-  endDate?: string
-): Promise<CategoryExpense[]> {
-  const supabase = await createClient();
-
-  console.log('🥧 Fetching expenses by category...');
-
-  const { data, error } = await supabase.rpc('get_expenses_by_category', {
-    p_start_date: startDate || null,
-    p_end_date: endDate || null
-  });
-
-  console.log('🥧 Expenses by category result:', {
-    dataLength: data?.length,
-    error
-  });
-
-  if (error) {
-    console.error('Error fetching expenses by category:', error);
-    return [];
-  }
-
-  // Mapear resultado RPC al tipo CategoryExpense
-  return (data || []).map((row: any) => ({
-    name: row.category_name,
-    icon: row.category_icon,
-    color: row.category_color,
-    amount: Number(row.total_amount) || 0
-  }));
-}
-
-// =====================================================
-// RECENT TRANSACTIONS
-// =====================================================
-
-/**
- * Obtiene las transacciones más recientes del usuario.
- *
- * @param limit - Número máximo de transacciones (default: 5)
- */
-export async function getRecentTransactions(limit: number = 5) {
-  const supabase = await createClient();
-
-  console.log('💰 Fetching recent transactions...');
-
-  const { data, error } = await supabase
-    .from('transactions')
-    .select(
-      `
-      id,
-      type,
-      amount,
-      currency,
-      description,
-      merchant,
-      transaction_date,
-      category:categories!category_id(name, icon, color)
-    `
-    )
-    .eq('status', 'completed')
-    .order('transaction_date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
-
-  console.log('💰 Recent transactions result:', {
-    dataLength: data?.length,
-    error
-  });
-
-  if (error) {
-    console.error('Error fetching recent transactions:', error);
-    return [];
-  }
-
-  // Transform category from array to object (Supabase returns relations as arrays)
-  const transformedData = (data || []).map((transaction: any) => ({
-    ...transaction,
-    category: Array.isArray(transaction.category)
-      ? transaction.category[0] || null
-      : transaction.category
-  }));
-
-  return transformedData;
-}
+// Las siguientes funciones fueron removidas porque ya no se usan:
+// - getDailyCashFlow() -> Era para gráficos del dashboard viejo
+// - getExpensesByCategory() -> Era para pie chart del dashboard viejo
+// - getRecentTransactions() -> Reemplazada por getRecentTransactionsEnhanced()
+//
+// Si las necesitas en el futuro, están en el historial de Git.
