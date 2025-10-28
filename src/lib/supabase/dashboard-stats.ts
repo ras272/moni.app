@@ -83,7 +83,9 @@ export async function getMonthlyStats(): Promise<DashboardStats> {
   } = await supabase.auth.getUser();
   console.log('🔍 Dashboard Stats - User:', user?.id, user?.email);
 
-  const { data, error } = await supabase.rpc('get_monthly_stats').single();
+  const { data, error } = (await supabase
+    .rpc('get_monthly_stats')
+    .single()) as { data: any; error: any };
 
   console.log('📊 RPC get_monthly_stats result:', { data, error });
 
