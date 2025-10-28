@@ -52,6 +52,14 @@ export const navItemsTools: NavItem[] = [
 
 export const navItemsOthers: NavItem[] = [
   {
+    title: 'WhatsApp Bot',
+    url: '/dashboard/settings/whatsapp',
+    icon: 'message',
+    shortcut: ['w', 'w'],
+    isActive: false,
+    items: []
+  },
+  {
     title: 'Configuración',
     url: '/dashboard/configuracion',
     icon: 'settings',

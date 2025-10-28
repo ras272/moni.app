@@ -267,8 +267,13 @@ export async function getTopExpenseCategories(
     p_end_date: endOfMonth.toISOString().split('T')[0]
   });
 
-  if (error || !data || data.length === 0) {
+  if (error) {
     console.error('Error fetching top expense categories:', error);
+    return [];
+  }
+
+  if (!data || data.length === 0) {
+    console.log('No expense categories found (empty dataset)');
     return [];
   }
 
