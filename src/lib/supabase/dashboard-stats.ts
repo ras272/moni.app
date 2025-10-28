@@ -248,5 +248,13 @@ export async function getRecentTransactions(limit: number = 5) {
     return [];
   }
 
-  return data || [];
+  // Transform category from array to object (Supabase returns relations as arrays)
+  const transformedData = (data || []).map((transaction: any) => ({
+    ...transaction,
+    category: Array.isArray(transaction.category)
+      ? transaction.category[0] || null
+      : transaction.category
+  }));
+
+  return transformedData;
 }
