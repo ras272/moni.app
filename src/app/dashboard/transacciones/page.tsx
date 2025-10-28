@@ -14,8 +14,6 @@ export const metadata = {
   title: 'MONI - Transacciones'
 };
 
-export const dynamic = 'force-dynamic';
-
 type PageProps = {
   searchParams: Promise<SearchParams>;
 };

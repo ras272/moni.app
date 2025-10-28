@@ -9,8 +9,6 @@ export const metadata = {
   title: 'MONI - Cuentas'
 };
 
-export const dynamic = 'force-dynamic';
-
 async function getAccounts() {
   try {
     const accounts = await fetchAccountsServer(false);
