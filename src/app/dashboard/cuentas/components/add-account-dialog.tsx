@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { IconPlus } from '@tabler/icons-react';
+import { Add01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 import { AccountForm } from './account-form';
 
@@ -24,7 +24,7 @@ export function AddAccountDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <IconPlus className='mr-2 h-4 w-4' />
+          <Add01Icon className='mr-2 h-4 w-4' />
           Agregar Cuenta
         </Button>
       </DialogTrigger>

@@ -13,7 +13,7 @@ import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus } from '@tabler/icons-react';
+import { Add01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -97,7 +97,7 @@ export function AddExpenseDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <IconPlus className='mr-2 h-4 w-4' />
+          <Add01Icon className='mr-2 h-4 w-4' />
           Agregar Gasto
         </Button>
       </DialogTrigger>

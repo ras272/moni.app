@@ -32,14 +32,14 @@ import { UserAvatarProfile } from '@/components/user-avatar-profile';
 import { navItems } from '@/constants/data';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import {
-  IconBell,
-  IconChevronRight,
-  IconChevronsDown,
-  IconCreditCard,
-  IconLogout,
-  IconPhotoUp,
-  IconUserCircle
-} from '@tabler/icons-react';
+  Notification01Icon,
+  ArrowRight01Icon,
+  ArrowDown01Icon,
+  CreditCardAddIcon,
+  Logout01Icon,
+  ImageUpload01Icon,
+  UserCircleIcon
+} from 'hugeicons-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -51,7 +51,7 @@ import { useTransition } from 'react';
 import { toast } from 'sonner';
 export const company = {
   name: 'Acme Inc',
-  logo: IconPhotoUp,
+  logo: ImageUpload01Icon,
   plan: 'Enterprise'
 };
 
@@ -148,7 +148,7 @@ export default function AppSidebar() {
                       >
                         {item.icon && <Icon />}
                         <span>{item.title}</span>
-                        <IconChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                        <ArrowRight01Icon className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
@@ -209,7 +209,7 @@ export default function AppSidebar() {
                       }}
                     />
                   )}
-                  <IconChevronsDown className='ml-auto size-4' />
+                  <ArrowDown01Icon className='ml-auto size-4' />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -241,23 +241,23 @@ export default function AppSidebar() {
                   <DropdownMenuItem
                     onClick={() => router.push('/dashboard/profile')}
                   >
-                    <IconUserCircle className='mr-2 h-4 w-4' />
+                    <UserCircleIcon className='mr-2 h-4 w-4' />
                     Perfil
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push('/dashboard/settings')}
                   >
-                    <IconCreditCard className='mr-2 h-4 w-4' />
+                    <CreditCardAddIcon className='mr-2 h-4 w-4' />
                     Configuración
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <IconBell className='mr-2 h-4 w-4' />
+                    <Notification01Icon className='mr-2 h-4 w-4' />
                     Notificaciones
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} disabled={loading}>
-                  <IconLogout className='mr-2 h-4 w-4' />
+                  <Logout01Icon className='mr-2 h-4 w-4' />
                   {loading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
                 </DropdownMenuItem>
               </DropdownMenuContent>

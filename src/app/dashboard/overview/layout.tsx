@@ -8,7 +8,7 @@ import {
   CardAction,
   CardFooter
 } from '@/components/ui/card';
-import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
+import { ArrowDown01Icon, ArrowUp01Icon } from 'hugeicons-react';
 import React from 'react';
 import { formatCurrencyPY } from '@/lib/utils';
 import { getMonthlyStats } from '@/lib/supabase/dashboard-stats';
@@ -46,9 +46,9 @@ export default async function OverViewLayout({
                 <Badge variant='outline'>
                   {stats.previousMonth.expenses > 0 &&
                   stats.currentMonth.expenses > stats.previousMonth.expenses ? (
-                    <IconTrendingUp />
+                    <ArrowUp01Icon />
                   ) : (
-                    <IconTrendingDown />
+                    <ArrowDown01Icon />
                   )}
                   {stats.previousMonth.expenses > 0
                     ? `${(((stats.currentMonth.expenses - stats.previousMonth.expenses) / stats.previousMonth.expenses) * 100).toFixed(1)}%`
@@ -77,9 +77,9 @@ export default async function OverViewLayout({
               <CardAction>
                 <Badge variant='outline'>
                   {stats.growthPercentage >= 0 ? (
-                    <IconTrendingUp />
+                    <ArrowUp01Icon />
                   ) : (
-                    <IconTrendingDown />
+                    <ArrowDown01Icon />
                   )}
                   {stats.growthPercentage.toFixed(1)}%
                 </Badge>
@@ -104,9 +104,9 @@ export default async function OverViewLayout({
               <CardAction>
                 <Badge variant='outline'>
                   {stats.totalBalance >= 0 ? (
-                    <IconTrendingUp />
+                    <ArrowUp01Icon />
                   ) : (
-                    <IconTrendingDown />
+                    <ArrowDown01Icon />
                   )}
                   Activo
                 </Badge>
@@ -131,9 +131,9 @@ export default async function OverViewLayout({
               <CardAction>
                 <Badge variant='outline'>
                   {stats.growthPercentage >= 0 ? (
-                    <IconTrendingUp />
+                    <ArrowUp01Icon />
                   ) : (
-                    <IconTrendingDown />
+                    <ArrowDown01Icon />
                   )}
                   {stats.growthPercentage >= 0 ? 'Mejora' : 'Baja'}
                 </Badge>
