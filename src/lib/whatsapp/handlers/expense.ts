@@ -79,6 +79,16 @@ export async function handleExpense(
       accountToUse = anyAccount;
     }
 
+    // Verificación final de seguridad
+    if (!accountToUse) {
+      return {
+        success: false,
+        message:
+          '❌ No se pudo obtener una cuenta válida.\n\n' +
+          'Por favor intenta de nuevo.'
+      };
+    }
+
     // 4. Detectar categoría automáticamente
     const categoryId = await detectCategory(description, profileId);
     const categoryName = categoryId
