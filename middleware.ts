@@ -66,7 +66,8 @@ export async function middleware(request: NextRequest) {
     '/auth/callback',
     '/auth/reset-password',
     '/terms',
-    '/privacy'
+    '/privacy',
+    '/legal' // Todas las páginas legales (privacy-policy, terms-of-service, data-deletion)
   ];
 
   const isPublicPath = publicPaths.some((path) =>

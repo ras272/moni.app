@@ -25,7 +25,7 @@ const expenseSchema = z.object({
   description: z
     .string()
     .min(3, 'La descripción debe tener al menos 3 caracteres'),
-  amount: z.coerce.number().min(1, 'El monto debe ser mayor a 0'),
+  amount: z.number().min(1, 'El monto debe ser mayor a 0'),
   paid_by_participant_id: z.string().min(1, 'Debes seleccionar quién pagó')
 });
 

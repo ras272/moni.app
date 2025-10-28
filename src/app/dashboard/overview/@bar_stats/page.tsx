@@ -1,8 +1,8 @@
-import { delay } from '@/constants/mock-api';
 import { BarGraph } from '@/features/overview/components/bar-graph';
+import { getDailyCashFlow } from '@/lib/supabase/dashboard-stats';
 
 export default async function BarStats() {
-  await await delay(1000);
+  const dailyCashFlow = await getDailyCashFlow(90);
 
-  return <BarGraph />;
+  return <BarGraph data={dailyCashFlow} />;
 }

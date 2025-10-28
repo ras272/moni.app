@@ -16,8 +16,41 @@ import { RecentSales } from './recent-sales';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrencyPY } from '@/lib/utils';
+import {
+  getMonthlyStats,
+  getDailyCashFlow,
+  getExpensesByCategory,
+  getRecentTransactions
+} from '@/lib/supabase/dashboard-stats';
 
-export default function OverViewPage() {
+export default async function OverViewPage() {
+  // Fetch data from server
+  console.log('='.repeat(80));
+  console.log('🚀🚀🚀 OVERVIEW PAGE EJECUTANDOSE 🚀🚀🚀');
+  console.log('='.repeat(80));
+
+  const stats = await getMonthlyStats();
+  console.log('📊 [Overview] Monthly stats:', stats);
+
+  const dailyCashFlow = await getDailyCashFlow(90);
+  console.log('📈 [Overview] Daily cash flow length:', dailyCashFlow?.length);
+
+  const categoryExpenses = await getExpensesByCategory();
+  console.log(
+    '🥧 [Overview] Category expenses length:',
+    categoryExpenses?.length
+  );
+
+  const recentTransactions = await getRecentTransactions(5);
+  console.log(
+    '💰 [Overview] Recent transactions length:',
+    recentTransactions?.length
+  );
+
+  const hasData =
+    stats.currentMonth.expenses > 0 || stats.currentMonth.income > 0;
+  console.log('✅ [Overview] Has data:', hasData);
+
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
@@ -38,110 +71,161 @@ export default function OverViewPage() {
           </TabsList>
           <TabsContent value='overview' className='space-y-4'>
             <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4'>
+              {/* Gasto Total (Mes) */}
               <Card className='@container/card'>
                 <CardHeader>
                   <CardDescription>Gasto Total (Mes)</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    {formatCurrencyPY(5250000)}
+                    {formatCurrencyPY(stats.currentMonth.expenses)}
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
-                      <IconTrendingUp />
-                      +12.5%
+                      {stats.previousMonth.expenses > 0 &&
+                      stats.currentMonth.expenses >
+                        stats.previousMonth.expenses ? (
+                        <IconTrendingUp />
+                      ) : (
+                        <IconTrendingDown />
+                      )}
+                      {stats.previousMonth.expenses > 0
+                        ? `${(((stats.currentMonth.expenses - stats.previousMonth.expenses) / stats.previousMonth.expenses) * 100).toFixed(1)}%`
+                        : 'N/A'}
                     </Badge>
                   </CardAction>
                 </CardHeader>
                 <CardFooter className='flex-col items-start gap-1.5 text-sm'>
                   <div className='line-clamp-1 flex gap-2 font-medium'>
-                    Trending up this month <IconTrendingUp className='size-4' />
+                    {stats.currentMonth.expenses > stats.previousMonth.expenses
+                      ? 'Mayor'
+                      : 'Menor'}{' '}
+                    que el mes pasado
                   </div>
                   <div className='text-muted-foreground'>
-                    Visitors for the last 6 months
+                    Mes anterior:{' '}
+                    {formatCurrencyPY(stats.previousMonth.expenses)}
                   </div>
                 </CardFooter>
               </Card>
+
+              {/* Ahorro Neto (Mes) */}
               <Card className='@container/card'>
                 <CardHeader>
                   <CardDescription>Ahorro Neto (Mes)</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    {formatCurrencyPY(850000)}
+                    {formatCurrencyPY(stats.currentMonth.savings)}
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
-                      <IconTrendingDown />
-                      -20%
+                      {stats.growthPercentage >= 0 ? (
+                        <IconTrendingUp />
+                      ) : (
+                        <IconTrendingDown />
+                      )}
+                      {stats.growthPercentage.toFixed(1)}%
                     </Badge>
                   </CardAction>
                 </CardHeader>
                 <CardFooter className='flex-col items-start gap-1.5 text-sm'>
                   <div className='line-clamp-1 flex gap-2 font-medium'>
-                    Down 20% this period <IconTrendingDown className='size-4' />
+                    {stats.growthPercentage >= 0
+                      ? 'Crecimiento'
+                      : 'Decrecimiento'}{' '}
+                    este mes
                   </div>
                   <div className='text-muted-foreground'>
-                    Acquisition needs attention
+                    Ingresos: {formatCurrencyPY(stats.currentMonth.income)}
                   </div>
                 </CardFooter>
               </Card>
+
+              {/* Saldo Total en Cuentas */}
               <Card className='@container/card'>
                 <CardHeader>
                   <CardDescription>Saldo Total en Cuentas</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    {formatCurrencyPY(12450000)}
+                    {formatCurrencyPY(stats.totalBalance)}
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
-                      <IconTrendingUp />
-                      +12.5%
+                      {stats.totalBalance >= 0 ? (
+                        <IconTrendingUp />
+                      ) : (
+                        <IconTrendingDown />
+                      )}
+                      Activo
                     </Badge>
                   </CardAction>
                 </CardHeader>
                 <CardFooter className='flex-col items-start gap-1.5 text-sm'>
                   <div className='line-clamp-1 flex gap-2 font-medium'>
-                    Strong user retention <IconTrendingUp className='size-4' />
+                    Balance de todas tus cuentas
                   </div>
                   <div className='text-muted-foreground'>
-                    Engagement exceed targets
+                    Actualizado en tiempo real
                   </div>
                 </CardFooter>
               </Card>
+
+              {/* vs. Mes Pasado */}
               <Card className='@container/card'>
                 <CardHeader>
                   <CardDescription>vs. Mes Pasado</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    +8.2%
+                    {stats.growthPercentage >= 0 ? '+' : ''}
+                    {stats.growthPercentage.toFixed(1)}%
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
-                      <IconTrendingUp />
-                      +4.5%
+                      {stats.growthPercentage >= 0 ? (
+                        <IconTrendingUp />
+                      ) : (
+                        <IconTrendingDown />
+                      )}
+                      {stats.growthPercentage >= 0 ? 'Mejora' : 'Baja'}
                     </Badge>
                   </CardAction>
                 </CardHeader>
                 <CardFooter className='flex-col items-start gap-1.5 text-sm'>
                   <div className='line-clamp-1 flex gap-2 font-medium'>
-                    Steady performance increase{' '}
-                    <IconTrendingUp className='size-4' />
+                    {stats.growthPercentage >= 0
+                      ? 'Crecimiento constante'
+                      : 'Necesita atención'}
                   </div>
                   <div className='text-muted-foreground'>
-                    Meets growth projections
+                    Comparación mes a mes
                   </div>
                 </CardFooter>
               </Card>
             </div>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
-              <div className='col-span-4'>
-                <BarGraph />
+
+            {hasData ? (
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
+                <div className='col-span-4'>
+                  <BarGraph data={dailyCashFlow} />
+                </div>
+                <Card className='col-span-4 md:col-span-3'>
+                  <RecentSales transactions={recentTransactions} />
+                </Card>
+                <div className='col-span-4'>
+                  <AreaGraph data={dailyCashFlow} />
+                </div>
+                <div className='col-span-4 md:col-span-3'>
+                  <PieGraph data={categoryExpenses} />
+                </div>
               </div>
-              <Card className='col-span-4 md:col-span-3'>
-                <RecentSales />
-              </Card>
-              <div className='col-span-4'>
-                <AreaGraph />
+            ) : (
+              <div className='flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed'>
+                <div className='text-center'>
+                  <h3 className='text-lg font-semibold'>
+                    No hay datos para mostrar
+                  </h3>
+                  <p className='text-muted-foreground mt-2 text-sm'>
+                    Comienza agregando tus primeras transacciones para ver
+                    estadísticas.
+                  </p>
+                </div>
               </div>
-              <div className='col-span-4 md:col-span-3'>
-                <PieGraph />
-              </div>
-            </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -8,71 +8,100 @@ import {
 } from '@/components/ui/card';
 import { formatCurrencyPY } from '@/lib/utils';
 
-const salesData = [
-  {
-    name: 'Biggie',
-    email: 'Supermercado',
-    avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'BG',
-    amount: 450000
-  },
-  {
-    name: 'Stock',
-    email: 'Supermercado',
-    avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'ST',
-    amount: 320000
-  },
-  {
-    name: 'MUV',
-    email: 'Transporte',
-    avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'MV',
-    amount: 75000
-  },
-  {
-    name: 'Pago ANDE',
-    email: 'Servicios',
-    avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'AN',
-    amount: 280000
-  },
-  {
-    name: 'Farmacia Catedral',
-    email: 'Salud',
-    avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'FC',
-    amount: 120000
-  }
-];
+type Transaction = {
+  id: string;
+  type: 'expense' | 'income' | 'transfer';
+  amount: number;
+  currency: string;
+  description: string;
+  merchant: string | null;
+  transaction_date: string;
+  category: {
+    name: string;
+    icon: string;
+    color: string;
+  } | null;
+};
 
-export function RecentSales() {
+type RecentSalesProps = {
+  transactions: Transaction[];
+};
+
+export function RecentSales({ transactions }: RecentSalesProps) {
+  const getInitials = (text: string) => {
+    return text
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getTransactionSign = (type: string) => {
+    if (type === 'income') return '+';
+    if (type === 'expense') return '-';
+    return '';
+  };
+
+  const safeTransactions = transactions || [];
+
   return (
     <Card className='h-full'>
       <CardHeader>
         <CardTitle>Últimas Transacciones</CardTitle>
         <CardDescription>
-          Registraste 50 transacciones este mes.
+          {safeTransactions.length > 0
+            ? `Tus ${safeTransactions.length} transacciones más recientes`
+            : 'No hay transacciones registradas'}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='space-y-8'>
-          {salesData.map((sale, index) => (
-            <div key={index} className='flex items-center'>
-              <Avatar className='h-9 w-9'>
-                <AvatarImage src={sale.avatar} alt='Avatar' />
-                <AvatarFallback>{sale.fallback}</AvatarFallback>
-              </Avatar>
-              <div className='ml-4 space-y-1'>
-                <p className='text-sm leading-none font-medium'>{sale.name}</p>
-                <p className='text-muted-foreground text-sm'>{sale.email}</p>
+        {safeTransactions.length === 0 ? (
+          <div className='flex min-h-[200px] items-center justify-center'>
+            <p className='text-muted-foreground text-sm'>
+              No hay transacciones para mostrar
+            </p>
+          </div>
+        ) : (
+          <div className='space-y-8'>
+            {safeTransactions.map((transaction) => (
+              <div key={transaction.id} className='flex items-center'>
+                <Avatar className='h-9 w-9'>
+                  <AvatarFallback
+                    style={{
+                      backgroundColor: transaction.category?.color || '#94a3b8'
+                    }}
+                    className='text-white'
+                  >
+                    {transaction.merchant
+                      ? getInitials(transaction.merchant)
+                      : getInitials(transaction.description)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className='ml-4 space-y-1'>
+                  <p className='text-sm leading-none font-medium'>
+                    {transaction.merchant || transaction.description}
+                  </p>
+                  <p className='text-muted-foreground text-sm'>
+                    {transaction.category?.name || 'Sin categoría'}
+                  </p>
+                </div>
+                <div
+                  className={`ml-auto font-medium ${
+                    transaction.type === 'income'
+                      ? 'text-green-600'
+                      : transaction.type === 'expense'
+                        ? 'text-red-600'
+                        : ''
+                  }`}
+                >
+                  {getTransactionSign(transaction.type)}
+                  {formatCurrencyPY(transaction.amount)}
+                </div>
               </div>
-              <div className='ml-auto font-medium'>
-                {formatCurrencyPY(sale.amount)}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

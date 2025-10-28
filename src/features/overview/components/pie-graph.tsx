@@ -19,44 +19,68 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-const chartData = [
-  { browser: 'chrome', visitors: 275, fill: 'var(--primary)' },
-  { browser: 'safari', visitors: 200, fill: 'var(--primary-light)' },
-  { browser: 'firefox', visitors: 287, fill: 'var(--primary-lighter)' },
-  { browser: 'edge', visitors: 173, fill: 'var(--primary-dark)' },
-  { browser: 'other', visitors: 190, fill: 'var(--primary-darker)' }
-];
+type CategoryExpense = {
+  name: string;
+  amount: number;
+  color: string;
+  icon: string;
+};
 
-const chartConfig = {
-  visitors: {
-    label: 'Visitors'
-  },
-  chrome: {
-    label: 'Chrome',
-    color: 'var(--primary)'
-  },
-  safari: {
-    label: 'Safari',
-    color: 'var(--primary)'
-  },
-  firefox: {
-    label: 'Firefox',
-    color: 'var(--primary)'
-  },
-  edge: {
-    label: 'Edge',
-    color: 'var(--primary)'
-  },
-  other: {
-    label: 'Other',
-    color: 'var(--primary)'
+type PieGraphProps = {
+  data: CategoryExpense[];
+};
+
+export function PieGraph({ data }: PieGraphProps) {
+  const chartData = React.useMemo(() => {
+    if (!data || !Array.isArray(data)) return [];
+    return data.map((item, index) => ({
+      category: item.name,
+      amount: item.amount,
+      fill: item.color
+    }));
+  }, [data]);
+
+  const chartConfig = React.useMemo(() => {
+    const config: ChartConfig = {
+      amount: {
+        label: 'Monto'
+      }
+    };
+    if (data && Array.isArray(data)) {
+      data.forEach((item) => {
+        config[item.name.toLowerCase().replace(/\s+/g, '_')] = {
+          label: item.name,
+          color: item.color
+        };
+      });
+    }
+    return config;
+  }, [data]);
+
+  const totalAmount = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.amount, 0);
+  }, [chartData]);
+
+  const topCategory = React.useMemo(() => {
+    if (chartData.length === 0) return null;
+    return chartData[0];
+  }, [chartData]);
+
+  if (chartData.length === 0) {
+    return (
+      <Card className='@container/card'>
+        <CardHeader>
+          <CardTitle>Gastos por Categoría</CardTitle>
+          <CardDescription>No hay datos disponibles</CardDescription>
+        </CardHeader>
+        <CardContent className='flex min-h-[250px] items-center justify-center'>
+          <p className='text-muted-foreground text-sm'>
+            Agrega gastos para ver la distribución
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
-} satisfies ChartConfig;
-
-export function PieGraph() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
 
   return (
     <Card className='@container/card'>
@@ -77,42 +101,14 @@ export function PieGraph() {
           className='mx-auto aspect-square h-[250px]'
         >
           <PieChart>
-            <defs>
-              {['chrome', 'safari', 'firefox', 'edge', 'other'].map(
-                (browser, index) => (
-                  <linearGradient
-                    key={browser}
-                    id={`fill${browser}`}
-                    x1='0'
-                    y1='0'
-                    x2='0'
-                    y2='1'
-                  >
-                    <stop
-                      offset='0%'
-                      stopColor='var(--primary)'
-                      stopOpacity={1 - index * 0.15}
-                    />
-                    <stop
-                      offset='100%'
-                      stopColor='var(--primary)'
-                      stopOpacity={0.8 - index * 0.15}
-                    />
-                  </linearGradient>
-                )
-              )}
-            </defs>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData.map((item) => ({
-                ...item,
-                fill: `url(#fill${item.browser})`
-              }))}
-              dataKey='visitors'
-              nameKey='browser'
+              data={chartData}
+              dataKey='amount'
+              nameKey='category'
               innerRadius={60}
               strokeWidth={2}
               stroke='var(--background)'
@@ -132,14 +128,14 @@ export function PieGraph() {
                           y={viewBox.cy}
                           className='fill-foreground text-3xl font-bold'
                         >
-                          {totalVisitors.toLocaleString()}
+                          ₲{(totalAmount / 1000).toFixed(0)}k
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className='fill-muted-foreground text-sm'
                         >
-                          Total Visitors
+                          Total Gastos
                         </tspan>
                       </text>
                     );
@@ -151,14 +147,19 @@ export function PieGraph() {
         </ChartContainer>
       </CardContent>
       <CardFooter className='flex-col gap-2 text-sm'>
-        <div className='flex items-center gap-2 leading-none font-medium'>
-          Chrome leads with{' '}
-          {((chartData[0].visitors / totalVisitors) * 100).toFixed(1)}%{' '}
-          <IconTrendingUp className='h-4 w-4' />
-        </div>
-        <div className='text-muted-foreground leading-none'>
-          Based on data from January - June 2024
-        </div>
+        {topCategory && (
+          <>
+            <div className='flex items-center gap-2 leading-none font-medium'>
+              {topCategory.category} lidera con{' '}
+              {((topCategory.amount / totalAmount) * 100).toFixed(1)}%{' '}
+              <IconTrendingUp className='h-4 w-4' />
+            </div>
+            <div className='text-muted-foreground leading-none'>
+              ₲{topCategory.amount.toLocaleString('es-PY')} de ₲
+              {totalAmount.toLocaleString('es-PY')} total
+            </div>
+          </>
+        )}
       </CardFooter>
     </Card>
   );

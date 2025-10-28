@@ -11,8 +11,9 @@ import {
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React from 'react';
 import { formatCurrencyPY } from '@/lib/utils';
+import { getMonthlyStats } from '@/lib/supabase/dashboard-stats';
 
-export default function OverViewLayout({
+export default async function OverViewLayout({
   sales,
   pie_stats,
   bar_stats,
@@ -23,6 +24,8 @@ export default function OverViewLayout({
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
 }) {
+  const stats = await getMonthlyStats();
+
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
@@ -37,21 +40,31 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Gasto Total (Mes)</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {formatCurrencyPY(5250000)}
+                {formatCurrencyPY(stats.currentMonth.expenses)}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +12.5%
+                  {stats.previousMonth.expenses > 0 &&
+                  stats.currentMonth.expenses > stats.previousMonth.expenses ? (
+                    <IconTrendingUp />
+                  ) : (
+                    <IconTrendingDown />
+                  )}
+                  {stats.previousMonth.expenses > 0
+                    ? `${(((stats.currentMonth.expenses - stats.previousMonth.expenses) / stats.previousMonth.expenses) * 100).toFixed(1)}%`
+                    : 'N/A'}
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Trending up this month <IconTrendingUp className='size-4' />
+                {stats.currentMonth.expenses > stats.previousMonth.expenses
+                  ? 'Mayor'
+                  : 'Menor'}{' '}
+                que el mes pasado
               </div>
               <div className='text-muted-foreground'>
-                Visitors for the last 6 months
+                Mes anterior: {formatCurrencyPY(stats.previousMonth.expenses)}
               </div>
             </CardFooter>
           </Card>
@@ -59,21 +72,26 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Ahorro Neto (Mes)</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {formatCurrencyPY(850000)}
+                {formatCurrencyPY(stats.currentMonth.savings)}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
-                  <IconTrendingDown />
-                  -20%
+                  {stats.growthPercentage >= 0 ? (
+                    <IconTrendingUp />
+                  ) : (
+                    <IconTrendingDown />
+                  )}
+                  {stats.growthPercentage.toFixed(1)}%
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Down 20% this period <IconTrendingDown className='size-4' />
+                {stats.growthPercentage >= 0 ? 'Crecimiento' : 'Decrecimiento'}{' '}
+                este mes
               </div>
               <div className='text-muted-foreground'>
-                Acquisition needs attention
+                Ingresos: {formatCurrencyPY(stats.currentMonth.income)}
               </div>
             </CardFooter>
           </Card>
@@ -81,21 +99,25 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Saldo Total en Cuentas</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {formatCurrencyPY(12450000)}
+                {formatCurrencyPY(stats.totalBalance)}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +12.5%
+                  {stats.totalBalance >= 0 ? (
+                    <IconTrendingUp />
+                  ) : (
+                    <IconTrendingDown />
+                  )}
+                  Activo
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Strong user retention <IconTrendingUp className='size-4' />
+                Balance de todas tus cuentas
               </div>
               <div className='text-muted-foreground'>
-                Engagement exceed targets
+                Actualizado en tiempo real
               </div>
             </CardFooter>
           </Card>
@@ -103,23 +125,27 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>vs. Mes Pasado</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                +8.2%
+                {stats.growthPercentage >= 0 ? '+' : ''}
+                {stats.growthPercentage.toFixed(1)}%
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +4.5%
+                  {stats.growthPercentage >= 0 ? (
+                    <IconTrendingUp />
+                  ) : (
+                    <IconTrendingDown />
+                  )}
+                  {stats.growthPercentage >= 0 ? 'Mejora' : 'Baja'}
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Steady performance increase{' '}
-                <IconTrendingUp className='size-4' />
+                {stats.growthPercentage >= 0
+                  ? 'Crecimiento constante'
+                  : 'Necesita atención'}
               </div>
-              <div className='text-muted-foreground'>
-                Meets growth projections
-              </div>
+              <div className='text-muted-foreground'>Comparación mes a mes</div>
             </CardFooter>
           </Card>
         </div>

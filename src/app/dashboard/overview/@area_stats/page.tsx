@@ -1,7 +1,7 @@
-import { delay } from '@/constants/mock-api';
 import { AreaGraph } from '@/features/overview/components/area-graph';
+import { getDailyCashFlow } from '@/lib/supabase/dashboard-stats';
 
 export default async function AreaStats() {
-  await await delay(2000);
-  return <AreaGraph />;
+  const dailyCashFlow = await getDailyCashFlow(90);
+  return <AreaGraph data={dailyCashFlow} />;
 }
