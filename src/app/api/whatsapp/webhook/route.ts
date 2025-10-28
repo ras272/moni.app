@@ -38,15 +38,23 @@ export async function GET(request: NextRequest) {
     const token = searchParams.get('hub.verify_token');
     const challenge = searchParams.get('hub.challenge');
 
-    console.log('Webhook verification request:', { mode, token: token ? 'present' : 'missing', challenge: challenge ? 'present' : 'missing' });
+    console.log('🔍 Webhook verification request:', {
+      mode,
+      token: token ? `${token.substring(0, 10)}...` : 'missing',
+      challenge: challenge ? `${challenge.substring(0, 10)}...` : 'missing',
+      fullURL: request.url
+    });
 
     // Validar que sea un request de suscripción con el token correcto
     if (mode === 'subscribe' && validateVerifyToken(token)) {
-      console.log('✅ Webhook verified successfully');
+      console.log('✅ Webhook verified successfully, returning challenge');
       return new NextResponse(challenge, { status: 200 });
     }
 
-    console.error('❌ Webhook verification failed');
+    console.error('❌ Webhook verification failed:', {
+      modeOK: mode === 'subscribe',
+      tokenOK: validateVerifyToken(token)
+    });
     return new NextResponse('Forbidden', { status: 403 });
   } catch (error) {
     console.error('Error in webhook verification:', error);
