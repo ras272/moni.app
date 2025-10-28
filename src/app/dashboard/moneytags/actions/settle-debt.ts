@@ -113,6 +113,19 @@ export async function settleDebtAction(
 
     if (insertError) {
       console.error('Error inserting settlement:', insertError);
+
+      // Check if it's a duplicate constraint error
+      if (
+        insertError.code === '23505' ||
+        insertError.message?.includes('unique_settlement_per_day')
+      ) {
+        return {
+          success: false,
+          error:
+            'Este pago ya fue registrado hoy. Si necesitas registrar otro pago, intenta con un monto diferente.'
+        };
+      }
+
       return {
         success: false,
         error: 'Error al registrar la liquidación: ' + insertError.message

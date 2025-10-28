@@ -42,6 +42,7 @@ export function SettleDebtDialog({
   const [amount, setAmount] = useState(debtAmount.toString());
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   // Check if current user is involved in this debt
@@ -68,7 +69,10 @@ export function SettleDebtDialog({
       return;
     }
 
+    if (isSubmitting) return; // Prevenir doble envío
+
     setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       const result = await settleDebtAction({
@@ -86,16 +90,22 @@ export function SettleDebtDialog({
         setIsOpen(false);
         setAmount(debtAmount.toString());
         setNotes('');
-        router.refresh();
+        // Delay el refresh para evitar doble llamada
+        setTimeout(() => {
+          router.refresh();
+          setIsSubmitting(false);
+        }, 1000);
       } else {
         toast.error('Error al registrar pago', {
           description: result.error || 'Ocurrió un error inesperado'
         });
+        setIsSubmitting(false);
       }
     } catch (error) {
       toast.error('Error al registrar pago', {
         description: 'Ocurrió un error inesperado'
       });
+      setIsSubmitting(false);
     } finally {
       setIsLoading(false);
     }
@@ -105,8 +115,16 @@ export function SettleDebtDialog({
     return null;
   }
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    // Reset submitting state when dialog closes
+    if (!open) {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant='outline' size='sm'>
           <CheckCircle2 className='mr-2 h-4 w-4' />
@@ -178,7 +196,7 @@ export function SettleDebtDialog({
             >
               Cancelar
             </Button>
-            <Button type='submit' disabled={isLoading}>
+            <Button type='submit' disabled={isLoading || isSubmitting}>
               {isLoading ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
