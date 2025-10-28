@@ -26,26 +26,43 @@ export async function generateLinkToken(
   const token = generateRandomToken(8);
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
-  // Guardar o actualizar token en la base de datos
-  const { error } = await supabase
+  // Buscar si ya existe una conexión para este perfil
+  const { data: existing } = await supabase
     .from('whatsapp_connections')
-    .upsert(
-      {
+    .select('id')
+    .eq('profile_id', profileId)
+    .single();
+
+  if (existing) {
+    // Actualizar conexión existente con nuevo token
+    const { error } = await supabase
+      .from('whatsapp_connections')
+      .update({
+        verification_token: token,
+        token_expires_at: expiresAt.toISOString()
+      })
+      .eq('profile_id', profileId);
+
+    if (error) {
+      console.error('Error updating link token:', error);
+      throw new Error('Failed to generate link token');
+    }
+  } else {
+    // Crear nueva conexión con token
+    const { error } = await supabase
+      .from('whatsapp_connections')
+      .insert({
         profile_id: profileId,
-        phone_number: 'pending', // Se actualizará al vincular
+        phone_number: `pending_${profileId.substring(0, 8)}`, // Único temporal
         is_active: false,
         verification_token: token,
         token_expires_at: expiresAt.toISOString()
-      },
-      {
-        onConflict: 'profile_id',
-        ignoreDuplicates: false
-      }
-    );
+      });
 
-  if (error) {
-    console.error('Error generating link token:', error);
-    throw new Error('Failed to generate link token');
+    if (error) {
+      console.error('Error creating link token:', error);
+      throw new Error('Failed to generate link token');
+    }
   }
 
   return { token, expiresAt };
