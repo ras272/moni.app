@@ -1,10 +1,10 @@
 /**
  * WhatsApp Bot - Balance Handler
- * 
+ *
  * Maneja consultas de balance desde WhatsApp
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { HandlerResponse } from '../types';
 import { formatCurrency, formatRelativeTime } from '../client';
 
@@ -16,7 +16,8 @@ export async function handleGetBalance(
   profileId: string
 ): Promise<HandlerResponse> {
   try {
-    const supabase = await createClient();
+    // Usar admin client porque el webhook no tiene sesión de usuario
+    const supabase = getSupabaseAdmin();
 
     // 1. Obtener todas las cuentas activas del usuario
     const { data: accounts, error: accountsError } = await supabase

@@ -1,10 +1,10 @@
 /**
  * WhatsApp Bot - Summary Handler
- * 
+ *
  * Maneja consultas de resumen diario/mensual desde WhatsApp
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { HandlerResponse } from '../types';
 import { formatCurrency, formatDate } from '../client';
 
@@ -16,7 +16,8 @@ export async function handleGetSummary(
   profileId: string
 ): Promise<HandlerResponse> {
   try {
-    const supabase = await createClient();
+    // Usar admin client porque el webhook no tiene sesión de usuario
+    const supabase = getSupabaseAdmin();
     const today = new Date().toISOString().split('T')[0];
 
     // 1. Obtener gastos de hoy
@@ -33,7 +34,8 @@ export async function handleGetSummary(
       return {
         success: false,
         message:
-          '❌ Error al consultar el resumen.\n\n' + 'Por favor intenta de nuevo.'
+          '❌ Error al consultar el resumen.\n\n' +
+          'Por favor intenta de nuevo.'
       };
     }
 
@@ -83,8 +85,7 @@ export async function handleGetSummary(
     const categoryTotals: Record<string, number> = {};
     if (topCategories) {
       for (const tx of topCategories) {
-        const categoryName =
-          (tx.categories as any)?.name || 'Sin categoría';
+        const categoryName = (tx.categories as any)?.name || 'Sin categoría';
         if (!categoryTotals[categoryName]) {
           categoryTotals[categoryName] = 0;
         }

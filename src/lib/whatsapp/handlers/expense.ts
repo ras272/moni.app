@@ -1,10 +1,10 @@
 /**
  * WhatsApp Bot - Expense Handler
- * 
+ *
  * Maneja el registro de gastos desde WhatsApp
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { HandlerResponse } from '../types';
 import { detectCategory, getCategoryName } from '../category-detector';
 import { formatCurrency, formatDate } from '../client';
@@ -41,9 +41,10 @@ export async function handleExpense(
       };
     }
 
-    const supabase = await createClient();
+    // 3. Usar admin client porque el webhook no tiene sesión de usuario
+    const supabase = getSupabaseAdmin();
 
-    // 3. Obtener cuenta default del usuario
+    // 4. Obtener cuenta default del usuario
     const { data: defaultAccount, error: accountError } = await supabase
       .from('accounts')
       .select('id, name, currency')
