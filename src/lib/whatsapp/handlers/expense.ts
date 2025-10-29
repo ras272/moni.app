@@ -67,7 +67,7 @@ export async function handleExpense(
     }
 
     // 5. Seleccionar cuenta usando fuzzy matching inteligente
-    let accountToUse: AccountInfo | null = null;
+    let accountToUse: any = null;
 
     if (accountName) {
       // Si especificó nombre de cuenta, buscar con fuzzy matching
@@ -83,7 +83,7 @@ export async function handleExpense(
 
     if (!accountToUse) {
       // Si no hay cuenta de esa moneda, usar la primera disponible
-      accountToUse = allAccounts[0] as any;
+      accountToUse = allAccounts[0];
     }
 
     // 4. Detectar categoría automáticamente

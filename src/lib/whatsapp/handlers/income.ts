@@ -83,7 +83,7 @@ export async function handleIncome(
 
     if (!accountToUse) {
       // Si no hay cuenta de esa moneda, usar la primera disponible
-      accountToUse = allAccounts[0] as any;
+      accountToUse = allAccounts[0];
     }
 
     // 4. Detectar categoría automáticamente
