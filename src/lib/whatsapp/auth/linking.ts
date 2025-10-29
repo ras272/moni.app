@@ -174,7 +174,7 @@ export async function linkPhoneToProfile(
   }
 
   // 3. Actualizar conexión (usar admin porque el webhook no tiene auth de usuario)
-  const { error } = await supabaseAdmin
+  const updateResult = (await supabaseAdmin
     .from('whatsapp_connections')
     .update({
       phone_number: phoneNumber,
@@ -183,8 +183,9 @@ export async function linkPhoneToProfile(
       verification_token: null,
       token_expires_at: null
     })
-    .eq('profile_id', verification.profileId);
+    .eq('profile_id', verification.profileId)) as any;
 
+  const { error } = updateResult;
   if (error) {
     console.error('Error linking phone:', error);
     return {
