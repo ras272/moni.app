@@ -113,8 +113,9 @@ export async function verifyLinkToken(token: string): Promise<{
     };
   }
 
-  // Verificar expiración
-  const expiresAt = new Date(data.token_expires_at!);
+  // TypeScript: data está garantizado que no es null aquí
+  const tokenData = data as any;
+  const expiresAt = new Date(tokenData.token_expires_at!);
   const now = new Date();
 
   if (now > expiresAt) {
@@ -126,7 +127,7 @@ export async function verifyLinkToken(token: string): Promise<{
 
   return {
     valid: true,
-    profileId: data.profile_id
+    profileId: tokenData.profile_id
   };
 }
 
