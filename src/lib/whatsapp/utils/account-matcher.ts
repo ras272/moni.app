@@ -39,8 +39,8 @@ export function calculateSimilarity(str1: string, str2: string): number {
   // Simple character overlap
   const chars1 = new Set(s1.split(''));
   const chars2 = new Set(s2.split(''));
-  const intersection = new Set([...chars1].filter((x) => chars2.has(x)));
-  const union = new Set([...chars1, ...chars2]);
+  const intersection = new Set(Array.from(chars1).filter((x) => chars2.has(x)));
+  const union = new Set([...Array.from(chars1), ...Array.from(chars2)]);
 
   return intersection.size / union.size;
 }
