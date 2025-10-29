@@ -4,7 +4,7 @@
  * Maneja el registro de ingresos desde WhatsApp
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { HandlerResponse } from '../types';
 import { detectIncomeCategory, getCategoryName } from '../category-detector';
 import { formatCurrency, formatDate } from '../client';
