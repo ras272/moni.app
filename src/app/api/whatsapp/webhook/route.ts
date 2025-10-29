@@ -276,12 +276,9 @@ export async function POST(request: NextRequest) {
 
       case 'unknown':
       default:
-        response = {
-          success: false,
-          message:
-            '🤔 No entendí tu mensaje.\n\n' +
-            'Escribe "ayuda" para ver los comandos disponibles.'
-        };
+        // Modo silencioso: ignorar mensajes no reconocidos
+        // Esto evita que el bot responda a conversaciones normales de WhatsApp
+        return NextResponse.json({ success: true });
     }
 
     // 13. Enviar respuesta al usuario
