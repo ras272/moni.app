@@ -34,12 +34,13 @@ export async function generateLinkToken(
     .single();
 
   if (existing) {
-    // Actualizar conexión existente con nuevo token
+    // Actualizar conexión existente con nuevo token y resetear estado
     const { error } = await supabase
       .from('whatsapp_connections')
       .update({
         verification_token: token,
-        token_expires_at: expiresAt.toISOString()
+        token_expires_at: expiresAt.toISOString(),
+        is_active: false // Resetear a false para permitir re-vinculación
       })
       .eq('profile_id', profileId);
 
