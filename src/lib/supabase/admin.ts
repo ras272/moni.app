@@ -9,7 +9,6 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -22,13 +21,9 @@ if (!supabaseUrl || !supabaseServiceKey) {
  * Cliente admin de Supabase con service role
  * BYPASSA RLS - usar con precaución
  */
-export const supabaseAdmin = createClient<Database>(
-  supabaseUrl,
-  supabaseServiceKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
   }
-);
+});
