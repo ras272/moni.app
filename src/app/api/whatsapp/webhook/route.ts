@@ -112,6 +112,12 @@ export async function POST(request: NextRequest) {
 
     // 7. CASO ESPECIAL: Vinculación de cuenta
     if (parsed.intent === 'link_account') {
+      console.log('🔗 Link account intent detected:', { 
+        from, 
+        token: parsed.linkToken,
+        rawText: parsed.rawText 
+      });
+
       if (!parsed.linkToken) {
         await sendWhatsAppMessage(
           from,
@@ -123,6 +129,7 @@ export async function POST(request: NextRequest) {
       }
 
       const linkResult = await linkPhoneToProfile(from, parsed.linkToken);
+      console.log('🔗 Link result:', linkResult);
 
       if (linkResult.success) {
         await sendWhatsAppMessage(

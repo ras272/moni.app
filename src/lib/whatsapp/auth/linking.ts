@@ -95,13 +95,17 @@ export async function verifyLinkToken(token: string): Promise<{
 }> {
   const supabase = await createClient();
 
+  console.log('🔍 Verifying token:', token);
+
   // Buscar token en la base de datos
   const { data, error } = await supabase
     .from('whatsapp_connections')
-    .select('profile_id, token_expires_at')
+    .select('profile_id, token_expires_at, is_active')
     .eq('verification_token', token)
     .eq('is_active', false) // Solo tokens no usados
     .single();
+
+  console.log('🔍 Token lookup result:', { data, error });
 
   if (error || !data) {
     return {
