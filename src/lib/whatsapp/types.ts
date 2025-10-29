@@ -1,6 +1,6 @@
 /**
  * WhatsApp Bot - Type Definitions
- * 
+ *
  * Tipos e interfaces compartidas para toda la integración WhatsApp
  */
 
@@ -27,6 +27,7 @@ export interface ParsedMessage {
   currency?: 'PYG' | 'USD';
   description?: string;
   category?: string;
+  accountName?: string; // Nombre de la cuenta especificada (opcional)
   linkToken?: string;
   rawText: string;
 }

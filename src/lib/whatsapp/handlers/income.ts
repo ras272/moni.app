@@ -18,7 +18,8 @@ export async function handleIncome(
   profileId: string,
   amount: number,
   description: string,
-  currency: 'PYG' | 'USD' = 'PYG'
+  currency: 'PYG' | 'USD' = 'PYG',
+  accountName?: string
 ): Promise<HandlerResponse> {
   try {
     // 1. Validar monto
@@ -44,13 +45,23 @@ export async function handleIncome(
     // 3. Usar admin client porque el webhook no tiene sesión de usuario
     const supabase = getSupabaseAdmin();
 
-    // 4. Obtener cuenta default del usuario
-    const { data: defaultAccount, error: accountError } = await supabase
+    // 4. Buscar cuenta específica si se mencionó, sino usar default
+    let accountQuery = supabase
       .from('accounts')
       .select('id, name, currency')
       .eq('profile_id', profileId)
-      .eq('is_active', true)
-      .eq('currency', currency)
+      .eq('is_active', true);
+
+    // Si especificó nombre de cuenta, buscar por nombre (case insensitive)
+    if (accountName) {
+      accountQuery = accountQuery.ilike('name', `%${accountName}%`);
+    } else {
+      // Sino, buscar cuenta con la moneda correcta
+      accountQuery = accountQuery.eq('currency', currency);
+    }
+
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
+    const { data: defaultAccount, error: accountError } = await accountQuery
       .limit(1)
       .single();
 

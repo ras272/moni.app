@@ -220,7 +220,8 @@ export async function POST(request: NextRequest) {
             connection.profile_id,
             parsed.amount,
             parsed.description,
-            parsed.currency
+            parsed.currency,
+            parsed.accountName
           );
         }
         break;
@@ -238,7 +239,8 @@ export async function POST(request: NextRequest) {
             connection.profile_id,
             parsed.amount,
             parsed.description,
-            parsed.currency
+            parsed.currency,
+            parsed.accountName
           );
         }
         break;

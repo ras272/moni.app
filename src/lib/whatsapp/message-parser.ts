@@ -1,6 +1,6 @@
 /**
  * WhatsApp Bot - Message Parser
- * 
+ *
  * NLP básico con regex para detectar intenciones y extraer datos
  * Optimizado para español paraguayo
  */
@@ -77,12 +77,14 @@ function parseExpense(text: string): ParsedMessage {
   const amount = parseAmount(text);
   const currency = detectCurrency(text);
   const description = extractDescription(text);
+  const accountName = extractAccountName(text);
 
   return {
     intent: 'add_expense',
     amount,
     currency,
     description,
+    accountName,
     rawText: text
   };
 }
@@ -95,12 +97,14 @@ function parseIncome(text: string): ParsedMessage {
   const amount = parseAmount(text);
   const currency = detectCurrency(text);
   const description = extractDescription(text);
+  const accountName = extractAccountName(text);
 
   return {
     intent: 'add_income',
     amount,
     currency,
     description: description || 'Ingreso desde WhatsApp',
+    accountName,
     rawText: text
   };
 }
@@ -209,7 +213,10 @@ function extractDescription(text: string): string {
   // Si no encuentra descripción específica, remover solo números y monedas
   let cleaned = text
     .replace(/\d+[\.,]?\d*\s*[kmil]*/gi, '')
-    .replace(/(gast[eé]|pagu[eé]|compr[eé]|cobr[eé]|recib[íi]|ingres[oó])/gi, '')
+    .replace(
+      /(gast[eé]|pagu[eé]|compr[eé]|cobr[eé]|recib[íi]|ingres[oó])/gi,
+      ''
+    )
     .replace(/\s+(guaraníes?|gs|pesos?|dólares?|usd|en|para|de)/gi, '')
     .trim();
 
@@ -232,4 +239,37 @@ export function isValidAmount(amount: number): boolean {
  */
 export function isValidDescription(description: string): boolean {
   return description.length > 0 && description.length <= 200;
+}
+
+// =====================================================
+// EXTRACTOR DE NOMBRE DE CUENTA
+// =====================================================
+
+/**
+ * Extrae el nombre de la cuenta del mensaje
+ * Patrones:
+ * - "en Itau"
+ * - "cuenta ueno"
+ * - "cuenta ueno bank"
+ */
+function extractAccountName(text: string): string | undefined {
+  const lower = text.toLowerCase();
+
+  // Patrón 1: "en [nombre_cuenta]"
+  const enMatch = text.match(/\s+en\s+([a-záéíóúñ\s]+?)(?:\s|$)/i);
+  if (enMatch) {
+    const accountName = enMatch[1].trim();
+    // Ignorar palabras comunes que no son cuentas
+    if (!/^(efectivo|cash|el|la|mi|tu)$/i.test(accountName)) {
+      return accountName;
+    }
+  }
+
+  // Patrón 2: "cuenta [nombre_cuenta]"
+  const cuentaMatch = text.match(/\bcuenta\s+([a-záéíóúñ\s]+?)(?:\s|$)/i);
+  if (cuentaMatch) {
+    return cuentaMatch[1].trim();
+  }
+
+  return undefined;
 }
