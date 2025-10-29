@@ -6,7 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { WhatsAppConnection } from '../types';
 
 // =====================================================
@@ -96,6 +96,7 @@ export async function verifyLinkToken(token: string): Promise<{
   console.log('🔍 Verifying token:', token);
 
   // Buscar token en la base de datos
+  const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('profile_id, token_expires_at, is_active')
@@ -151,6 +152,7 @@ export async function linkPhoneToProfile(
   }
 
   // Usar admin client para operaciones del webhook (seguro porque ya validamos el token)
+  const supabaseAdmin = getSupabaseAdmin();
   // 2. Verificar si el teléfono ya está vinculado a otra cuenta
   const { data: existing } = await supabaseAdmin
     .from('whatsapp_connections')
@@ -225,6 +227,7 @@ export async function getConnectionByPhone(
   phoneNumber: string
 ): Promise<WhatsAppConnection | null> {
   // Usar admin client porque el webhook necesita leer conexiones sin auth
+  const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('*')
@@ -275,6 +278,7 @@ export async function getConnectionByProfileId(
  */
 export async function updateLastMessage(connectionId: string): Promise<void> {
   // Usar admin client porque el webhook necesita actualizar sin auth
+  const supabaseAdmin = getSupabaseAdmin();
   await supabaseAdmin
     .from('whatsapp_connections')
     .update({ last_message_at: new Date().toISOString() })

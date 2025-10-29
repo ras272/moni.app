@@ -10,20 +10,31 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase admin credentials');
-}
+let supabaseAdminInstance: ReturnType<typeof createClient> | null = null;
 
 /**
- * Cliente admin de Supabase con service role
+ * Obtiene el cliente admin de Supabase con service role
  * BYPASSA RLS - usar con precaución
+ * Se inicializa bajo demanda para evitar errores en build
  */
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+export function getSupabaseAdmin() {
+  if (supabaseAdminInstance) {
+    return supabaseAdminInstance;
   }
-});
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Missing Supabase admin credentials');
+  }
+
+  supabaseAdminInstance = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+
+  return supabaseAdminInstance;
+}
