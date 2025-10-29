@@ -84,8 +84,8 @@ export async function handleGetSummary(
     // Agrupar por categoría
     const categoryTotals: Record<string, number> = {};
     if (topCategories) {
-      for (const tx of topCategories) {
-        const categoryName = (tx.categories as any)?.name || 'Sin categoría';
+      for (const tx of topCategories as any[]) {
+        const categoryName = tx.categories?.name || 'Sin categoría';
         if (!categoryTotals[categoryName]) {
           categoryTotals[categoryName] = 0;
         }
