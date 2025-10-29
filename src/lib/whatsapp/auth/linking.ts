@@ -163,11 +163,14 @@ export async function linkPhoneToProfile(
     .neq('phone_number', 'pending')
     .single();
 
-  if (existing && existing.profile_id !== verification.profileId) {
-    return {
-      success: false,
-      error: 'Este número ya está vinculado a otra cuenta MONI'
-    };
+  if (existing) {
+    const existingData = existing as any;
+    if (existingData.profile_id !== verification.profileId) {
+      return {
+        success: false,
+        error: 'Este número ya está vinculado a otra cuenta MONI'
+      };
+    }
   }
 
   // 3. Actualizar conexión (usar admin porque el webhook no tiene auth de usuario)
