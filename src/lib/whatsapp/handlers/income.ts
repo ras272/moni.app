@@ -65,7 +65,7 @@ export async function handleIncome(
       .limit(1)
       .single();
 
-    let accountToUse = defaultAccount;
+    let accountToUse = defaultAccount as any;
 
     if (accountError || !defaultAccount) {
       // Si no hay cuenta de esa moneda, buscar cualquier cuenta activa
@@ -110,6 +110,7 @@ export async function handleIncome(
     // 5. Crear transacción
     const { data: transaction, error: transactionError } = await supabase
       .from('transactions')
+      // @ts-ignore - TypeScript issue with Supabase admin client typing
       .insert({
         profile_id: profileId,
         type: 'income',
