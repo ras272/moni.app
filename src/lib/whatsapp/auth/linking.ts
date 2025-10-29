@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { WhatsAppConnection } from '../types';
 
 // =====================================================
@@ -91,12 +92,12 @@ export async function verifyLinkToken(token: string): Promise<{
   profileId?: string;
   error?: string;
 }> {
-  const supabase = await createClient();
-
+  // Usar admin client para bypasear RLS (seguro porque solo lee tokens públicos)
   console.log('🔍 Verifying token:', token);
 
   // Buscar token en la base de datos
-  const { data, error } = await supabase
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data, error } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('profile_id, token_expires_at, is_active')
     .eq('verification_token', token)
@@ -112,8 +113,9 @@ export async function verifyLinkToken(token: string): Promise<{
     };
   }
 
-  // Verificar expiración
-  const expiresAt = new Date(data.token_expires_at!);
+  // TypeScript: data está garantizado que no es null aquí
+  const tokenData = data as any;
+  const expiresAt = new Date(tokenData.token_expires_at!);
   const now = new Date();
 
   if (now > expiresAt) {
@@ -125,7 +127,7 @@ export async function verifyLinkToken(token: string): Promise<{
 
   return {
     valid: true,
-    profileId: data.profile_id
+    profileId: tokenData.profile_id
   };
 }
 
@@ -141,8 +143,6 @@ export async function linkPhoneToProfile(
   phoneNumber: string,
   token: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
-
   // 1. Verificar token
   const verification = await verifyLinkToken(token);
   if (!verification.valid || !verification.profileId) {
@@ -152,8 +152,10 @@ export async function linkPhoneToProfile(
     };
   }
 
+  // Usar admin client para operaciones del webhook (seguro porque ya validamos el token)
+  const supabaseAdmin = getSupabaseAdmin();
   // 2. Verificar si el teléfono ya está vinculado a otra cuenta
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('id, profile_id, phone_number')
     .eq('phone_number', phoneNumber)
@@ -161,16 +163,20 @@ export async function linkPhoneToProfile(
     .neq('phone_number', 'pending')
     .single();
 
-  if (existing && existing.profile_id !== verification.profileId) {
-    return {
-      success: false,
-      error: 'Este número ya está vinculado a otra cuenta MONI'
-    };
+  if (existing) {
+    const existingData = existing as any;
+    if (existingData.profile_id !== verification.profileId) {
+      return {
+        success: false,
+        error: 'Este número ya está vinculado a otra cuenta MONI'
+      };
+    }
   }
 
-  // 3. Actualizar o crear conexión
-  const { error } = await supabase
+  // 3. Actualizar conexión (usar admin porque el webhook no tiene auth de usuario)
+  const { error } = await supabaseAdmin
     .from('whatsapp_connections')
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
     .update({
       phone_number: phoneNumber,
       is_active: true,
@@ -179,7 +185,6 @@ export async function linkPhoneToProfile(
       token_expires_at: null
     })
     .eq('profile_id', verification.profileId);
-
   if (error) {
     console.error('Error linking phone:', error);
     return {
@@ -225,9 +230,9 @@ export async function unlinkPhone(
 export async function getConnectionByPhone(
   phoneNumber: string
 ): Promise<WhatsAppConnection | null> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
+  // Usar admin client porque el webhook necesita leer conexiones sin auth
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data, error } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('*')
     .eq('phone_number', phoneNumber)
@@ -276,10 +281,11 @@ export async function getConnectionByProfileId(
  * Útil para detectar usuarios inactivos
  */
 export async function updateLastMessage(connectionId: string): Promise<void> {
-  const supabase = await createClient();
-
-  await supabase
+  // Usar admin client porque el webhook necesita actualizar sin auth
+  const supabaseAdmin = getSupabaseAdmin();
+  await supabaseAdmin
     .from('whatsapp_connections')
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
     .update({ last_message_at: new Date().toISOString() })
     .eq('id', connectionId);
 }
