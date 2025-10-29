@@ -38,8 +38,8 @@ export async function signUp(formData: FormData): Promise<AuthResult> {
     return { error: error.message };
   }
 
-  revalidatePath('/', 'layout');
-  redirect('/dashboard');
+  // NO redirigir automáticamente, dejar que el componente maneje la UI
+  return { success: true };
 }
 
 /**

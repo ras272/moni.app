@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { FormInput } from '@/components/forms/form-input';
 import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -29,7 +29,11 @@ const formSchema = z
 
 type SignUpFormValue = z.infer<typeof formSchema>;
 
-export default function SignUpForm() {
+interface SignUpFormProps {
+  onSuccess?: (email: string) => void;
+}
+
+export default function SignUpForm({ onSuccess }: SignUpFormProps) {
   const [loading, startTransition] = useTransition();
 
   const form = useForm<SignUpFormValue>({
@@ -53,8 +57,9 @@ export default function SignUpForm() {
 
       if (result?.error) {
         toast.error(result.error);
-      } else {
-        toast.success('¡Cuenta creada exitosamente!');
+      } else if (result?.success) {
+        // Llamar callback para mostrar pantalla de verificación
+        onSuccess?.(data.email);
       }
     });
   };
