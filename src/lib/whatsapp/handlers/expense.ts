@@ -137,13 +137,14 @@ export async function handleExpense(
     }
 
     // 6. Obtener balance actualizado
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
     const { data: accountData } = await supabase
       .from('accounts')
       .select('current_balance')
       .eq('id', accountToUse.id)
       .single();
 
-    const updatedBalance = accountData?.current_balance || 0;
+    const updatedBalance = (accountData as any)?.current_balance || 0;
 
     // 7. Generar respuesta de éxito
     return {
