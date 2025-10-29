@@ -1,11 +1,12 @@
 /**
  * WhatsApp Bot - Account Linking
- * 
+ *
  * Sistema de vinculación segura entre números de WhatsApp y usuarios MONI
  * Usa JWT tokens con expiración de 15 minutos
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { WhatsAppConnection } from '../types';
 
 // =====================================================
@@ -50,15 +51,13 @@ export async function generateLinkToken(
     }
   } else {
     // Crear nueva conexión con token
-    const { error } = await supabase
-      .from('whatsapp_connections')
-      .insert({
-        profile_id: profileId,
-        phone_number: `pending_${profileId.substring(0, 8)}`, // Único temporal
-        is_active: false,
-        verification_token: token,
-        token_expires_at: expiresAt.toISOString()
-      });
+    const { error } = await supabase.from('whatsapp_connections').insert({
+      profile_id: profileId,
+      phone_number: `pending_${profileId.substring(0, 8)}`, // Único temporal
+      is_active: false,
+      verification_token: token,
+      token_expires_at: expiresAt.toISOString()
+    });
 
     if (error) {
       console.error('Error creating link token:', error);
@@ -93,12 +92,11 @@ export async function verifyLinkToken(token: string): Promise<{
   profileId?: string;
   error?: string;
 }> {
-  const supabase = await createClient();
-
+  // Usar admin client para bypasear RLS (seguro porque solo lee tokens públicos)
   console.log('🔍 Verifying token:', token);
 
   // Buscar token en la base de datos
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('profile_id, token_expires_at, is_active')
     .eq('verification_token', token)
@@ -143,8 +141,6 @@ export async function linkPhoneToProfile(
   phoneNumber: string,
   token: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
-
   // 1. Verificar token
   const verification = await verifyLinkToken(token);
   if (!verification.valid || !verification.profileId) {
@@ -154,8 +150,9 @@ export async function linkPhoneToProfile(
     };
   }
 
+  // Usar admin client para operaciones del webhook (seguro porque ya validamos el token)
   // 2. Verificar si el teléfono ya está vinculado a otra cuenta
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('id, profile_id, phone_number')
     .eq('phone_number', phoneNumber)
@@ -170,8 +167,8 @@ export async function linkPhoneToProfile(
     };
   }
 
-  // 3. Actualizar o crear conexión
-  const { error } = await supabase
+  // 3. Actualizar conexión (usar admin porque el webhook no tiene auth de usuario)
+  const { error } = await supabaseAdmin
     .from('whatsapp_connections')
     .update({
       phone_number: phoneNumber,
@@ -227,9 +224,8 @@ export async function unlinkPhone(
 export async function getConnectionByPhone(
   phoneNumber: string
 ): Promise<WhatsAppConnection | null> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
+  // Usar admin client porque el webhook necesita leer conexiones sin auth
+  const { data, error } = await supabaseAdmin
     .from('whatsapp_connections')
     .select('*')
     .eq('phone_number', phoneNumber)
@@ -278,9 +274,8 @@ export async function getConnectionByProfileId(
  * Útil para detectar usuarios inactivos
  */
 export async function updateLastMessage(connectionId: string): Promise<void> {
-  const supabase = await createClient();
-
-  await supabase
+  // Usar admin client porque el webhook necesita actualizar sin auth
+  await supabaseAdmin
     .from('whatsapp_connections')
     .update({ last_message_at: new Date().toISOString() })
     .eq('id', connectionId);
