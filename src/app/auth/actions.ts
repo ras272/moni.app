@@ -23,6 +23,10 @@ export async function signUp(formData: FormData): Promise<AuthResult> {
     return { error: 'Email y contraseña son requeridos' };
   }
 
+  // Asegurar que la URL de redirect esté correcta (fallback a producción)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://monipy.pro';
+  const redirectUrl = `${siteUrl}/auth/callback`;
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -30,7 +34,7 @@ export async function signUp(formData: FormData): Promise<AuthResult> {
       data: {
         full_name: fullName || email.split('@')[0]
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+      emailRedirectTo: redirectUrl
     }
   });
 
