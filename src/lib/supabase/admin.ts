@@ -25,8 +25,20 @@ export function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  console.log('🔧 Initializing Supabase Admin Client:', {
+    hasUrl: !!supabaseUrl,
+    hasServiceKey: !!supabaseServiceKey,
+    urlPrefix: supabaseUrl?.substring(0, 20),
+    keyPrefix: supabaseServiceKey?.substring(0, 20)
+  });
+
   if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase admin credentials');
+    const error = new Error('Missing Supabase admin credentials');
+    console.error('❌ Admin client initialization failed:', {
+      supabaseUrl: !!supabaseUrl,
+      supabaseServiceKey: !!supabaseServiceKey
+    });
+    throw error;
   }
 
   supabaseAdminInstance = createClient(supabaseUrl, supabaseServiceKey, {
@@ -35,6 +47,8 @@ export function getSupabaseAdmin() {
       persistSession: false
     }
   });
+
+  console.log('✅ Supabase Admin Client initialized successfully');
 
   return supabaseAdminInstance;
 }

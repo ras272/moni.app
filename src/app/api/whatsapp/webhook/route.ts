@@ -1,6 +1,6 @@
 /**
  * WhatsApp Bot - Webhook API Route
- * 
+ *
  * Endpoint principal que recibe todos los mensajes de WhatsApp
  * GET: Verificación inicial de Meta
  * POST: Recepción de mensajes
@@ -8,12 +8,22 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import type { WhatsAppWebhook } from '@/lib/whatsapp/types';
-import { validateWebhookSignature, validateVerifyToken } from '@/lib/whatsapp/webhook-validator';
+import {
+  validateWebhookSignature,
+  validateVerifyToken
+} from '@/lib/whatsapp/webhook-validator';
 import { parseMessage } from '@/lib/whatsapp/message-parser';
-import { getConnectionByPhone, updateLastMessage } from '@/lib/whatsapp/auth/linking';
+import {
+  getConnectionByPhone,
+  updateLastMessage
+} from '@/lib/whatsapp/auth/linking';
 import { linkPhoneToProfile } from '@/lib/whatsapp/auth/linking';
 import { sendWhatsAppMessage, cleanPhoneNumber } from '@/lib/whatsapp/client';
-import { logInboundMessage, logOutboundMessage, checkRateLimit } from '@/lib/whatsapp/message-logger';
+import {
+  logInboundMessage,
+  logOutboundMessage,
+  checkRateLimit
+} from '@/lib/whatsapp/message-logger';
 
 // Handlers
 import { handleExpense } from '@/lib/whatsapp/handlers/expense';
@@ -70,10 +80,17 @@ export async function GET(request: NextRequest) {
  * Recibe todos los mensajes y eventos de WhatsApp
  */
 export async function POST(request: NextRequest) {
+  console.log('📥 POST webhook called at:', new Date().toISOString());
+
   try {
     // 1. Leer el body como texto para validar firma
     const bodyText = await request.text();
     const signature = request.headers.get('x-hub-signature-256');
+
+    console.log('🔐 Validating signature:', {
+      hasSignature: !!signature,
+      bodyLength: bodyText.length
+    });
 
     // 2. Validar firma HMAC-SHA256
     if (!validateWebhookSignature(bodyText, signature)) {
@@ -108,14 +125,16 @@ export async function POST(request: NextRequest) {
     const parsed = parseMessage(messageText);
 
     // 6. Buscar conexión del usuario
+    console.log('🔍 Looking up connection for phone:', from);
     let connection = await getConnectionByPhone(from);
+    console.log('🔍 Connection found:', !!connection);
 
     // 7. CASO ESPECIAL: Vinculación de cuenta
     if (parsed.intent === 'link_account') {
-      console.log('🔗 Link account intent detected:', { 
-        from, 
+      console.log('🔗 Link account intent detected:', {
+        from,
         token: parsed.linkToken,
-        rawText: parsed.rawText 
+        rawText: parsed.rawText
       });
 
       if (!parsed.linkToken) {
@@ -250,11 +269,20 @@ export async function POST(request: NextRequest) {
     await sendWhatsAppMessage(from, response.message);
 
     // 14. Log mensaje saliente
-    await logOutboundMessage(connection.id, response.message, response.metadata);
+    await logOutboundMessage(
+      connection.id,
+      response.message,
+      response.metadata
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('❌ Error in webhook POST:', error);
+    console.error('❌ Critical error processing webhook:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error
+    });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
