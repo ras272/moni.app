@@ -158,7 +158,7 @@ export async function handleIncome(
         `📊 Balance actual: ${formatCurrency(updatedBalance, accountToUse.currency)}\n\n` +
         '¡Excelente! 🎉',
       metadata: {
-        transaction_id: transaction.id,
+        transaction_id: (transaction as any)?.id,
         amount,
         category: categoryName,
         new_balance: updatedBalance

@@ -159,7 +159,7 @@ export async function handleExpense(
         `📊 Balance actual: ${formatCurrency(updatedBalance, accountToUse.currency)}\n\n` +
         '¿Deseas agregar otro gasto?',
       metadata: {
-        transaction_id: transaction.id,
+        transaction_id: (transaction as any)?.id,
         amount,
         category: categoryName,
         new_balance: updatedBalance
