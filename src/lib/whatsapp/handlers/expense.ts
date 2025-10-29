@@ -45,6 +45,7 @@ export async function handleExpense(
     const supabase = getSupabaseAdmin();
 
     // 4. Obtener cuenta default del usuario
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
     const { data: defaultAccount, error: accountError } = await supabase
       .from('accounts')
       .select('id, name, currency')
@@ -54,7 +55,7 @@ export async function handleExpense(
       .limit(1)
       .single();
 
-    let accountToUse = defaultAccount;
+    let accountToUse = defaultAccount as any;
 
     if (accountError || !defaultAccount) {
       // Si no hay cuenta de esa moneda, buscar cualquier cuenta activa
@@ -99,6 +100,7 @@ export async function handleExpense(
     // 5. Crear transacción
     const { data: transaction, error: transactionError } = await supabase
       .from('transactions')
+      // @ts-ignore - TypeScript issue with Supabase admin client typing
       .insert({
         profile_id: profileId,
         type: 'expense',

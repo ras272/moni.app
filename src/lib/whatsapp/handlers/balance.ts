@@ -52,7 +52,7 @@ export async function handleGetBalance(
     const balancesByCurrency: Record<string, number> = {};
     const accountsList: string[] = [];
 
-    for (const account of accounts) {
+    for (const account of accounts as any[]) {
       const currency = account.currency || 'PYG';
 
       // Sumar balance por moneda
@@ -82,7 +82,7 @@ export async function handleGetBalance(
     }
 
     // 4. Agregar timestamp
-    const latestUpdate = accounts[0]?.updated_at;
+    const latestUpdate = (accounts as any)[0]?.updated_at;
     if (latestUpdate) {
       message += `\n⏱️ Actualizado: ${formatRelativeTime(latestUpdate)}`;
     }
