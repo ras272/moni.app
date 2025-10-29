@@ -9,6 +9,8 @@ import type { HandlerResponse } from '../types';
 import { detectCategory, getCategoryName } from '../category-detector';
 import { formatCurrency, formatDate } from '../client';
 import { isValidAmount, isValidDescription } from '../message-parser';
+import { fuzzyMatchAccount } from '../utils/account-matcher';
+import type { AccountInfo } from '../utils/account-matcher';
 
 // =====================================================
 // HANDLE EXPENSE
@@ -45,60 +47,43 @@ export async function handleExpense(
     // 3. Usar admin client porque el webhook no tiene sesión de usuario
     const supabase = getSupabaseAdmin();
 
-    // 4. Buscar cuenta específica si se mencionó, sino usar default
-    let accountQuery = supabase
+    // 4. Obtener todas las cuentas activas del usuario
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
+    const { data: allAccounts, error: accountsError } = await supabase
       .from('accounts')
       .select('id, name, currency')
       .eq('profile_id', profileId)
       .eq('is_active', true);
 
-    // Si especificó nombre de cuenta, buscar por nombre (case insensitive)
-    if (accountName) {
-      accountQuery = accountQuery.ilike('name', `%${accountName}%`);
-    } else {
-      // Sino, buscar cuenta con la moneda correcta
-      accountQuery = accountQuery.eq('currency', currency);
-    }
-
-    // @ts-ignore - TypeScript issue with Supabase admin client typing
-    const { data: defaultAccount, error: accountError } = await accountQuery
-      .limit(1)
-      .single();
-
-    let accountToUse = defaultAccount as any;
-
-    if (accountError || !defaultAccount) {
-      // Si no hay cuenta de esa moneda, buscar cualquier cuenta activa
-      const { data: anyAccount } = await supabase
-        .from('accounts')
-        .select('id, name, currency')
-        .eq('profile_id', profileId)
-        .eq('is_active', true)
-        .limit(1)
-        .single();
-
-      if (!anyAccount) {
-        return {
-          success: false,
-          message:
-            '❌ No tienes cuentas activas.\n\n' +
-            '📱 Crea tu primera cuenta en:\n' +
-            'https://moni.app/dashboard/cuentas\n\n' +
-            'Después podrás registrar gastos desde WhatsApp.'
-        };
-      }
-
-      accountToUse = anyAccount;
-    }
-
-    // Verificación final de seguridad
-    if (!accountToUse) {
+    if (accountsError || !allAccounts || allAccounts.length === 0) {
       return {
         success: false,
         message:
-          '❌ No se pudo obtener una cuenta válida.\n\n' +
-          'Por favor intenta de nuevo.'
+          '❌ No tienes cuentas activas.\n\n' +
+          '📱 Crea tu primera cuenta en:\n' +
+          'https://moni.app/dashboard/cuentas\n\n' +
+          'Después podrás registrar gastos desde WhatsApp.'
       };
+    }
+
+    // 5. Seleccionar cuenta usando fuzzy matching inteligente
+    let accountToUse: AccountInfo | null = null;
+
+    if (accountName) {
+      // Si especificó nombre de cuenta, buscar con fuzzy matching
+      accountToUse = fuzzyMatchAccount(accountName, allAccounts as any);
+    }
+
+    if (!accountToUse) {
+      // Si no especificó o no encontró match, buscar cuenta con moneda correcta
+      accountToUse = (allAccounts as any).find(
+        (acc: any) => acc.currency === currency
+      );
+    }
+
+    if (!accountToUse) {
+      // Si no hay cuenta de esa moneda, usar la primera disponible
+      accountToUse = allAccounts[0] as any;
     }
 
     // 4. Detectar categoría automáticamente

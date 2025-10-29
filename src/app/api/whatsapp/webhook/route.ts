@@ -24,6 +24,7 @@ import {
   logOutboundMessage,
   checkRateLimit
 } from '@/lib/whatsapp/message-logger';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 // Handlers
 import { handleExpense } from '@/lib/whatsapp/handlers/expense';
@@ -121,15 +122,31 @@ export async function POST(request: NextRequest) {
 
     console.log(`📨 Message received from ${from}: ${messageText}`);
 
-    // 5. Parsear mensaje
-    const parsed = parseMessage(messageText);
-
-    // 6. Buscar conexión del usuario
+    // 5. Buscar conexión del usuario
     console.log('🔍 Looking up connection for phone:', from);
     let connection = await getConnectionByPhone(from);
     console.log('🔍 Connection found:', !!connection);
 
-    // 7. CASO ESPECIAL: Vinculación de cuenta
+    // 6. Obtener cuentas del usuario para parsing inteligente (si está conectado)
+    let userAccounts: any[] = [];
+    if (connection) {
+      const supabase = getSupabaseAdmin();
+      // @ts-ignore
+      const { data: accounts } = await supabase
+        .from('accounts')
+        .select('id, name, currency')
+        .eq('profile_id', connection.profile_id)
+        .eq('is_active', true);
+
+      if (accounts) {
+        userAccounts = accounts;
+      }
+    }
+
+    // 7. Parsear mensaje con contexto de cuentas
+    const parsed = parseMessage(messageText, userAccounts);
+
+    // 8. CASO ESPECIAL: Vinculación de cuenta
     if (parsed.intent === 'link_account') {
       console.log('🔗 Link account intent detected:', {
         from,
@@ -168,7 +185,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // 8. Si no está vinculado, pedir que vincule
+    // 9. Si no está vinculado, pedir que vincule
     if (!connection) {
       await sendWhatsAppMessage(
         from,

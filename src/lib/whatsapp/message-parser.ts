@@ -6,6 +6,8 @@
  */
 
 import type { ParsedMessage } from './types';
+import { extractAccountFromMessage } from './account-extractor';
+import type { AccountInfo } from './utils/account-matcher';
 
 // =====================================================
 // PARSER PRINCIPAL
@@ -13,8 +15,13 @@ import type { ParsedMessage } from './types';
 
 /**
  * Parsea un mensaje de WhatsApp y detecta la intención del usuario
+ * @param text - Mensaje del usuario
+ * @param userAccounts - Lista opcional de cuentas del usuario para extracción inteligente
  */
-export function parseMessage(text: string): ParsedMessage {
+export function parseMessage(
+  text: string,
+  userAccounts?: AccountInfo[]
+): ParsedMessage {
   const trimmed = text.trim();
   const lower = trimmed.toLowerCase();
 
@@ -30,12 +37,12 @@ export function parseMessage(text: string): ParsedMessage {
 
   // 2. Gastos (más común, checar primero)
   if (/gast[eé]|pagu[eé]|compr[eé]/.test(lower)) {
-    return parseExpense(trimmed);
+    return parseExpense(trimmed, userAccounts);
   }
 
   // 3. Ingresos
   if (/cobr[eé]|recib[íi]|ingres[oó]/.test(lower)) {
-    return parseIncome(trimmed);
+    return parseIncome(trimmed, userAccounts);
   }
 
   // 4. Balance
@@ -73,11 +80,25 @@ export function parseMessage(text: string): ParsedMessage {
 // PARSER DE GASTOS
 // =====================================================
 
-function parseExpense(text: string): ParsedMessage {
+function parseExpense(
+  text: string,
+  userAccounts?: AccountInfo[]
+): ParsedMessage {
   const amount = parseAmount(text);
   const currency = detectCurrency(text);
-  const description = extractDescription(text);
-  const accountName = extractAccountName(text);
+
+  // Usar extracción inteligente si hay cuentas disponibles
+  let description: string;
+  let accountName: string | undefined;
+
+  if (userAccounts && userAccounts.length > 0) {
+    const extraction = extractAccountFromMessage(text, userAccounts);
+    accountName = extraction.accountName || undefined;
+    description = extractDescription(extraction.cleanedMessage);
+  } else {
+    description = extractDescription(text);
+    accountName = extractAccountName(text);
+  }
 
   return {
     intent: 'add_expense',
@@ -93,11 +114,25 @@ function parseExpense(text: string): ParsedMessage {
 // PARSER DE INGRESOS
 // =====================================================
 
-function parseIncome(text: string): ParsedMessage {
+function parseIncome(
+  text: string,
+  userAccounts?: AccountInfo[]
+): ParsedMessage {
   const amount = parseAmount(text);
   const currency = detectCurrency(text);
-  const description = extractDescription(text);
-  const accountName = extractAccountName(text);
+
+  // Usar extracción inteligente si hay cuentas disponibles
+  let description: string;
+  let accountName: string | undefined;
+
+  if (userAccounts && userAccounts.length > 0) {
+    const extraction = extractAccountFromMessage(text, userAccounts);
+    accountName = extraction.accountName || undefined;
+    description = extractDescription(extraction.cleanedMessage);
+  } else {
+    description = extractDescription(text);
+    accountName = extractAccountName(text);
+  }
 
   return {
     intent: 'add_income',
