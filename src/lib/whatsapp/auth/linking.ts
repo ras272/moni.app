@@ -174,8 +174,9 @@ export async function linkPhoneToProfile(
   }
 
   // 3. Actualizar conexión (usar admin porque el webhook no tiene auth de usuario)
-  const updateResult = (await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from('whatsapp_connections')
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
     .update({
       phone_number: phoneNumber,
       is_active: true,
@@ -183,9 +184,7 @@ export async function linkPhoneToProfile(
       verification_token: null,
       token_expires_at: null
     })
-    .eq('profile_id', verification.profileId)) as any;
-
-  const { error } = updateResult;
+    .eq('profile_id', verification.profileId);
   if (error) {
     console.error('Error linking phone:', error);
     return {
@@ -286,6 +285,7 @@ export async function updateLastMessage(connectionId: string): Promise<void> {
   const supabaseAdmin = getSupabaseAdmin();
   await supabaseAdmin
     .from('whatsapp_connections')
+    // @ts-ignore - TypeScript issue with Supabase admin client typing
     .update({ last_message_at: new Date().toISOString() })
     .eq('id', connectionId);
 }
