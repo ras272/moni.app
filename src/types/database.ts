@@ -85,6 +85,8 @@ export type MoneyTagGroup = {
   name: string;
   description: string | null;
   is_settled: boolean;
+  slug: string; // URL-friendly slug
+  is_public: boolean; // true = accesible vía link público
   created_at: string;
   updated_at: string;
 };
@@ -96,6 +98,8 @@ export type GroupParticipant = {
   name: string;
   phone: string | null;
   avatar_url: string | null;
+  invitation_status: 'pending' | 'accepted' | 'rejected';
+  invitation_token: string | null; // Token para usuarios no registrados
   created_at: string;
 };
 
@@ -128,5 +132,5 @@ export type GroupDebt = {
   debtor_name: string;
   creditor_id: string;
   creditor_name: string;
-  amount: number;
+  debt_amount: number;
 };

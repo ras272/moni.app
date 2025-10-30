@@ -22,6 +22,7 @@ import {
   calculateGroupDebtsServer
 } from '@/lib/supabase/moneytags-server';
 import { createClient } from '@/lib/supabase/server';
+import { ShareGroupLink } from '@/components/monitags';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -51,6 +52,7 @@ export default async function GroupDetailPage(props: PageProps) {
 
   let isOwner = false;
   let currentUserParticipantId: string | undefined;
+  let ownerMonitag: string | undefined;
 
   if (user) {
     const { data: profile } = await supabase
@@ -67,6 +69,17 @@ export default async function GroupDetailPage(props: PageProps) {
         (p: any) => p.profile_id === profile.id
       );
       currentUserParticipantId = currentParticipant?.id;
+    }
+
+    // Get owner's monitag if group is public
+    if (group.is_public) {
+      const { data: ownerProfile } = await supabase
+        .from('profiles')
+        .select('monitag')
+        .eq('id', group.owner_profile_id)
+        .single();
+
+      ownerMonitag = ownerProfile?.monitag || undefined;
     }
   }
 
@@ -112,6 +125,15 @@ export default async function GroupDetailPage(props: PageProps) {
         </div>
 
         <Separator />
+
+        {/* Share Link si el grupo es público */}
+        {group.is_public && ownerMonitag && group.slug && (
+          <ShareGroupLink
+            ownerMonitag={ownerMonitag}
+            groupSlug={group.slug}
+            groupName={group.name}
+          />
+        )}
 
         {/* Grid Layout: Gastos | Deudas | Participantes */}
         <div className='grid gap-6 md:grid-cols-2 xl:grid-cols-3'>

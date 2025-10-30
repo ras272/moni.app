@@ -16,6 +16,7 @@ import {
   Wallet as WalletIcon,
   Flame
 } from 'lucide-react';
+import { CreateMonitagBanner } from '@/components/monitags';
 
 export async function DashboardRedesigned() {
   // Fetch all data in parallel for better performance
@@ -40,6 +41,9 @@ export async function DashboardRedesigned() {
             ¡Hola! Bienvenido a tu Dashboard 👋
           </h2>
         </div>
+
+        {/* Banner de Monitag */}
+        <CreateMonitagBanner />
 
         {/* Main Grid - 2 Columns */}
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
