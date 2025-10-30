@@ -8,71 +8,127 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.17 145);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Verde Paraguayo Theme - Fondos y Neutros */
+  --background: oklch(0.99 0.002 240); /* #f8fafc - Fondo principal */
+  --foreground: oklch(0.24 0.015 257); /* #1e293b - Texto principal */
+  --card: oklch(1 0 0); /* #ffffff - Cards, modales */
+  --card-foreground: oklch(0.24 0.015 257); /* #1e293b - Texto en cards */
+  --popover: oklch(1 0 0); /* #ffffff - Popovers */
+  --popover-foreground: oklch(0.24 0.015 257); /* #1e293b - Texto en popovers */
+
+  /* Verde Principal - Logo y Botones Primarios */
+  --primary: oklch(0.38 0.11 165); /* #01674f - Verde principal */
+  --primary-foreground: oklch(1 0 0); /* #ffffff - Texto en botones primarios */
+
+  /* Verde Claro - Hover States */
+  --secondary: oklch(0.96 0.008 165); /* #f0fdf4 - Backgrounds suaves */
+  --secondary-foreground: oklch(0.38 0.11 165); /* #01674f - Texto secundario */
+
+  /* Elementos Atenuados */
+  --muted: oklch(0.92 0.005 240); /* #e2e8f0 - Fondos atenuados */
+  --muted-foreground: oklch(0.51 0.015 250); /* #64748b - Texto secundario */
+
+  /* Naranja - Acentos y CTAs Secundarios */
+  --accent: oklch(0.71 0.17 70); /* #f59e0b - Acentos */
+  --accent-foreground: oklch(1 0 0); /* #ffffff - Texto en acentos */
+
+  /* Error/Destructive */
+  --destructive: oklch(0.63 0.25 25); /* #ef4444 - Errores */
+  --destructive-foreground: oklch(1 0 0); /* #ffffff - Texto en errores */
+
+  /* Bordes e Inputs */
+  --border: oklch(0.92 0.005 240); /* #e2e8f0 - Borders, dividers */
+  --input: oklch(0.92 0.005 240); /* #e2e8f0 - Input borders */
+  --ring: oklch(0.38 0.11 165); /* #01674f - Focus rings */
+
+  /* Charts - Variedad de colores */
+  --chart-1: oklch(0.68 0.15 160); /* #10b981 - Verde suave */
+  --chart-2: oklch(0.71 0.17 70); /* #f59e0b - Naranja */
+  --chart-3: oklch(0.6 0.2 250); /* #3b82f6 - Azul info */
+  --chart-4: oklch(0.55 0.13 164); /* #059669 - Verde claro */
+  --chart-5: oklch(0.81 0.14 85); /* #fbbf24 - Naranja suave */
+
+  /* Sidebar */
+  --sidebar: oklch(1 0 0); /* #ffffff - Sidebar background */
+  --sidebar-foreground: oklch(0.24 0.015 257); /* #1e293b - Sidebar text */
+  --sidebar-primary: oklch(0.38 0.11 165); /* #01674f - Sidebar active */
+  --sidebar-primary-foreground: oklch(
+    1 0 0
+  ); /* #ffffff - Sidebar active text */
+  --sidebar-accent: oklch(0.96 0.008 165); /* #f0fdf4 - Sidebar hover */
+  --sidebar-accent-foreground: oklch(
+    0.38 0.11 165
+  ); /* #01674f - Sidebar hover text */
+  --sidebar-border: oklch(0.92 0.005 240); /* #e2e8f0 - Sidebar border */
+  --sidebar-ring: oklch(0.38 0.11 165); /* #01674f - Sidebar focus */
+
+  /* Verde Paraguayo Palette - Colores Específicos */
+  --verde-principal: oklch(
+    0.38 0.11 165
+  ); /* #01674f - Logo y botones primarios */
+  --verde-claro: oklch(0.55 0.13 164); /* #059669 - Hover states */
+  --verde-suave: oklch(0.68 0.15 160); /* #10b981 - Success, positivos */
+  --mint: oklch(0.87 0.12 160); /* #6ee7b7 - Backgrounds suaves, cards hover */
+  --naranja-calido: oklch(
+    0.71 0.17 70
+  ); /* #f59e0b - CTAs secundarios, alertas */
+  --naranja-suave: oklch(0.81 0.14 85); /* #fbbf24 - Notificaciones, badges */
+  --success: oklch(0.68 0.15 160); /* #10b981 - Operaciones exitosas */
+  --warning: oklch(0.71 0.17 70); /* #f59e0b - Alertas */
+  --error: oklch(0.63 0.25 25); /* #ef4444 - Errores */
+  --info: oklch(0.6 0.2 250); /* #3b82f6 - Información */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.269 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.18 145);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Verde Paraguayo Dark Theme - Fondos y Neutros */
+  --background: oklch(0.16 0.01 257); /* Dark background */
+  --foreground: oklch(0.95 0.005 240); /* Light text */
+  --card: oklch(0.22 0.012 257); /* Dark cards */
+  --card-foreground: oklch(0.95 0.005 240); /* Light text en cards */
+  --popover: oklch(0.26 0.012 257); /* Dark popovers */
+  --popover-foreground: oklch(0.95 0.005 240); /* Light text en popovers */
+
+  /* Verde Claro - Más brillante en dark mode */
+  --primary: oklch(0.55 0.13 164); /* #059669 - Verde claro (más visible) */
+  --primary-foreground: oklch(1 0 0); /* White text */
+
+  /* Verde oscuro para hover states en dark mode */
+  --secondary: oklch(0.26 0.012 257); /* Dark secondary */
+  --secondary-foreground: oklch(0.55 0.13 164); /* Verde claro text */
+
+  /* Elementos Atenuados en dark mode */
+  --muted: oklch(0.26 0.012 257); /* Dark muted */
+  --muted-foreground: oklch(0.65 0.01 240); /* Light muted text */
+
+  /* Naranja - Mantiene el acento */
+  --accent: oklch(0.71 0.17 70); /* #f59e0b - Naranja */
+  --accent-foreground: oklch(0.16 0.01 257); /* Dark text para contrast */
+
+  /* Error más brillante en dark mode */
+  --destructive: oklch(0.7 0.25 25); /* #ef4444 más claro */
+  --destructive-foreground: oklch(1 0 0); /* White text */
+
+  /* Bordes sutiles en dark mode */
+  --border: oklch(1 0 0 / 10%); /* Subtle borders */
+  --input: oklch(1 0 0 / 15%); /* Subtle input borders */
+  --ring: oklch(0.55 0.13 164); /* Verde claro focus */
+
+  /* Charts - Ajustados para dark mode */
+  --chart-1: oklch(0.68 0.15 160); /* #10b981 - Verde suave */
+  --chart-2: oklch(0.71 0.17 70); /* #f59e0b - Naranja */
+  --chart-3: oklch(0.65 0.22 250); /* #3b82f6 más brillante */
+  --chart-4: oklch(0.87 0.12 160); /* #6ee7b7 - Mint */
+  --chart-5: oklch(0.81 0.14 85); /* #fbbf24 - Naranja suave */
+
+  /* Sidebar dark */
+  --sidebar: oklch(0.22 0.012 257); /* Dark sidebar */
+  --sidebar-foreground: oklch(0.95 0.005 240); /* Light text */
+  --sidebar-primary: oklch(0.55 0.13 164); /* Verde claro active */
+  --sidebar-primary-foreground: oklch(1 0 0); /* White active text */
+  --sidebar-accent: oklch(0.26 0.012 257); /* Dark hover */
+  --sidebar-accent-foreground: oklch(0.55 0.13 164); /* Verde hover text */
+  --sidebar-border: oklch(1 0 0 / 10%); /* Subtle border */
+  --sidebar-ring: oklch(0.55 0.13 164); /* Verde focus */
 }
 
 @theme inline {
@@ -95,6 +151,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -111,6 +168,16 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-verde-principal: var(--verde-principal);
+  --color-verde-claro: var(--verde-claro);
+  --color-verde-suave: var(--verde-suave);
+  --color-mint: var(--mint);
+  --color-naranja-calido: var(--naranja-calido);
+  --color-naranja-suave: var(--naranja-suave);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
 }
 
 @layer base {

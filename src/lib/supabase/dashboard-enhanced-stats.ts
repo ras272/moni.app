@@ -150,12 +150,8 @@ export async function getWalletAccountsData(): Promise<WalletAccountData[]> {
     return [];
   }
 
-  // Obtener conteo de transacciones por cuenta
-  const wallets: WalletAccountData[] = [];
-
-  for (let i = 0; i < accounts.length; i++) {
-    const account = accounts[i];
-
+  // Obtener conteo de transacciones por cuenta en paralelo
+  const walletPromises = accounts.map(async (account, i) => {
     // Contar transacciones de esta cuenta
     const { count } = await supabase
       .from('transactions')
@@ -165,16 +161,17 @@ export async function getWalletAccountsData(): Promise<WalletAccountData[]> {
     // Calcular tiempo desde última actualización
     const updatedAt = getRelativeTime(new Date(account.created_at));
 
-    wallets.push({
+    return {
       id: account.id,
       name: account.name,
       currentBalance: account.current_balance,
       transactions: count || 0,
       updatedAt: updatedAt,
       color: i === 0 ? 'purple' : 'orange'
-    });
-  }
+    } as WalletAccountData;
+  });
 
+  const wallets = await Promise.all(walletPromises);
   return wallets;
 }
 
@@ -240,9 +237,11 @@ export async function getRevenueOverviewData(): Promise<RevenueItem[]> {
 
 /**
  * Obtiene las top categorías de gasto del mes actual con porcentajes.
+ * Los porcentajes se calculan relativos a los ingresos del mes.
  */
 export async function getTopExpenseCategories(
-  limit: number = 3
+  limit: number = 3,
+  monthlyIncome?: number
 ): Promise<CategoryExpense[]> {
   const supabase = await createClient();
 
@@ -277,23 +276,35 @@ export async function getTopExpenseCategories(
     return [];
   }
 
-  // Calcular total de gastos para obtener porcentajes
-  const totalExpenses = data.reduce(
-    (sum: number, cat: any) => sum + (Number(cat.total_amount) || 0),
-    0
-  );
+  // Si no se pasaron ingresos, obtenerlos
+  let referenceAmount = monthlyIncome;
+  if (!referenceAmount || referenceAmount === 0) {
+    // Fallback 1: Obtener ingresos del mes
+    const stats = await getMonthlyStats();
+    referenceAmount = stats.currentMonth.income;
 
-  // Mapear y calcular porcentajes, tomar top N
+    // Fallback 2: Si no hay ingresos, usar balance total de cuentas
+    if (referenceAmount === 0) {
+      referenceAmount = await getTotalAccountBalance();
+    }
+  }
+
+  console.log('💰 Reference amount for percentages:', referenceAmount);
+
+  // Mapear y calcular porcentajes relativos a ingresos del mes
   const topCategories = data.slice(0, limit).map((cat: any, index: number) => {
     const amount = Number(cat.total_amount) || 0;
+
+    // Calcular porcentaje relativo a ingresos
+    // Puede ser > 100% si gastas más de lo que ganas (esto es BUENO para alertar)
     const percentage =
-      totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0;
+      referenceAmount > 0 ? Math.round((amount / referenceAmount) * 100) : 0;
 
     return {
       name: cat.category_name,
       amount: amount,
       percentage: percentage,
-      color: modernColors[index % modernColors.length], // Asignar color de la paleta
+      color: modernColors[index % modernColors.length],
       icon: cat.category_icon || '📊'
     };
   });

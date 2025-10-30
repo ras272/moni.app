@@ -7,8 +7,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000, // 1 minuto
-      refetchOnWindowFocus: false
+      staleTime: 5 * 60 * 1000, // 5 minutos - datos financieros no cambian tan rápido
+      gcTime: 10 * 60 * 1000, // 10 minutos - mantener en caché más tiempo
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      retry: 1 // Reducir reintentos para evitar latencia
     }
   }
 });

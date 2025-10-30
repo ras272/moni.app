@@ -49,10 +49,10 @@ export function AccountCard({ account }: AccountCardProps) {
       : formatCurrencyPY(account.current_balance);
 
   return (
-    <Card className='relative overflow-hidden'>
+    <Card className='group relative overflow-hidden'>
       <CardHeader className='flex flex-row items-start justify-between space-y-0 pb-2'>
         <div className='flex items-center gap-2'>
-          <div className='bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg'>
+          <div className='bg-primary/10 group-hover:bg-primary/20 flex h-10 w-10 items-center justify-center rounded-lg transition-colors'>
             <Icon className='text-primary h-5 w-5' />
           </div>
           <div>

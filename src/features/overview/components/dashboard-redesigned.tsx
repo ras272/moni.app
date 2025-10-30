@@ -18,11 +18,18 @@ import {
 } from 'lucide-react';
 
 export async function DashboardRedesigned() {
-  // Fetch all data
-  const comparison = await getMonthlyComparison();
-  const walletAccounts = await getWalletAccountsData();
-  const topCategories = await getTopExpenseCategories(3);
-  const recentTransactions = await getRecentTransactionsEnhanced(7, 10);
+  // Fetch all data in parallel for better performance
+  const [comparison, walletAccounts, recentTransactions] = await Promise.all([
+    getMonthlyComparison(),
+    getWalletAccountsData(),
+    getRecentTransactionsEnhanced(7, 10)
+  ]);
+
+  // Obtener top categorías pasando los ingresos del mes para calcular porcentajes correctamente
+  const topCategories = await getTopExpenseCategories(
+    3,
+    comparison.income.current
+  );
 
   return (
     <PageContainer scrollable={false}>
@@ -40,7 +47,7 @@ export async function DashboardRedesigned() {
           <div className='space-y-6'>
             {/* Comparativa Mensual - Grid 2x2 */}
             <div>
-              <div className='mb-4 flex items-center justify-between'>
+              <div className='mb-4'>
                 <h3 className='text-lg font-semibold'>Resumen del Mes</h3>
               </div>
               <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
@@ -94,7 +101,7 @@ export async function DashboardRedesigned() {
             {/* Wallet Accounts */}
             <div>
               <div className='mb-4'>
-                <h3 className='text-lg font-semibold'>Wallet Accounts</h3>
+                <h3 className='text-lg font-semibold'>Tus cuentas</h3>
               </div>
               <div className='space-y-4'>
                 {walletAccounts.map((wallet) => (

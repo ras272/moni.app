@@ -10,15 +10,30 @@ const baseConfig: NextConfig = {
         hostname: 'api.slingacademy.com',
         port: ''
       }
-    ]
+    ],
+    formats: ['image/avif', 'image/webp']
   },
-  transpilePackages: ['geist']
+  transpilePackages: ['geist'],
+  // Optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
+  },
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      'recharts'
+    ]
+  }
 };
 
 let configWithPlugins = baseConfig;
 
-// Conditionally enable Sentry configuration
-if (!process.env.NEXT_PUBLIC_SENTRY_DISABLED) {
+// Conditionally enable Sentry configuration (disabled in development)
+if (
+  !process.env.NEXT_PUBLIC_SENTRY_DISABLED &&
+  process.env.NODE_ENV === 'production'
+) {
   configWithPlugins = withSentryConfig(configWithPlugins, {
     // For all available options, see:
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options
