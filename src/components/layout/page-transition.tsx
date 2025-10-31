@@ -4,33 +4,46 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 /**
- * Page Transition con Blur Fade Effect
- * Efecto suave de desenfoque que se aclara cuando cambia la página
+ * Page Transition mejorada con Efecto de Deslizamiento Suave
+ * Transición elegante y fluida entre páginas
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionState, setTransitionState] = useState<'idle' | 'out' | 'in'>(
+    'idle'
+  );
 
   useEffect(() => {
-    // Iniciar transición
-    setIsTransitioning(true);
+    // Evitar transición inicial
+    if (transitionState === 'idle') {
+      setTransitionState('in');
+      return;
+    }
 
-    // 🚀 PERFORMANCE FIX: Reducir delay de 50ms a 10ms
-    // Esto hace la navegación más instantánea
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 10);
+    // Secuencia de transición suave
+    setTransitionState('out');
 
-    return () => clearTimeout(timer);
+    const outTimer = setTimeout(() => {
+      setTransitionState('in');
+    }, 150);
+
+    return () => clearTimeout(outTimer);
   }, [pathname]);
+
+  const getTransitionClasses = () => {
+    switch (transitionState) {
+      case 'out':
+        return 'opacity-0 scale-[0.98] translate-y-2 blur-md';
+      case 'in':
+        return 'opacity-100 scale-100 translate-y-0 blur-0';
+      default:
+        return 'opacity-100 scale-100 translate-y-0 blur-0';
+    }
+  };
 
   return (
     <div
-      className={`transition-all duration-300 ease-out ${
-        isTransitioning
-          ? 'scale-[0.99] opacity-0 blur-sm'
-          : 'blur-0 scale-100 opacity-100'
-      } `}
+      className={`transition-all duration-500 ease-[cubic-bezier(0.4,0.0,0.2,1)] ${getTransitionClasses()}`}
     >
       {children}
     </div>
