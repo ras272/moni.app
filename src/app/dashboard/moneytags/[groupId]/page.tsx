@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatCurrencyPY } from '@/lib/utils';
 import { ArrowLeft, Users, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -353,16 +354,20 @@ export default async function GroupDetailPage(props: PageProps) {
                     key={participant.id}
                     className='flex items-center gap-2 rounded-lg border p-2.5 sm:gap-3 sm:p-3'
                   >
-                    <div className='bg-primary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10'>
-                      <span className='text-primary text-xs font-semibold sm:text-sm'>
+                    <Avatar className='h-9 w-9 shrink-0 sm:h-10 sm:w-10'>
+                      <AvatarImage
+                        src={participant.avatar_url || ''}
+                        alt={participant.name}
+                      />
+                      <AvatarFallback className='bg-primary/10 text-primary text-xs font-semibold sm:text-sm'>
                         {participant.name
                           ?.split(' ')
                           .map((n: string) => n[0])
                           .join('')
                           .substring(0, 2)
                           .toUpperCase() || '??'}
-                      </span>
-                    </div>
+                      </AvatarFallback>
+                    </Avatar>
                     <div className='min-w-0 flex-1'>
                       <p className='truncate text-sm font-medium sm:text-base'>
                         {participant.name}

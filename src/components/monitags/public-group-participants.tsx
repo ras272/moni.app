@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Users, Crown } from 'lucide-react';
 import type { GroupParticipant } from '@/types/database';
@@ -104,28 +105,28 @@ export function PublicGroupParticipants({
                   isYou ? 'border-primary bg-primary/5' : ''
                 }`}
               >
-                {/* Avatar con iniciales */}
-                <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                    owner
-                      ? 'bg-amber-100 dark:bg-amber-950'
-                      : isYou
-                        ? 'bg-primary/20'
-                        : 'bg-muted'
-                  }`}
-                >
-                  {owner ? (
+                {/* Avatar con imagen real o iniciales */}
+                {owner ? (
+                  <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950'>
                     <Crown className='h-5 w-5 text-amber-600 dark:text-amber-500' />
-                  ) : (
-                    <span
-                      className={`text-sm font-semibold ${
-                        isYou ? 'text-primary' : 'text-muted-foreground'
-                      }`}
+                  </div>
+                ) : (
+                  <Avatar className='h-10 w-10 shrink-0'>
+                    <AvatarImage
+                      src={participant.avatar_url || ''}
+                      alt={participant.name}
+                    />
+                    <AvatarFallback
+                      className={
+                        isYou
+                          ? 'bg-primary/20 text-primary'
+                          : 'bg-muted text-muted-foreground'
+                      }
                     >
                       {getInitials(participant.name)}
-                    </span>
-                  )}
-                </div>
+                    </AvatarFallback>
+                  </Avatar>
+                )}
 
                 {/* Información del participante */}
                 <div className='min-w-0 flex-1'>

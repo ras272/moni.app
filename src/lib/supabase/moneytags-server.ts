@@ -43,7 +43,10 @@ export async function fetchMoneyTagGroupsServer(
     .select(
       `
       *,
-      participants:group_participants(*)
+      participants:group_participants(
+        *,
+        profile:profiles(avatar_url)
+      )
     `
     )
     .order('created_at', { ascending: false });
@@ -79,11 +82,19 @@ export async function fetchMoneyTagGroupsServer(
     return isParticipant;
   });
 
-  // Add participant count
-  const groupsWithCount = filteredGroups.map((group: any) => ({
-    ...group,
-    participant_count: group.participants?.length || 0
-  }));
+  // Add participant count and flatten avatar_url
+  const groupsWithCount = filteredGroups.map((group: any) => {
+    const participantsWithAvatar = (group.participants || []).map((p: any) => ({
+      ...p,
+      avatar_url: p.profile?.avatar_url || p.avatar_url
+    }));
+
+    return {
+      ...group,
+      participants: participantsWithAvatar,
+      participant_count: group.participants?.length || 0
+    };
+  });
 
   return groupsWithCount as MoneyTagGroupWithParticipants[];
 }
@@ -102,7 +113,10 @@ export async function fetchMoneyTagGroupByIdServer(
     .select(
       `
       *,
-      participants:group_participants(*)
+      participants:group_participants(
+        *,
+        profile:profiles(avatar_url)
+      )
     `
     )
     .eq('id', groupId)
@@ -117,8 +131,15 @@ export async function fetchMoneyTagGroupByIdServer(
     return null;
   }
 
+  // Flatten avatar_url from nested profile object
+  const participantsWithAvatar = (data.participants || []).map((p: any) => ({
+    ...p,
+    avatar_url: p.profile?.avatar_url || p.avatar_url
+  }));
+
   return {
     ...data,
+    participants: participantsWithAvatar,
     participant_count: data.participants?.length || 0
   } as MoneyTagGroupWithParticipants;
 }
