@@ -28,36 +28,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
-import { BalanceWidget } from '../balance-widget';
-import { QuickStatsSidebar } from '../quick-stats-sidebar';
-interface AppSidebarProps {
-  stats?: {
-    totalBalance: number;
-    monthlyChange: number;
-    changePercentage: number;
-    todayExpenses: number;
-    monthExpenses: number;
-    pendingPayments: number;
-    moneyTagsCount: number;
-  };
-}
 
-export default function AppSidebar({ stats: initialStats }: AppSidebarProps) {
+export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isOpen } = useMediaQuery();
   const { open: sidebarOpen } = useSidebar();
-
-  // Valores por defecto si no se pasan stats
-  const stats = initialStats || {
-    totalBalance: 4193000,
-    monthlyChange: 589950,
-    changePercentage: 15.2,
-    todayExpenses: 50000,
-    monthExpenses: 410000,
-    pendingPayments: 3,
-    moneyTagsCount: 2
-  };
 
   React.useEffect(() => {
     // Side effects based on sidebar state changes
@@ -72,11 +48,6 @@ export default function AppSidebar({ stats: initialStats }: AppSidebarProps) {
       <SidebarHeader>
         {sidebarOpen ? (
           <>
-            <BalanceWidget
-              totalBalance={stats.totalBalance}
-              monthlyChange={stats.monthlyChange}
-              changePercentage={stats.changePercentage}
-            />
             <div className='px-2 py-2'>
               <Button
                 className='w-full justify-start gap-2'
@@ -103,13 +74,6 @@ export default function AppSidebar({ stats: initialStats }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent className='overflow-x-hidden'>
         {/* Quick Stats - Solo cuando está expandido */}
-        {sidebarOpen && (
-          <QuickStatsSidebar
-            todayExpenses={stats.todayExpenses}
-            monthExpenses={stats.monthExpenses}
-            pendingPayments={stats.pendingPayments}
-          />
-        )}
 
         {/* Principal Navigation */}
         <SidebarGroup>
@@ -192,12 +156,6 @@ export default function AppSidebar({ stats: initialStats }: AppSidebarProps) {
                         <Icon />
                         <span>{item.title}</span>
                       </div>
-                      {item.title === 'MoneyTags' &&
-                        stats.moneyTagsCount > 0 && (
-                          <span className='bg-primary text-primary-foreground min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-xs font-semibold'>
-                            {stats.moneyTagsCount}
-                          </span>
-                        )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

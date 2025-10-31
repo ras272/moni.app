@@ -30,9 +30,9 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
   const activeThemeValue = cookieStore.get('active_theme')?.value;
 
-  // 🚀 PERFORMANCE FIX: Eliminar awaited stats del layout
-  // Las estadísticas del sidebar ahora se cargan en client-side
+  // 🚀 PERFORMANCE FIX: Eliminar stats del sidebar completamente
   // Esto elimina el bloqueo de navegación (~1s de delay)
+  // El sidebar ahora solo muestra navegación básica
 
   return (
     <NuqsAdapter>
@@ -40,7 +40,7 @@ export default async function DashboardLayout({
         <Toaster />
         <KBar>
           <SidebarProvider defaultOpen={defaultOpen}>
-            <AppSidebar stats={null} />
+            <AppSidebar />
             <SidebarInset>
               <Header />
               {/* page main content with blur fade transition */}
