@@ -148,7 +148,9 @@ export function PerfilCard({ profile, onProfileUpdate }: PerfilCardProps) {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='email'>Email</Label>
+            <div className='flex items-center justify-between'>
+              <Label htmlFor='email'>Email</Label>
+            </div>
             <Input
               id='email'
               type='email'
