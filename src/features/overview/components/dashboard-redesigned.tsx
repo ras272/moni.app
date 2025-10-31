@@ -26,11 +26,8 @@ export async function DashboardRedesigned() {
     getRecentTransactionsEnhanced(7, 10)
   ]);
 
-  // Obtener top categorías pasando los ingresos del mes para calcular porcentajes correctamente
-  const topCategories = await getTopExpenseCategories(
-    3,
-    comparison.income.current
-  );
+  // Obtener top categorías (los porcentajes se calculan sobre el total de gastos)
+  const topCategories = await getTopExpenseCategories(3);
 
   return (
     <PageContainer scrollable={false}>

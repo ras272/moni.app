@@ -276,29 +276,42 @@ export async function getTopExpenseCategories(
     return [];
   }
 
-  // Si no se pasaron ingresos, obtenerlos
-  let referenceAmount = monthlyIncome;
-  if (!referenceAmount || referenceAmount === 0) {
-    // Fallback 1: Obtener ingresos del mes
-    const stats = await getMonthlyStats();
-    referenceAmount = stats.currentMonth.income;
+  // Calcular el presupuesto base para los porcentajes
+  // Usamos el MAYOR entre: ingresos del mes o (balance actual + gastos del mes)
+  // Esto representa el dinero que TENÍAS disponible al inicio del mes
+  const stats = await getMonthlyStats();
+  const totalAccountBalance = await getTotalAccountBalance();
 
-    // Fallback 2: Si no hay ingresos, usar balance total de cuentas
-    if (referenceAmount === 0) {
-      referenceAmount = await getTotalAccountBalance();
-    }
-  }
+  // Calcular total de gastos del mes
+  const totalExpenses = data.reduce((sum: number, cat: any) => {
+    return sum + (Number(cat.total_amount) || 0);
+  }, 0);
 
-  console.log('💰 Reference amount for percentages:', referenceAmount);
+  // El presupuesto inicial = balance actual + lo que ya gastaste
+  const initialBudget = totalAccountBalance + totalExpenses;
 
-  // Mapear y calcular porcentajes relativos a ingresos del mes
+  // Usar el mayor entre ingresos registrados y presupuesto calculado
+  const budgetAmount = Math.max(stats.currentMonth.income, initialBudget);
+
+  console.log('💰 Income registered:', stats.currentMonth.income);
+  console.log('💰 Current balance:', totalAccountBalance);
+  console.log('💰 Total expenses:', totalExpenses);
+  console.log('💰 Calculated initial budget:', initialBudget);
+  console.log('💰 Final budget for percentages:', budgetAmount);
+  console.log('📊 Categories data:', data);
+
+  // Mapear y calcular porcentajes relativos al presupuesto
   const topCategories = data.slice(0, limit).map((cat: any, index: number) => {
     const amount = Number(cat.total_amount) || 0;
 
-    // Calcular porcentaje relativo a ingresos
-    // Puede ser > 100% si gastas más de lo que ganas (esto es BUENO para alertar)
+    // Calcular porcentaje relativo al presupuesto inicial del mes
+    // Muestra: "Esta categoría representa el X% de tu presupuesto mensual"
     const percentage =
-      referenceAmount > 0 ? Math.round((amount / referenceAmount) * 100) : 0;
+      budgetAmount > 0 ? Math.round((amount / budgetAmount) * 100) : 0;
+
+    console.log(
+      `  ${cat.category_name}: ${amount} / ${budgetAmount} = ${percentage}%`
+    );
 
     return {
       name: cat.category_name,

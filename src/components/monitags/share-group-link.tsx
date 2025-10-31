@@ -59,41 +59,51 @@ export function ShareGroupLink({
   };
 
   return (
-    <Alert>
-      <AlertDescription className='flex items-center gap-2'>
-        <Share2 className='h-4 w-4 shrink-0' />
-        <span className='text-sm font-medium'>Link del grupo:</span>
-        <div className='flex flex-1 gap-2'>
-          <Input value={groupUrl} readOnly className='h-8 font-mono text-xs' />
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={handleCopy}
-            className='gap-1.5'
-          >
-            {copied ? (
-              <>
-                <Check className='h-3.5 w-3.5' />
-                Copiado
-              </>
-            ) : (
-              <>
-                <Copy className='h-3.5 w-3.5' />
-                Copiar
-              </>
-            )}
-          </Button>
-          {typeof navigator !== 'undefined' && 'share' in navigator && (
+    <Alert className='p-3 sm:p-4'>
+      <AlertDescription className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2'>
+        <div className='flex items-center gap-2'>
+          <Share2 className='h-4 w-4 shrink-0' />
+          <span className='text-xs font-medium sm:text-sm'>
+            Link del grupo:
+          </span>
+        </div>
+        <div className='flex flex-1 flex-col gap-2 sm:flex-row'>
+          <Input
+            value={groupUrl}
+            readOnly
+            className='h-8 w-full font-mono text-[10px] sm:text-xs'
+          />
+          <div className='flex gap-2'>
             <Button
               variant='outline'
               size='sm'
-              onClick={handleShare}
-              className='gap-1.5'
+              onClick={handleCopy}
+              className='flex-1 gap-1.5 text-xs sm:flex-none sm:text-sm'
             >
-              <Share2 className='h-3.5 w-3.5' />
-              Compartir
+              {copied ? (
+                <>
+                  <Check className='h-3 w-3 sm:h-3.5 sm:w-3.5' />
+                  <span className='sm:inline'>Copiado</span>
+                </>
+              ) : (
+                <>
+                  <Copy className='h-3 w-3 sm:h-3.5 sm:w-3.5' />
+                  <span className='sm:inline'>Copiar</span>
+                </>
+              )}
             </Button>
-          )}
+            {typeof navigator !== 'undefined' && 'share' in navigator && (
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={handleShare}
+                className='flex-1 gap-1.5 text-xs sm:flex-none sm:text-sm'
+              >
+                <Share2 className='h-3 w-3 sm:h-3.5 sm:w-3.5' />
+                <span className='sm:inline'>Compartir</span>
+              </Button>
+            )}
+          </div>
         </div>
       </AlertDescription>
     </Alert>

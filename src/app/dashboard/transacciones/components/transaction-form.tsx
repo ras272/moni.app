@@ -122,7 +122,7 @@ export function TransactionForm({
     <Form
       form={form}
       onSubmit={form.handleSubmit(onSubmit)}
-      className='space-y-6'
+      className='space-y-4 sm:space-y-6'
     >
       {/* Tipo: Ingreso o Egreso */}
       <FormRadioGroup
@@ -210,15 +210,21 @@ export function TransactionForm({
       </div>
 
       {/* Botón de Submit */}
-      <div className='flex justify-end gap-4'>
+      <div className='flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-4'>
         {!isEditing && (
-          <Button type='button' variant='outline' onClick={() => form.reset()}>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => form.reset()}
+            className='w-full text-xs sm:w-auto sm:text-sm'
+          >
             Limpiar
           </Button>
         )}
         <Button
           type='submit'
           disabled={isSubmitting || accountsLoading || categoriesLoading}
+          className='w-full text-xs sm:w-auto sm:text-sm'
         >
           {isSubmitting
             ? 'Guardando...'

@@ -72,15 +72,17 @@ export function CreateGroupDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Add01Icon className='mr-2 h-4 w-4' />
-          Crear Nuevo Grupo
+        <Button className='w-full text-xs sm:w-auto sm:text-sm'>
+          <Add01Icon className='mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4' />
+          <span className='sm:inline'>Crear Grupo</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className='max-h-[90vh] max-w-xl overflow-y-auto'>
+      <DialogContent className='max-h-[90vh] max-w-[95vw] overflow-y-auto sm:max-w-xl'>
         <DialogHeader>
-          <DialogTitle>Crear Grupo de Gastos Compartidos</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className='text-base sm:text-lg'>
+            Crear Grupo de Gastos Compartidos
+          </DialogTitle>
+          <DialogDescription className='text-xs sm:text-sm'>
             Crea un nuevo grupo. Luego podrás agregar participantes desde la
             página de detalle del grupo.
           </DialogDescription>
@@ -89,7 +91,7 @@ export function CreateGroupDialog() {
         <Form
           form={form}
           onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-6'
+          className='space-y-4 sm:space-y-6'
         >
           {/* Nombre del Grupo */}
           <FormInput
@@ -109,7 +111,7 @@ export function CreateGroupDialog() {
           />
 
           {/* Botones */}
-          <div className='flex justify-end gap-4'>
+          <div className='flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-4'>
             <Button
               type='button'
               variant='outline'
@@ -117,10 +119,15 @@ export function CreateGroupDialog() {
                 form.reset();
                 setOpen(false);
               }}
+              className='w-full text-xs sm:w-auto sm:text-sm'
             >
               Cancelar
             </Button>
-            <Button type='submit' disabled={form.formState.isSubmitting}>
+            <Button
+              type='submit'
+              disabled={form.formState.isSubmitting}
+              className='w-full text-xs sm:w-auto sm:text-sm'
+            >
               {form.formState.isSubmitting ? 'Creando...' : 'Crear Grupo'}
             </Button>
           </div>

@@ -36,15 +36,17 @@ export function AddTransactionDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Add01Icon className='mr-2 h-4 w-4' />
-          Agregar Transacción
+        <Button className='w-full text-xs sm:w-auto sm:text-sm'>
+          <Add01Icon className='mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4' />
+          <span className='sm:inline'>Agregar</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className='max-h-[90vh] max-w-2xl overflow-y-auto'>
+      <DialogContent className='max-h-[90vh] max-w-[95vw] overflow-y-auto sm:max-w-2xl'>
         <DialogHeader>
-          <DialogTitle>Registrar Nueva Transacción</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className='text-base sm:text-lg'>
+            Registrar Nueva Transacción
+          </DialogTitle>
+          <DialogDescription className='text-xs sm:text-sm'>
             Registra un nuevo gasto o ingreso. Todos los campos son
             obligatorios.
           </DialogDescription>

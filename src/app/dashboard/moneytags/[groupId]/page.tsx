@@ -85,39 +85,43 @@ export default async function GroupDetailPage(props: PageProps) {
 
   return (
     <PageContainer scrollable>
-      <div className='mx-auto w-full max-w-7xl space-y-6'>
+      <div className='mx-auto w-full max-w-7xl space-y-4 px-4 sm:space-y-6 sm:px-6'>
         {/* Header */}
-        <div className='flex flex-col gap-4 sm:flex-row sm:items-start'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4'>
           <Link href='/dashboard/moneytags'>
-            <Button variant='ghost' size='icon'>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-9 w-9 sm:h-10 sm:w-10'
+            >
               <ArrowLeft className='h-4 w-4' />
             </Button>
           </Link>
-          <div className='flex-1 space-y-1'>
-            <div className='flex flex-wrap items-center gap-3'>
-              <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>
+          <div className='flex-1 space-y-2 sm:space-y-1'>
+            <div className='flex flex-wrap items-center gap-2 sm:gap-3'>
+              <h1 className='text-xl font-bold tracking-tight sm:text-2xl md:text-3xl'>
                 {group.name}
               </h1>
               {group.is_settled ? (
-                <Badge variant='secondary' className='gap-1.5'>
-                  <CheckCircle2 className='h-3.5 w-3.5' />
+                <Badge variant='secondary' className='gap-1 text-xs sm:gap-1.5'>
+                  <CheckCircle2 className='h-3 w-3 sm:h-3.5 sm:w-3.5' />
                   Liquidado
                 </Badge>
               ) : (
-                <Badge variant='default' className='gap-1.5'>
-                  <AlertCircle className='h-3.5 w-3.5' />
+                <Badge variant='default' className='gap-1 text-xs sm:gap-1.5'>
+                  <AlertCircle className='h-3 w-3 sm:h-3.5 sm:w-3.5' />
                   Activo
                 </Badge>
               )}
             </div>
             {group.description && (
-              <p className='text-muted-foreground text-sm'>
+              <p className='text-muted-foreground text-xs sm:text-sm'>
                 {group.description}
               </p>
             )}
             <div className='flex items-center gap-2'>
-              <Users className='text-muted-foreground h-4 w-4' />
-              <span className='text-muted-foreground text-sm'>
+              <Users className='text-muted-foreground h-3.5 w-3.5 sm:h-4 sm:w-4' />
+              <span className='text-muted-foreground text-xs sm:text-sm'>
                 {group.participant_count} participante(s)
               </span>
             </div>
@@ -136,14 +140,16 @@ export default async function GroupDetailPage(props: PageProps) {
         )}
 
         {/* Grid Layout: Gastos | Deudas | Participantes */}
-        <div className='grid gap-6 md:grid-cols-2 xl:grid-cols-3'>
+        <div className='grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3'>
           {/* Columna 1: Gastos */}
           <Card className='md:col-span-2 xl:col-span-1'>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
+            <CardHeader className='p-4 sm:p-6'>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>Gastos del Grupo</CardTitle>
-                  <CardDescription>
+                  <CardTitle className='text-base sm:text-lg'>
+                    Gastos del Grupo
+                  </CardTitle>
+                  <CardDescription className='text-xs sm:text-sm'>
                     {expenses.length} gasto(s) registrado(s)
                   </CardDescription>
                 </div>
@@ -153,55 +159,64 @@ export default async function GroupDetailPage(props: PageProps) {
                 />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className='bg-muted/50 mb-4 rounded-lg border p-4'>
-                <p className='text-muted-foreground text-sm'>Total Gastado</p>
-                <p className='mt-1 text-3xl font-bold'>
+            <CardContent className='p-4 pt-0 sm:p-6 sm:pt-0'>
+              <div className='bg-muted/50 mb-4 rounded-lg border p-3 sm:p-4'>
+                <p className='text-muted-foreground text-xs sm:text-sm'>
+                  Total Gastado
+                </p>
+                <p className='mt-1 text-2xl font-bold sm:text-3xl'>
                   {formatCurrencyPY(totalSpent)}
                 </p>
               </div>
 
               {expenses.length === 0 ? (
-                <div className='flex min-h-[200px] items-center justify-center rounded-lg border border-dashed'>
+                <div className='flex min-h-[150px] items-center justify-center rounded-lg border border-dashed sm:min-h-[200px]'>
                   <div className='text-center'>
-                    <p className='text-muted-foreground text-sm'>
+                    <p className='text-muted-foreground text-xs sm:text-sm'>
                       No hay gastos registrados
                     </p>
-                    <p className='text-muted-foreground mt-1 text-xs'>
+                    <p className='text-muted-foreground mt-1 text-[10px] sm:text-xs'>
                       Agrega el primer gasto del grupo
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className='space-y-3'>
+                <div className='space-y-2 sm:space-y-3'>
                   {expenses.map((expense: any) => (
                     <div
                       key={expense.id}
-                      className='flex items-start justify-between rounded-lg border p-3'
+                      className='flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3'
                     >
-                      <div className='flex-1'>
-                        <p className='font-medium'>{expense.description}</p>
-                        <p className='text-muted-foreground mt-1 text-xs'>
-                          Pagado por{' '}
-                          <span className='font-medium'>
-                            {expense.paid_by?.name || 'Desconocido'}
-                          </span>
+                      <div className='min-w-0 flex-1'>
+                        <p className='text-sm font-medium sm:text-base'>
+                          {expense.description}
                         </p>
-                        <p className='text-muted-foreground mt-1 text-xs'>
-                          Dividido entre {expense.splits?.length || 0}{' '}
-                          persona(s)
-                        </p>
-                        <p className='text-muted-foreground mt-1 text-xs'>
-                          {new Date(expense.expense_date).toLocaleDateString(
-                            'es-PY'
-                          )}
-                        </p>
+                        <div className='mt-1 space-y-0.5'>
+                          <p className='text-muted-foreground text-[10px] sm:text-xs'>
+                            Pagado por{' '}
+                            <span className='font-medium'>
+                              {expense.paid_by?.name || 'Desconocido'}
+                            </span>
+                          </p>
+                          <p className='text-muted-foreground text-[10px] sm:text-xs'>
+                            Dividido entre {expense.splits?.length || 0}{' '}
+                            persona(s)
+                          </p>
+                          <p className='text-muted-foreground text-[10px] sm:text-xs'>
+                            {new Date(expense.expense_date).toLocaleDateString(
+                              'es-PY'
+                            )}
+                          </p>
+                        </div>
                       </div>
-                      <div className='text-right'>
-                        <p className='font-bold'>
+                      <div className='flex items-baseline justify-between border-t pt-2 sm:block sm:border-t-0 sm:pt-0 sm:text-right'>
+                        <span className='text-muted-foreground text-xs sm:hidden'>
+                          Total:
+                        </span>
+                        <p className='text-base font-bold sm:text-lg'>
                           {formatCurrencyPY(expense.amount)}
                         </p>
-                        <p className='text-muted-foreground mt-1 text-xs'>
+                        <p className='text-muted-foreground text-[10px] sm:mt-1 sm:text-xs'>
                           {formatCurrencyPY(
                             expense.splits?.length
                               ? expense.amount / expense.splits.length
@@ -219,54 +234,64 @@ export default async function GroupDetailPage(props: PageProps) {
 
           {/* Columna 2: Deudas */}
           <Card className='md:col-span-1 xl:col-span-1'>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
+            <CardHeader className='p-4 sm:p-6'>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>¿Quién debe a quién?</CardTitle>
-                  <CardDescription>Resumen de deudas del grupo</CardDescription>
+                  <CardTitle className='text-base sm:text-lg'>
+                    ¿Quién debe a quién?
+                  </CardTitle>
+                  <CardDescription className='text-xs sm:text-sm'>
+                    Resumen de deudas del grupo
+                  </CardDescription>
                 </div>
                 {!group.is_settled && debts.length > 0 && (
-                  <Button variant='outline' size='sm'>
-                    <CheckCircle2 className='mr-2 h-4 w-4' />
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='w-full text-xs sm:w-auto sm:text-sm'
+                  >
+                    <CheckCircle2 className='mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4' />
                     Liquidar Deudas
                   </Button>
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className='p-4 pt-0 sm:p-6 sm:pt-0'>
               {debts.length === 0 ? (
-                <div className='flex min-h-[200px] items-center justify-center rounded-lg border border-dashed'>
+                <div className='flex min-h-[150px] items-center justify-center rounded-lg border border-dashed sm:min-h-[200px]'>
                   <div className='text-center'>
-                    <CheckCircle2 className='text-muted-foreground mx-auto mb-2 h-8 w-8' />
-                    <p className='font-medium'>¡Todo está en orden!</p>
-                    <p className='text-muted-foreground mt-1 text-sm'>
+                    <CheckCircle2 className='text-muted-foreground mx-auto mb-2 h-6 w-6 sm:h-8 sm:w-8' />
+                    <p className='text-sm font-medium sm:text-base'>
+                      ¡Todo está en orden!
+                    </p>
+                    <p className='text-muted-foreground mt-1 text-xs sm:text-sm'>
                       No hay deudas pendientes
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className='space-y-3'>
+                <div className='space-y-2 sm:space-y-3'>
                   {debts.map((debt: any, index: number) => (
                     <div
                       key={index}
-                      className='bg-muted/50 flex flex-col gap-3 rounded-lg border p-4'
+                      className='bg-muted/50 flex flex-col gap-3 rounded-lg border p-3 sm:p-4'
                     >
-                      <div className='flex items-center justify-between'>
-                        <div className='flex-1'>
-                          <p className='font-medium'>
-                            <span className='text-destructive'>
+                      <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                        <div className='min-w-0 flex-1'>
+                          <p className='text-xs font-medium sm:text-sm'>
+                            <span className='text-destructive break-words'>
                               {debt.debtor_name || 'Desconocido'}
                             </span>
-                            <span className='text-muted-foreground mx-2'>
+                            <span className='text-muted-foreground mx-1 sm:mx-2'>
                               debe a
                             </span>
-                            <span className='text-green-600'>
+                            <span className='break-words text-green-600'>
                               {debt.creditor_name || 'Desconocido'}
                             </span>
                           </p>
                         </div>
-                        <div className='text-right'>
-                          <p className='text-xl font-bold'>
+                        <div className='text-left sm:text-right'>
+                          <p className='text-lg font-bold sm:text-xl'>
                             {formatCurrencyPY(debt.debt_amount)}
                           </p>
                         </div>
@@ -287,11 +312,11 @@ export default async function GroupDetailPage(props: PageProps) {
 
               {/* Instrucciones */}
               {debts.length > 0 && (
-                <div className='mt-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/20'>
-                  <p className='text-sm font-medium text-blue-900 dark:text-blue-100'>
+                <div className='mt-3 rounded-lg bg-blue-50 p-3 sm:mt-4 sm:p-4 dark:bg-blue-950/20'>
+                  <p className='text-xs font-medium text-blue-900 sm:text-sm dark:text-blue-100'>
                     💡 Cómo liquidar
                   </p>
-                  <p className='text-muted-foreground mt-1 text-xs'>
+                  <p className='text-muted-foreground mt-1 text-[10px] sm:text-xs'>
                     Cada persona debe transferir el monto indicado. Una vez
                     todos paguen, marca el grupo como &quot;Liquidado&quot;.
                   </p>
@@ -302,11 +327,13 @@ export default async function GroupDetailPage(props: PageProps) {
 
           {/* Columna 3: Participantes */}
           <Card className='md:col-span-1 xl:col-span-1'>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
+            <CardHeader className='p-4 sm:p-6'>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>Participantes</CardTitle>
-                  <CardDescription>
+                  <CardTitle className='text-base sm:text-lg'>
+                    Participantes
+                  </CardTitle>
+                  <CardDescription className='text-xs sm:text-sm'>
                     {group.participant_count} miembro(s)
                   </CardDescription>
                 </div>
@@ -319,15 +346,15 @@ export default async function GroupDetailPage(props: PageProps) {
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className='p-4 pt-0 sm:p-6 sm:pt-0'>
               <div className='space-y-2'>
                 {(group.participants || []).map((participant: any) => (
                   <div
                     key={participant.id}
-                    className='flex items-center gap-3 rounded-lg border p-3'
+                    className='flex items-center gap-2 rounded-lg border p-2.5 sm:gap-3 sm:p-3'
                   >
-                    <div className='bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full'>
-                      <span className='text-primary text-sm font-semibold'>
+                    <div className='bg-primary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10'>
+                      <span className='text-primary text-xs font-semibold sm:text-sm'>
                         {participant.name
                           ?.split(' ')
                           .map((n: string) => n[0])
@@ -336,10 +363,12 @@ export default async function GroupDetailPage(props: PageProps) {
                           .toUpperCase() || '??'}
                       </span>
                     </div>
-                    <div className='flex-1'>
-                      <p className='font-medium'>{participant.name}</p>
+                    <div className='min-w-0 flex-1'>
+                      <p className='truncate text-sm font-medium sm:text-base'>
+                        {participant.name}
+                      </p>
                       {participant.phone && (
-                        <p className='text-muted-foreground text-xs'>
+                        <p className='text-muted-foreground truncate text-[10px] sm:text-xs'>
                           {participant.phone}
                         </p>
                       )}
