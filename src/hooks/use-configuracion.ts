@@ -22,11 +22,34 @@ export function useConfiguracion() {
     async (data: Partial<ConfiguracionFormValues>) => {
       setUpdating(true);
       try {
-        const { error } = await supabase.auth.updateUser({
+        // Actualizar user_metadata en auth
+        const { error: authError } = await supabase.auth.updateUser({
           data: data
         });
 
-        if (error) throw error;
+        if (authError) throw authError;
+
+        // Actualizar tabla profiles si hay campos relevantes
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const profileUpdates: any = {};
+          if (data.full_name !== undefined)
+            profileUpdates.full_name = data.full_name;
+          if (data.avatar_url !== undefined)
+            profileUpdates.avatar_url = data.avatar_url;
+
+          if (Object.keys(profileUpdates).length > 0) {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .update(profileUpdates)
+              .eq('auth_id', user.id);
+
+            if (profileError) throw profileError;
+          }
+        }
 
         toast.success('Perfil actualizado correctamente');
         return { success: true };

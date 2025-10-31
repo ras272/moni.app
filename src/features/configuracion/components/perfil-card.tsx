@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,10 +13,10 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { User, Mail, Calendar, Edit, Upload, Shield } from 'lucide-react';
-import { createBrowserClient } from '@supabase/ssr';
+import { User, Mail, Calendar, Edit, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useConfiguracion } from '@/hooks/use-configuracion';
+import { AvatarUpload } from './avatar-upload';
 
 type Profile = {
   id: string;
@@ -29,9 +28,10 @@ type Profile = {
 
 interface PerfilCardProps {
   profile: Profile;
+  onProfileUpdate: () => void;
 }
 
-export function PerfilCard({ profile }: PerfilCardProps) {
+export function PerfilCard({ profile, onProfileUpdate }: PerfilCardProps) {
   const { updateUserProfile, updating } = useConfiguracion();
   const [editing, setEditing] = useState(false);
   const [editedName, setEditedName] = useState(profile.full_name || '');
@@ -44,11 +44,12 @@ export function PerfilCard({ profile }: PerfilCardProps) {
     const result = await updateUserProfile({ full_name: editedName });
     if (result.success) {
       setEditing(false);
+      onProfileUpdate();
     }
   };
 
-  const handleUploadAvatar = () => {
-    toast.info('Próximamente: Subir avatar desde archivo');
+  const handleAvatarUpdate = () => {
+    onProfileUpdate();
   };
 
   const handleChangePassword = () => {
@@ -70,22 +71,12 @@ export function PerfilCard({ profile }: PerfilCardProps) {
       <CardContent className='space-y-6'>
         {/* Avatar y Nombre */}
         <div className='flex items-center gap-4'>
-          <div className='group relative'>
-            <Avatar className='h-20 w-20'>
-              <AvatarImage src={profile.avatar_url || ''} />
-              <AvatarFallback className='bg-primary text-primary-foreground text-2xl'>
-                {profile.full_name?.slice(0, 2).toUpperCase() || 'US'}
-              </AvatarFallback>
-            </Avatar>
-            <Button
-              size='sm'
-              variant='outline'
-              className='absolute -right-2 -bottom-2 h-8 w-8 rounded-full p-0 opacity-0 transition-opacity group-hover:opacity-100'
-              onClick={handleUploadAvatar}
-            >
-              <Upload className='h-3 w-3' />
-            </Button>
-          </div>
+          <AvatarUpload
+            currentAvatarUrl={profile.avatar_url}
+            userId={profile.id}
+            userName={profile.full_name}
+            onAvatarUpdate={handleAvatarUpdate}
+          />
           <div className='flex-1'>
             <h3 className='text-lg font-semibold'>
               {profile.full_name || 'Usuario'}
@@ -172,14 +163,6 @@ export function PerfilCard({ profile }: PerfilCardProps) {
 
         {/* Acciones */}
         <div className='flex flex-wrap gap-2'>
-          <Button
-            variant='outline'
-            onClick={handleUploadAvatar}
-            className='flex items-center gap-2'
-          >
-            <Upload className='h-4 w-4' />
-            Cambiar Avatar
-          </Button>
           <Button
             variant='outline'
             onClick={handleChangePassword}

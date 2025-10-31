@@ -3,6 +3,7 @@ import * as z from 'zod';
 export const configuracionSchema = z.object({
   full_name: z.string().min(1, { message: 'El nombre es requerido' }),
   email: z.string().email({ message: 'Email inválido' }),
+  avatar_url: z.string().url().nullable().optional(),
   email_notifications: z.boolean().default(true),
   push_notifications: z.boolean().default(false),
   language: z.string().default('es-PY'),

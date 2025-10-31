@@ -14,46 +14,12 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { signOut } from '@/app/auth/actions';
 import { toast } from 'sonner';
-import { createBrowserClient } from '@supabase/ssr';
-import { useEffect, useState } from 'react';
-
-type User = {
-  id: string;
-  email?: string;
-  user_metadata?: {
-    full_name?: string;
-    avatar_url?: string;
-  };
-};
+import { useProfile } from '@/hooks/use-profile';
 
 export function UserNav() {
   const router = useRouter();
   const [loading, startTransition] = useTransition();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const fetchUser = async () => {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-
-    fetchUser();
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { profile } = useProfile();
 
   const handleSignOut = () => {
     startTransition(async () => {
@@ -62,11 +28,11 @@ export function UserNav() {
     });
   };
 
-  if (user) {
+  if (profile) {
     const userForAvatar = {
-      imageUrl: user.user_metadata?.avatar_url,
-      fullName: user.user_metadata?.full_name || user.email?.split('@')[0],
-      emailAddresses: [{ emailAddress: user.email || '' }]
+      imageUrl: profile.avatar_url || undefined,
+      fullName: profile.full_name,
+      emailAddresses: [{ emailAddress: profile.email }]
     };
 
     return (
@@ -85,20 +51,17 @@ export function UserNav() {
           <DropdownMenuLabel className='font-normal'>
             <div className='flex flex-col space-y-1'>
               <p className='text-sm leading-none font-medium'>
-                {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                {profile.full_name}
               </p>
               <p className='text-muted-foreground text-xs leading-none'>
-                {user.email}
+                {profile.email}
               </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-              Perfil
-            </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => router.push('/dashboard/settings')}
+              onClick={() => router.push('/dashboard/configuracion')}
             >
               Configuración
             </DropdownMenuItem>

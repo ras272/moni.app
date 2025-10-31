@@ -21,35 +21,40 @@ export function ConfiguracionView() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchProfile = async () => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const fetchProfile = async () => {
-      try {
-        const {
-          data: { user }
-        } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
 
-        if (user) {
-          setProfile({
-            id: user.id,
-            email: user.email || '',
-            full_name: user.user_metadata?.full_name || null,
-            avatar_url: user.user_metadata?.avatar_url || null,
-            created_at: user.created_at
-          });
+      if (user) {
+        // Obtener datos del perfil desde la tabla profiles
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, avatar_url, created_at')
+          .eq('auth_id', user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        if (profileData) {
+          setProfile(profileData);
         }
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        toast.error('Error al cargar el perfil');
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      toast.error('Error al cargar el perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProfile();
   }, []);
 
@@ -101,7 +106,7 @@ export function ConfiguracionView() {
       <div className='grid gap-6 lg:grid-cols-3'>
         {/* Primera Fila: Perfil y Preferencias */}
         <div className='space-y-6 lg:col-span-2'>
-          <PerfilCard profile={profile} />
+          <PerfilCard profile={profile} onProfileUpdate={fetchProfile} />
           <PreferenciasCard />
         </div>
 
