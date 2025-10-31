@@ -51,6 +51,11 @@ export function TransactionsTable<TData, TValue>({
     <>
       {/* Vista de Cards para Móvil */}
       <div className='flex flex-col space-y-4 md:hidden'>
+        {/* Debug: Log mobile rendering */}
+        {console.log(
+          'Mobile cards rendering, data length:',
+          transactions.length
+        )}
         <DataTableToolbar table={table} />
 
         {transactions.length === 0 ? (
@@ -168,6 +173,11 @@ export function TransactionsTable<TData, TValue>({
 
       {/* Vista de Tabla para Desktop */}
       <div className='hidden md:flex md:flex-1 md:flex-col'>
+        {/* Debug: Log desktop rendering */}
+        {console.log(
+          'Desktop table rendering, data length:',
+          transactions.length
+        )}
         <DataTableToolbar table={table} />
         <DataTable table={table} />
       </div>
