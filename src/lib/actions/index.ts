@@ -50,7 +50,8 @@ export type {
 export {
   addParticipantByMonitag,
   addParticipantManual,
-  removeParticipant
-} from './group-participants';
+  removeParticipant,
+  joinPublicGroup
+} from './group-participants'; // Carpeta modular
 
 export type { AddParticipantByMonitagInput } from '@/lib/validations/monitag';

@@ -18,6 +18,7 @@ import {
   getPublicGroupExpenses,
   getPublicGroupDebts
 } from '@/lib/actions/public-groups';
+import { joinPublicGroup } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/server';
 
 interface PageProps {
@@ -27,8 +28,13 @@ interface PageProps {
 export default async function PublicGroupPage(props: PageProps) {
   const params = await props.params;
   // Decodificar URL encoding (@ se convierte en %40)
-  const monitag = decodeURIComponent(params.monitag);
+  let monitag = decodeURIComponent(params.monitag);
   const slug = decodeURIComponent(params.slug);
+
+  // Quitar el @ si viene en el monitag
+  if (monitag.startsWith('@')) {
+    monitag = monitag.substring(1);
+  }
 
   // Verificar si el usuario está autenticado
   const supabase = await createClient();
@@ -36,49 +42,85 @@ export default async function PublicGroupPage(props: PageProps) {
     data: { user }
   } = await supabase.auth.getUser();
 
-  // Si el usuario está autenticado, intentar redirigir a su vista del grupo
-  if (user) {
+  // Obtener información pública del grupo primero (para verificar que existe)
+  const publicGroupResult = await getPublicGroup({
+    ownerMonitag: monitag,
+    groupSlug: slug
+  });
+
+  // Si el usuario está autenticado, gestionar acceso al grupo
+  console.log('[AUTO-JOIN DEBUG] Usuario autenticado:', !!user);
+
+  if (user && publicGroupResult.success) {
+    const groupId = publicGroupResult.data.group_id;
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')
       .eq('auth_id', user.id)
       .single();
 
+    console.log('[AUTO-JOIN DEBUG] Perfil encontrado:', !!profile, profile?.id);
+
     if (profile) {
-      // Buscar si el grupo existe y si el usuario es participante
-      const { data: ownerProfile } = await supabase
-        .from('profiles')
+      // Verificar si ya es participante
+      const { data: participant } = await supabase
+        .from('group_participants')
         .select('id')
-        .eq('monitag', monitag.toLowerCase())
+        .eq('group_id', groupId)
+        .eq('profile_id', profile.id)
         .single();
 
-      if (ownerProfile) {
+      console.log('[AUTO-JOIN DEBUG] Es participante:', !!participant);
+
+      if (participant) {
+        // Ya es participante, redirigir a la vista privada
+        console.log(
+          '[AUTO-JOIN DEBUG] Redirigiendo a vista privada (ya es participante)'
+        );
+        redirect(`/dashboard/moneytags/${groupId}`);
+      } else {
+        // No es participante, verificar si el grupo es público
         const { data: group } = await supabase
           .from('money_tag_groups')
-          .select('id')
-          .eq('slug', slug)
-          .eq('owner_profile_id', ownerProfile.id)
+          .select('is_public')
+          .eq('id', groupId)
           .single();
 
-        if (group) {
-          // Verificar si es participante
-          const { data: participant } = await supabase
-            .from('group_participants')
-            .select('id')
-            .eq('group_id', group.id)
-            .eq('profile_id', profile.id)
-            .single();
+        console.log('[AUTO-JOIN DEBUG] Grupo es público:', group?.is_public);
 
-          if (participant) {
-            // Redirigir a la vista privada del grupo
-            redirect(`/dashboard/moneytags/${group.id}`);
+        if (group?.is_public) {
+          // Usuario autenticado accediendo a grupo público: auto-unir
+          console.log('[AUTO-JOIN DEBUG] Intentando auto-unir...');
+          const joinResult = await joinPublicGroup(groupId);
+          console.log(
+            '[AUTO-JOIN DEBUG] Resultado de joinPublicGroup:',
+            joinResult
+          );
+
+          if (joinResult.success) {
+            // Unido exitosamente, redirigir a vista privada
+            console.log(
+              '[AUTO-JOIN DEBUG] Redirigiendo a vista privada (auto-join exitoso)'
+            );
+            redirect(`/dashboard/moneytags/${groupId}`);
+          } else {
+            console.log(
+              '[AUTO-JOIN DEBUG] Error en auto-join:',
+              joinResult.error
+            );
           }
+          // Si falla, continuar mostrando vista pública (fallback)
+        } else {
+          console.log(
+            '[AUTO-JOIN DEBUG] Grupo no es público, mostrando vista pública'
+          );
         }
       }
     }
   }
 
-  // Obtener información pública del grupo
+  // Verificar que el grupo existe (ya se obtuvo arriba)
   console.log('[DEBUG] Params raw:', params);
   console.log('[DEBUG] Después de decode:', { monitag, slug });
   console.log(
@@ -88,19 +130,14 @@ export default async function PublicGroupPage(props: PageProps) {
     monitag.split('').map((c) => c.charCodeAt(0))
   );
 
-  const result = await getPublicGroup({
-    ownerMonitag: monitag,
-    groupSlug: slug
-  });
+  console.log('[DEBUG] Resultado:', JSON.stringify(publicGroupResult, null, 2));
 
-  console.log('[DEBUG] Resultado:', JSON.stringify(result, null, 2));
-
-  if (!result.success || !result.data) {
+  if (!publicGroupResult.success || !publicGroupResult.data) {
     console.log('[DEBUG] Grupo no encontrado, llamando notFound()');
     notFound();
   }
 
-  const group = result.data;
+  const group = publicGroupResult.data;
   console.log('[DEBUG] Grupo encontrado:', group);
 
   // Obtener owner_profile_id del grupo
@@ -131,55 +168,56 @@ export default async function PublicGroupPage(props: PageProps) {
   const debts = debtsResult.success ? debtsResult.data : [];
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-950 dark:to-gray-900'>
-      <div className='mx-auto max-w-7xl px-4 py-12'>
-        {/* Header con branding */}
-        <div className='mb-8 text-center'>
-          <Link href='/'>
-            <h1 className='mb-2 text-3xl font-bold text-green-700 dark:text-green-400'>
-              MONI
-            </h1>
+    <div className='bg-muted/40 min-h-screen'>
+      {/* Header simple */}
+      <header className='bg-card border-b shadow-sm'>
+        <div className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4'>
+          <Link href='/' className='flex items-center gap-2'>
+            <span className='text-xl font-bold'>MONI</span>
           </Link>
-          <p className='text-muted-foreground text-sm'>
-            Gestión de gastos compartidos
-          </p>
+          {!user && (
+            <div className='flex gap-2'>
+              <Link href='/auth/sign-in'>
+                <Button variant='ghost' size='sm'>
+                  Iniciar Sesión
+                </Button>
+              </Link>
+              <Link href='/auth/sign-up'>
+                <Button size='sm'>Crear Cuenta</Button>
+              </Link>
+            </div>
+          )}
         </div>
+      </header>
 
-        {/* Card principal del grupo */}
-        <Card className='mb-6 shadow-xl'>
-          <CardHeader className='space-y-4'>
-            <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
-              <div className='flex-1 space-y-2'>
-                <div className='flex flex-wrap items-center gap-3'>
-                  <h2 className='text-2xl font-bold sm:text-3xl'>
-                    {group.group_name}
-                  </h2>
-                  {group.is_settled ? (
-                    <Badge variant='secondary' className='gap-1.5'>
-                      <CheckCircle2 className='h-3.5 w-3.5' />
-                      Liquidado
-                    </Badge>
-                  ) : (
-                    <Badge variant='default' className='gap-1.5'>
-                      <AlertCircle className='h-3.5 w-3.5' />
-                      Activo
-                    </Badge>
-                  )}
-                </div>
-                {group.group_description && (
-                  <p className='text-muted-foreground'>
-                    {group.group_description}
-                  </p>
-                )}
-              </div>
+      <main className='mx-auto max-w-7xl p-4 md:p-6'>
+        {/* Info del grupo */}
+        <div className='bg-card mb-6 rounded-xl border p-6 shadow-sm'>
+          <div className='space-y-3'>
+            <div className='flex flex-wrap items-center gap-3'>
+              <h1 className='text-3xl font-bold'>{group.group_name}</h1>
+              {group.is_settled ? (
+                <Badge variant='secondary' className='gap-1.5'>
+                  <CheckCircle2 className='h-3.5 w-3.5' />
+                  Liquidado
+                </Badge>
+              ) : (
+                <Badge variant='default' className='gap-1.5'>
+                  <AlertCircle className='h-3.5 w-3.5' />
+                  Activo
+                </Badge>
+              )}
             </div>
 
-            <Separator />
+            {group.group_description && (
+              <p className='text-muted-foreground text-lg'>
+                {group.group_description}
+              </p>
+            )}
 
-            {/* Información del creador */}
-            <div className='flex items-center gap-3'>
-              <div className='bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full'>
-                <span className='text-primary text-lg font-semibold'>
+            <div className='flex items-center gap-2'>
+              <div className='bg-muted flex h-8 w-8 items-center justify-center rounded-full'>
+                <span className='text-xs font-semibold'>
                   {group.owner_name
                     .split(' ')
                     .map((n) => n[0])
@@ -188,51 +226,17 @@ export default async function PublicGroupPage(props: PageProps) {
                     .toUpperCase()}
                 </span>
               </div>
-              <div>
-                <p className='text-sm text-gray-600 dark:text-gray-400'>
-                  Creado por
-                </p>
-                <div className='flex items-center gap-2'>
-                  <p className='font-semibold'>{group.owner_name}</p>
-                  <MonitagBadge
-                    monitag={monitag.toLowerCase()}
-                    variant='secondary'
-                    size='sm'
-                  />
-                </div>
-              </div>
+              <span className='text-muted-foreground text-sm'>
+                Creado por {group.owner_name}
+              </span>
+              <MonitagBadge
+                monitag={monitag.toLowerCase()}
+                variant='secondary'
+                size='sm'
+              />
             </div>
-          </CardHeader>
-
-          {/* CTA para usuarios no autenticados dentro del card */}
-          {!user && (
-            <CardContent>
-              <div className='rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 p-6 dark:from-green-950/20 dark:to-emerald-950/20'>
-                <h3 className='mb-2 flex items-center gap-2 text-lg font-semibold'>
-                  <LogIn className='h-5 w-5' />
-                  ¿Ya tenés cuenta en MONI?
-                </h3>
-                <p className='text-muted-foreground mb-4 text-sm'>
-                  Iniciá sesión para ver este grupo en tu dashboard y recibir
-                  notificaciones.
-                </p>
-                <div className='flex flex-wrap gap-3'>
-                  <Link href='/auth/sign-in'>
-                    <Button className='gap-2'>
-                      <LogIn className='h-4 w-4' />
-                      Iniciar Sesión
-                    </Button>
-                  </Link>
-                  <Link href='/auth/sign-up'>
-                    <Button variant='outline' className='gap-2'>
-                      Crear Cuenta
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          )}
-        </Card>
+          </div>
+        </div>
 
         {/* Vista pública completa con gestión de invitados */}
         <PublicGroupView
@@ -243,21 +247,7 @@ export default async function PublicGroupPage(props: PageProps) {
           expenses={expenses}
           debts={debts}
         />
-
-        {/* Footer info */}
-        <div className='mt-8 text-center'>
-          <p className='text-muted-foreground text-xs'>
-            Este grupo fue creado con{' '}
-            <Link
-              href='/'
-              className='font-semibold text-green-700 hover:underline dark:text-green-400'
-            >
-              MONI
-            </Link>{' '}
-            · Gestión de gastos compartidos
-          </p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

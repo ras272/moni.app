@@ -70,7 +70,7 @@ export function PublicDebtSummary({
   const isEvenSteven = totalOwed === 0;
 
   return (
-    <Card className='border-primary/20 from-primary/5 to-primary/10 bg-gradient-to-br'>
+    <Card className='bg-card border shadow-sm'>
       <CardHeader>
         <div className='flex items-center gap-2'>
           {isEvenSteven ? (

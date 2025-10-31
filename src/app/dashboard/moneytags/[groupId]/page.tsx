@@ -310,7 +310,8 @@ export default async function GroupDetailPage(props: PageProps) {
                     {group.participant_count} miembro(s)
                   </CardDescription>
                 </div>
-                {isOwner && (
+                {/* Solo mostrar botón manual en grupos privados */}
+                {isOwner && !group.is_public && (
                   <AddParticipantDialog
                     groupId={group.id}
                     groupName={group.name}
