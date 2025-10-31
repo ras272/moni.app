@@ -5,7 +5,7 @@ import Providers from '@/components/layout/providers';
 import { PageTransition } from '@/components/layout/page-transition';
 import { Toaster } from '@/components/ui/sonner';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { getSidebarStatsUnified } from '@/lib/supabase/dashboard-unified';
+
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
