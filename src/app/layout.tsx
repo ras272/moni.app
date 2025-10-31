@@ -1,14 +1,9 @@
-import Providers from '@/components/layout/providers';
-import { Toaster } from '@/components/ui/sonner';
 import { fontVariables } from '@/lib/font';
 import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
 import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
-import NextTopLoader from 'nextjs-toploader';
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import './globals.css';
-import './theme.css';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -24,6 +19,10 @@ export const viewport: Viewport = {
   themeColor: META_THEME_COLORS.light
 };
 
+/**
+ * Root Layout optimizado - Solo lo esencial
+ * Providers pesados movidos a layouts específicos (dashboard, auth, etc.)
+ */
 export default async function RootLayout({
   children
 }: {
@@ -56,21 +55,16 @@ export default async function RootLayout({
           fontVariables
         )}
       >
-        <NextTopLoader color='var(--primary)' showSpinner={false} />
-        <NuqsAdapter>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='system'
-            enableSystem
-            disableTransitionOnChange
-            enableColorScheme
-          >
-            <Providers activeThemeValue={activeThemeValue as string}>
-              <Toaster />
-              {children}
-            </Providers>
-          </ThemeProvider>
-        </NuqsAdapter>
+        {/* ThemeProvider es crítico para evitar flash */}
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+          enableColorScheme
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

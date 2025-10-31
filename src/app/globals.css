@@ -4,8 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@import './theme.css';
-
 :root {
   --radius: 0.625rem;
   /* Verde Paraguayo Theme - Fondos y Neutros */
