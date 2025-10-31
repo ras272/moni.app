@@ -49,8 +49,8 @@ export function TransactionsTable<TData, TValue>({
 
   return (
     <>
-      {/* Vista de Cards para Móvil */}
-      <div className='flex flex-col space-y-4 md:hidden'>
+      {/* Vista de Cards para Móvil - TEMPORARILY HIDDEN FOR TESTING */}
+      <div className='hidden flex-col space-y-4 md:hidden'>
         {/* Debug: Log mobile rendering */}
         {console.log(
           'Mobile cards rendering, data length:',
@@ -171,8 +171,8 @@ export function TransactionsTable<TData, TValue>({
         )}
       </div>
 
-      {/* Vista de Tabla para Desktop */}
-      <div className='hidden md:flex md:flex-1 md:flex-col'>
+      {/* Vista de Tabla para Desktop - TEMPORARILY ALWAYS VISIBLE FOR TESTING */}
+      <div className='flex h-full min-h-[400px] md:flex md:flex-1 md:flex-col'>
         {/* Debug: Log desktop rendering */}
         {console.log(
           'Desktop table rendering, data length:',
