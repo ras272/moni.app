@@ -2,12 +2,12 @@ import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
 import Providers from '@/components/layout/providers';
+import { PageTransition } from '@/components/layout/page-transition';
 import { Toaster } from '@/components/ui/sonner';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { getSidebarStatsUnified } from '@/lib/supabase/dashboard-unified';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import '../theme.css';
 
@@ -35,24 +35,21 @@ export default async function DashboardLayout({
   const stats = await getSidebarStatsUnified();
 
   return (
-    <>
-      <NextTopLoader color='var(--primary)' showSpinner={false} />
-      <NuqsAdapter>
-        <Providers activeThemeValue={activeThemeValue as string}>
-          <Toaster />
-          <KBar>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <AppSidebar stats={stats} />
-              <SidebarInset>
-                <Header />
-                {/* page main content */}
-                {children}
-                {/* page main content ends */}
-              </SidebarInset>
-            </SidebarProvider>
-          </KBar>
-        </Providers>
-      </NuqsAdapter>
-    </>
+    <NuqsAdapter>
+      <Providers activeThemeValue={activeThemeValue as string}>
+        <Toaster />
+        <KBar>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <AppSidebar stats={stats} />
+            <SidebarInset>
+              <Header />
+              {/* page main content with blur fade transition */}
+              <PageTransition>{children}</PageTransition>
+              {/* page main content ends */}
+            </SidebarInset>
+          </SidebarProvider>
+        </KBar>
+      </Providers>
+    </NuqsAdapter>
   );
 }

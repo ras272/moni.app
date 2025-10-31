@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
+/**
+ * Landing page - Redirect optimizado
+ * Redirige a dashboard si está autenticado, a sign-in si no
+ */
 export default async function Page() {
   const supabase = await createClient();
   const {
@@ -8,8 +12,8 @@ export default async function Page() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/auth/sign-in');
-  } else {
-    redirect('/dashboard/overview');
+    redirect('/auth/sign-in');
   }
+
+  redirect('/dashboard/overview');
 }

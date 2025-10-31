@@ -6,8 +6,11 @@
  * - transactions usa profile_id (no user_id)
  * - transaction_date es DATE (no timestamp)
  * - money_tag_groups (no money_tags)
+ *
+ * OPTIMIZACIÓN: Usa React cache() para deduplicar queries en el mismo request
  */
 
+import { cache } from 'react';
 import { createClient } from './server';
 import { getTotalAccountBalance } from './dashboard-stats';
 
@@ -263,8 +266,9 @@ export async function getMonthlyBalanceChange(): Promise<{
 
 /**
  * Obtiene todas las estadísticas del sidebar en una sola llamada
+ * CACHED: Se ejecuta solo 1 vez por request (CRÍTICO para performance)
  */
-export async function getSidebarStats() {
+export const getSidebarStats = cache(async () => {
   try {
     const [
       totalBalance,
@@ -304,4 +308,4 @@ export async function getSidebarStats() {
       moneyTagsCount: 0
     };
   }
-}
+});
