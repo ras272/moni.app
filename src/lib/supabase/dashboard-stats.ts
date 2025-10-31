@@ -5,6 +5,7 @@
  * Todas las funciones respetan RLS y son optimizadas con RPC cuando es posible.
  */
 
+import { cache } from 'react';
 import { createClient } from './server';
 
 // =====================================================
@@ -33,8 +34,9 @@ export type DashboardStats = {
 
 /**
  * Obtiene el saldo total de todas las cuentas activas del usuario.
+ * CACHED: Se ejecuta solo 1 vez por request, aunque se llame múltiples veces
  */
-export async function getTotalAccountBalance(): Promise<number> {
+export const getTotalAccountBalance = cache(async (): Promise<number> => {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -53,7 +55,7 @@ export async function getTotalAccountBalance(): Promise<number> {
   );
 
   return totalBalance;
-}
+});
 
 // =====================================================
 // MONTHLY STATISTICS
@@ -62,8 +64,9 @@ export async function getTotalAccountBalance(): Promise<number> {
 /**
  * Obtiene estadísticas comparativas del mes actual vs mes anterior.
  * Usa RPC optimizada para mejor performance.
+ * CACHED: Se ejecuta solo 1 vez por request, aunque se llame múltiples veces
  */
-export async function getMonthlyStats(): Promise<DashboardStats> {
+export const getMonthlyStats = cache(async (): Promise<DashboardStats> => {
   const supabase = await createClient();
 
   // Debug: verificar sesión
@@ -104,7 +107,7 @@ export async function getMonthlyStats(): Promise<DashboardStats> {
     totalBalance: await getTotalAccountBalance(),
     growthPercentage: Number(data.growth_percentage) || 0
   };
-}
+});
 
 // =====================================================
 // NOTA: Funciones legacy eliminadas

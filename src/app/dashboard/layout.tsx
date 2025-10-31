@@ -4,7 +4,7 @@ import Header from '@/components/layout/header';
 import Providers from '@/components/layout/providers';
 import { Toaster } from '@/components/ui/sonner';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { getSidebarStats } from '@/lib/supabase/sidebar-stats';
+import { getSidebarStatsUnified } from '@/lib/supabase/dashboard-unified';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import NextTopLoader from 'nextjs-toploader';
@@ -30,8 +30,9 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
   const activeThemeValue = cookieStore.get('active_theme')?.value;
 
-  // Obtener estadísticas del sidebar
-  const stats = await getSidebarStats();
+  // ✨ OPTIMIZACIÓN: Obtener estadísticas del sidebar usando RPC unificada
+  // Si el usuario está en /dashboard/overview, esto usa getDashboardData() cached
+  const stats = await getSidebarStatsUnified();
 
   return (
     <>
