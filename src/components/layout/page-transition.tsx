@@ -15,19 +15,20 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     // Iniciar transición
     setIsTransitioning(true);
 
-    // Terminar transición después de un momento
+    // 🚀 PERFORMANCE FIX: Reducir delay de 50ms a 10ms
+    // Esto hace la navegación más instantánea
     const timer = setTimeout(() => {
       setIsTransitioning(false);
-    }, 50);
+    }, 10);
 
     return () => clearTimeout(timer);
   }, [pathname]);
 
   return (
     <div
-      className={`transition-all duration-500 ease-out ${
+      className={`transition-all duration-300 ease-out ${
         isTransitioning
-          ? 'scale-[0.98] opacity-0 blur-sm'
+          ? 'scale-[0.99] opacity-0 blur-sm'
           : 'blur-0 scale-100 opacity-100'
       } `}
     >
