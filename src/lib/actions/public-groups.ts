@@ -130,10 +130,15 @@ export async function getPublicGroupParticipants(
       };
     }
 
-    // Obtener participantes
+    // Obtener participantes con avatares
     const { data, error } = await supabase
       .from('group_participants')
-      .select('*')
+      .select(
+        `
+        *,
+        profile:profiles(avatar_url)
+      `
+      )
       .eq('group_id', groupId)
       .eq('invitation_status', 'accepted')
       .order('created_at', { ascending: true });
@@ -146,9 +151,15 @@ export async function getPublicGroupParticipants(
       };
     }
 
+    // Flatten avatar_url from nested profile object
+    const participantsWithAvatar = (data || []).map((p: any) => ({
+      ...p,
+      avatar_url: p.profile?.avatar_url || p.avatar_url
+    }));
+
     return {
       success: true,
-      data: data || []
+      data: participantsWithAvatar
     };
   } catch (error) {
     console.error('Unexpected error in getPublicGroupParticipants:', error);
