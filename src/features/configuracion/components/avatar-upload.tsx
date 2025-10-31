@@ -55,9 +55,16 @@ export function AvatarUpload({
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
 
-      // Generar nombre único para el archivo
+      // Obtener el auth_id del usuario autenticado para las políticas RLS
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (!user) throw new Error('Usuario no autenticado');
+
+      // Generar nombre único para el archivo usando auth.uid()
       const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
       // Eliminar avatar anterior si existe
       if (currentAvatarUrl) {
@@ -83,12 +90,6 @@ export function AvatarUpload({
       } = supabase.storage.from('avatars').getPublicUrl(uploadData.path);
 
       // Actualizar profile en la base de datos
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-
-      if (!user) throw new Error('Usuario no encontrado');
-
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
