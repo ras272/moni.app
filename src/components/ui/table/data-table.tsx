@@ -23,11 +23,6 @@ export function DataTable<TData>({
   actionBar,
   children
 }: DataTableProps<TData>) {
-  // Debug: Log DataTable rendering
-  console.log(
-    'DataTable rendering, row count:',
-    table.getRowModel().rows?.length
-  );
   return (
     <div className='flex flex-1 flex-col space-y-4'>
       {children}
