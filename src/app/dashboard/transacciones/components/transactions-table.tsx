@@ -168,9 +168,8 @@ export function TransactionsTable<TData, TValue>({
 
       {/* Vista de Tabla para Desktop */}
       <div className='hidden md:flex md:flex-1 md:flex-col'>
-        <DataTable table={table}>
-          <DataTableToolbar table={table} />
-        </DataTable>
+        <DataTableToolbar table={table} />
+        <DataTable table={table} />
       </div>
     </>
   );
