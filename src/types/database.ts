@@ -111,6 +111,7 @@ export type GroupExpense = {
   currency: string;
   paid_by_participant_id: string;
   expense_date: string;
+  split_type: 'equal' | 'percentage' | 'exact' | 'itemized'; // NUEVO: tipo de división
   created_at: string;
   updated_at: string;
 };
@@ -119,6 +120,7 @@ export type ExpenseSplit = {
   id: string;
   expense_id: string;
   participant_id: string;
+  amount: number; // NUEVO: monto que debe pagar este participante
   created_at: string;
 };
 
