@@ -6,11 +6,9 @@ import { revalidatePath } from 'next/cache';
 import type { AccountType, TransactionType } from '@/types/database';
 
 // =====================================================
-// RE-EXPORT: MoneyTags Actions (now modular)
+// NOTE: MoneyTags actions moved to ./moneytags/actions/
+// Import directly from those modules instead
 // =====================================================
-export { createMoneyTagGroupAction } from './moneytags/actions/create-group';
-export { addParticipantAction } from './moneytags/actions/add-participant';
-export { createGroupExpenseAction } from './moneytags/actions/create-expense';
 
 // =====================================================
 // HELPER: Get current profile_id

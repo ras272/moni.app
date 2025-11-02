@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { addParticipantAction } from '@/app/dashboard/actions';
+import { addParticipantAction } from '@/app/dashboard/moneytags/actions/add-participant';
 import { useRouter } from 'next/navigation';
 import { UserPlus, Search, UserCircle } from 'lucide-react';
 import { MonitagSearchCombobox } from '@/components/monitags';

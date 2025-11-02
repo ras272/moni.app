@@ -16,7 +16,7 @@ import { Add01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { createMoneyTagGroupAction } from '@/app/dashboard/actions';
+import { createMoneyTagGroupAction } from '@/app/dashboard/moneytags/actions/create-group';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 

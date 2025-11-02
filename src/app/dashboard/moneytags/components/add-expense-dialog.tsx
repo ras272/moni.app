@@ -17,7 +17,7 @@ import { Add01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { createGroupExpenseAction } from '@/app/dashboard/actions';
+import { createGroupExpenseAction } from '@/app/dashboard/moneytags/actions/create-expense';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 
