@@ -8,11 +8,9 @@ import type { AccountType, TransactionType } from '@/types/database';
 // =====================================================
 // RE-EXPORT: MoneyTags Actions (now modular)
 // =====================================================
-export {
-  createMoneyTagGroupAction,
-  addParticipantAction,
-  createGroupExpenseAction
-} from './moneytags/actions';
+export { createMoneyTagGroupAction } from './moneytags/actions/create-group';
+export { addParticipantAction } from './moneytags/actions/add-participant';
+export { createGroupExpenseAction } from './moneytags/actions/create-expense';
 
 // =====================================================
 // HELPER: Get current profile_id
