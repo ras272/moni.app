@@ -61,6 +61,7 @@ export async function middleware(request: NextRequest) {
 
   // Rutas públicas (no requieren autenticación)
   const publicPaths = [
+    '/', // Landing page
     '/auth/sign-in',
     '/auth/sign-up',
     '/auth/callback',
@@ -75,9 +76,8 @@ export async function middleware(request: NextRequest) {
   );
 
   // Si no hay sesión y está intentando acceder a ruta protegida
-  if (!session && !isPublicPath && request.nextUrl.pathname !== '/') {
-    const redirectUrl = new URL('/auth/sign-in', request.url);
-    redirectUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+  if (!session && !isPublicPath) {
+    const redirectUrl = new URL('/', request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
