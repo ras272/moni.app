@@ -101,7 +101,7 @@ export default function VerifiedView() {
                   Comparte gastos fácilmente
                 </p>
                 <p className='text-muted-foreground text-xs'>
-                  MoneyTags para gastos en grupo
+                  MoniTags para gastos en grupo
                 </p>
               </div>
             </div>

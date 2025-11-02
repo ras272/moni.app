@@ -52,9 +52,7 @@ export default function DataDeletionPage() {
             </li>
             <li>Cuentas bancarias y carteras configuradas</li>
             <li>Presupuestos y categorías personalizadas</li>
-            <li>
-              Grupos de gastos compartidos (MoneyTags) donde es el creador
-            </li>
+            <li>Grupos de gastos compartidos (MoniTags) donde es el creador</li>
             <li>
               Su participación en grupos de gastos compartidos creados por otros
             </li>
@@ -274,7 +272,7 @@ export default function DataDeletionPage() {
             7. Impacto en Otros Usuarios
           </h2>
           <p>
-            Si participó en gastos compartidos (MoneyTags) con otros usuarios:
+            Si participó en gastos compartidos (MoniTags) con otros usuarios:
           </p>
           <ul className='list-disc space-y-2 pl-6'>
             <li>
@@ -375,7 +373,7 @@ export default function DataDeletionPage() {
 
             <div>
               <h3 className='mb-2 font-semibold'>
-                ¿Qué pasa con las deudas pendientes en MoneyTags?
+                ¿Qué pasa con las deudas pendientes en MoniTags?
               </h3>
               <p>
                 Debe liquidar todas las deudas antes de eliminar su cuenta, o

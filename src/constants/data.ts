@@ -41,7 +41,7 @@ export const navItems: NavItem[] = [
 
 export const navItemsTools: NavItem[] = [
   {
-    title: 'MoneyTags',
+    title: 'MoniTags',
     url: '/dashboard/moneytags',
     icon: 'tags',
     shortcut: ['m', 'm'],

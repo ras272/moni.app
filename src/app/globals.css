@@ -2,7 +2,7 @@
 
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 :root {
   --radius: 0.625rem;
@@ -182,6 +182,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -195,6 +200,22 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+}
+
+/* Progressive Blur - Para screenshots carousel */
+.gradient-mask-t-0 {
+  -webkit-mask-image: linear-gradient(#0000, #000);
+  mask-image: linear-gradient(#0000, #000);
+}
+
+/* GPU Acceleration para carrusel */
+.transform-gpu {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
 }
 
 /* View Transition Wave Effect */
@@ -230,4 +251,22 @@
 ::view-transition-new(root) {
   /* Apply the reveal animation */
   animation: reveal 0.4s ease-in-out forwards;
+}
+
+/* Shimmer Button Animations */
+@keyframes shimmer-slide {
+  to {
+    translate: calc(-50% - var(--cut) / 2) calc(-50% - var(--cut) / 2);
+  }
+}
+
+@keyframes spin-around {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@theme inline {
+  --animate-shimmer-slide: shimmer-slide var(--speed, 3s) ease-in-out infinite;
+  --animate-spin-around: spin-around var(--speed, 3s) linear infinite;
 }

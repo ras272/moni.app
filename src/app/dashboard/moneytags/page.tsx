@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { fetchMoneyTagGroupsServer } from '@/lib/supabase/moneytags-server';
 
 export const metadata = {
-  title: 'MONI - MoneyTags'
+  title: 'MONI - MoniTags'
 };
 
 export default async function MoneyTagsPage() {
@@ -29,7 +29,7 @@ export default async function MoneyTagsPage() {
       <div className='mx-auto w-full max-w-6xl space-y-4 px-4 sm:px-6'>
         <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
           <Heading
-            title='MoneyTags'
+            title='MoniTags'
             description='Organiza gastos con amigos, familia o compañeros de trabajo.'
           />
           <CreateGroupDialog />

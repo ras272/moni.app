@@ -375,7 +375,6 @@ export type {
 
   // Inputs
   SplitInput as ExpenseSplitInput,
-  CreateExpenseWithSplitsInput,
 
   // Outputs
   CalculatedSplit,

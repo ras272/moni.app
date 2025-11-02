@@ -5,9 +5,11 @@ import Providers from '@/components/layout/providers';
 import { PageTransition } from '@/components/layout/page-transition';
 import { Toaster } from '@/components/ui/sonner';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { createClient } from '@/lib/supabase/server';
 
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import '../theme.css';
 
@@ -25,6 +27,17 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Verificar autenticación
+  const supabase = await createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  // Redirigir a landing si no está autenticado
+  if (!user) {
+    redirect('/');
+  }
+
   // Persisting the sidebar state in the cookie.
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';

@@ -46,7 +46,7 @@ export default function TermsOfServicePage() {
             <li>Registrar y categorizar transacciones financieras</li>
             <li>Gestionar múltiples cuentas bancarias y carteras</li>
             <li>Crear y monitorear presupuestos</li>
-            <li>Dividir gastos con otros usuarios (MoneyTags)</li>
+            <li>Dividir gastos con otros usuarios (MoniTags)</li>
             <li>Visualizar estadísticas y reportes financieros</li>
           </ul>
         </section>
