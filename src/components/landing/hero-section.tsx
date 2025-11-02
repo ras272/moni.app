@@ -1,6 +1,7 @@
 'use client';
 import ShimmerButton from '@/components/ui/shimmer-button';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 import { Navbar1 } from './navbar1';
 import NewItemsLoading from './new-items-loading';
 import WordAnimator from './word-animator';
@@ -37,7 +38,7 @@ const HeroSection = () => {
           <strong>@monitags sociales</strong>.
         </p>
         <div className='mt-6 flex items-center justify-center'>
-          <a href='/auth/sign-up'>
+          <Link href='/auth/sign-up'>
             <ShimmerButton
               borderRadius={'100px'}
               className={cn(
@@ -49,7 +50,7 @@ const HeroSection = () => {
                 Comenzar Ahora
               </span>
             </ShimmerButton>
-          </a>
+          </Link>
         </div>
       </article>
     </section>

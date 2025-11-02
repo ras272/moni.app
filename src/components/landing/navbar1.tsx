@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Navbar1 = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,12 +68,12 @@ const Navbar1 = () => {
           transition={{ duration: 0.3, delay: 0.2 }}
           whileHover={{ scale: 1.05 }}
         >
-          <a
+          <Link
             href='/auth/sign-up'
             className='inline-flex items-center justify-center rounded-full bg-black px-5 py-2 text-sm text-white transition-colors hover:bg-gray-800'
           >
             Comenzar
-          </a>
+          </Link>
         </motion.div>
 
         {/* Mobile Menu Button */}
@@ -131,13 +132,13 @@ const Navbar1 = () => {
                 exit={{ opacity: 0, y: 20 }}
                 className='pt-6'
               >
-                <a
+                <Link
                   href='/auth/sign-up'
                   className='inline-flex w-full items-center justify-center rounded-full bg-black px-5 py-3 text-base text-white transition-colors hover:bg-gray-800'
                   onClick={toggleMenu}
                 >
                   Comenzar
-                </a>
+                </Link>
               </motion.div>
             </div>
           </motion.div>
