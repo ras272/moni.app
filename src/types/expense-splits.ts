@@ -368,27 +368,13 @@ export const SPLIT_TYPE_CONFIGS: Record<SplitType, SplitTypeConfig> = {
 // =====================================================
 // EXPORTS
 // =====================================================
+// Los tipos ya están exportados arriba como interfaces/types
+// Solo exportamos aliases aquí para backwards compatibility
 
 export type {
   // Tipos base
   SplitType as ExpenseSplitType,
 
   // Inputs
-  SplitInput as ExpenseSplitInput,
-
-  // Outputs
-  CalculatedSplit,
-  SplitCalculationResult,
-
-  // Validación
-  SplitValidationError,
-  SplitValidationResult,
-
-  // UI/Forms
-  SplitFormState,
-  SplitComponentProps,
-
-  // Helpers
-  ParticipantForSplit,
-  SplitTypeConfig
+  SplitInput as ExpenseSplitInput
 };
