@@ -10,7 +10,7 @@ export function Footer() {
         <div className='mb-6 flex justify-center'>
           <div className='flex items-center gap-2'>
             <Image
-              src='/shaka.png'
+              src='/Shaka.png'
               alt='Moni Logo'
               width={48}
               height={48}

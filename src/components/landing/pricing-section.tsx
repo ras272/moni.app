@@ -184,20 +184,6 @@ export function PricingSection() {
             </div>
           ))}
         </div>
-
-        {/* Bottom Note */}
-        <div className='mt-12 text-center'>
-          <p className='text-sm text-zinc-600'>
-            ¿Eres estudiante o ONG?{' '}
-            <a
-              href='mailto:hola@moni.com'
-              className='font-semibold text-[#1F7D67] hover:underline'
-            >
-              Contáctanos
-            </a>{' '}
-            para descuentos especiales
-          </p>
-        </div>
       </div>
     </section>
   );
