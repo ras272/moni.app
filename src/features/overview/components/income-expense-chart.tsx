@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -171,10 +171,33 @@ export function IncomeExpenseChart({
   currentExpenses,
   previousExpenses
 }: IncomeExpenseChartProps) {
-  const [showIncome, setShowIncome] = useState(true);
-  const [showExpenses, setShowExpenses] = useState(true);
+  // Inicializar estados desde localStorage
+  const [showIncome, setShowIncome] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const saved = localStorage.getItem('moni-chart-show-income');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [showExpenses, setShowExpenses] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const saved = localStorage.getItem('moni-chart-show-expenses');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState<ModalData | null>(null);
+
+  // Guardar en localStorage cuando cambien los estados
+  useEffect(() => {
+    localStorage.setItem('moni-chart-show-income', JSON.stringify(showIncome));
+  }, [showIncome]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      'moni-chart-show-expenses',
+      JSON.stringify(showExpenses)
+    );
+  }, [showExpenses]);
 
   const data = [
     {
