@@ -51,7 +51,7 @@ export type WalletAccount = {
   currentBalance: number;
   transactions: number;
   updatedAt: string;
-  color: 'purple' | 'orange';
+  color: 'primary' | 'info' | 'success' | 'warning';
 };
 
 export type RecentTransaction = {
@@ -116,7 +116,7 @@ type RpcResponse = {
     currentBalance: number;
     transactions: number;
     updatedAt: string;
-    color: 'purple' | 'orange';
+    color: 'primary' | 'info' | 'success' | 'warning';
   }>;
   recent_transactions: Array<{
     id: string;

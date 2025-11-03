@@ -43,7 +43,7 @@ export type WalletAccountData = {
   currentBalance: number;
   transactions: number;
   updatedAt: string;
-  color: 'purple' | 'orange';
+  color: 'primary' | 'info' | 'success' | 'warning';
 };
 
 export type RevenueItem = {
@@ -175,7 +175,7 @@ export const getWalletAccountsData = cache(
         currentBalance: account.current_balance,
         transactions: count || 0,
         updatedAt: updatedAt,
-        color: i === 0 ? 'purple' : 'orange'
+        color: i === 0 ? 'primary' : 'info'
       } as WalletAccountData;
     });
 
