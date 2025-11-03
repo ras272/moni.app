@@ -4,6 +4,7 @@ import { ComparisonCard } from './comparison-card';
 import { WalletAccountEnhanced } from './wallet-account-enhanced';
 import { RecentTransactionsEnhanced } from './recent-transactions-enhanced';
 import { TopExpenseCategories } from './financial-health';
+import { IncomeExpenseChart } from './income-expense-chart';
 import { getDashboardData } from '@/lib/supabase/dashboard-unified';
 import {
   TrendingDown,
@@ -121,51 +122,36 @@ export async function DashboardRedesigned() {
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
           {/* LEFT COLUMN */}
           <div className='space-y-6'>
-            {/* Comparativa Mensual - Grid 2x2 */}
-            <div>
-              <div className='mb-4'>
-                <h3 className='text-lg font-semibold'>Resumen del Mes</h3>
-              </div>
-              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-                {/* Card 1: Gastos Este vs Anterior */}
-                <ComparisonCard
-                  title='Gastos del Mes'
-                  icon={<TrendingDown className='h-4 w-4' />}
-                  currentValue={comparison.expenses.current}
-                  previousValue={comparison.expenses.previous}
-                  subtitle='Comparado con mes anterior'
-                />
+            {/* Chart de Ingresos vs Gastos */}
+            <IncomeExpenseChart
+              currentIncome={comparison.income.current}
+              previousIncome={comparison.income.previous}
+              currentExpenses={comparison.expenses.current}
+              previousExpenses={comparison.expenses.previous}
+            />
 
-                {/* Card 2: Ingresos Este vs Anterior */}
-                <ComparisonCard
-                  title='Ingresos del Mes'
-                  icon={<TrendingUp className='h-4 w-4' />}
-                  currentValue={comparison.income.current}
-                  previousValue={comparison.income.previous}
-                  subtitle='Comparado con mes anterior'
-                />
+            {/* Cards pequeñas debajo del chart */}
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+              {/* Card 3: Balance Promedio Semanal */}
+              <ComparisonCard
+                title='Balance Promedio Semanal'
+                icon={<WalletIcon className='h-4 w-4' />}
+                currentValue={comparison.weeklyAverageBalance}
+                subtitle='Últimas 4 semanas'
+                trend='up'
+                trendLabel='Creciendo'
+              />
 
-                {/* Card 3: Balance Promedio Semanal */}
-                <ComparisonCard
-                  title='Balance Promedio Semanal'
-                  icon={<WalletIcon className='h-4 w-4' />}
-                  currentValue={comparison.weeklyAverageBalance}
-                  subtitle='Últimas 4 semanas'
-                  trend='up'
-                  trendLabel='Creciendo'
-                />
-
-                {/* Card 4: Racha de Ahorro */}
-                <ComparisonCard
-                  title='Racha de Ahorro'
-                  icon={<Flame className='h-4 w-4' />}
-                  currentValue={comparison.savingsStreak}
-                  showCurrency={false}
-                  subtitle='Meses consecutivos ahorrando'
-                  trendLabel={comparison.savingsStreak > 0 ? 'meses' : ''}
-                  trend={comparison.savingsStreak > 0 ? 'up' : 'neutral'}
-                />
-              </div>
+              {/* Card 4: Racha de Ahorro */}
+              <ComparisonCard
+                title='Racha de Ahorro'
+                icon={<Flame className='h-4 w-4' />}
+                currentValue={comparison.savingsStreak}
+                showCurrency={false}
+                subtitle='Meses consecutivos ahorrando'
+                trendLabel={comparison.savingsStreak > 0 ? 'meses' : ''}
+                trend={comparison.savingsStreak > 0 ? 'up' : 'neutral'}
+              />
             </div>
 
             {/* Transacciones Recientes */}
