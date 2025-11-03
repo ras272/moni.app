@@ -12,11 +12,33 @@ const META_THEME_COLORS = {
 
 export const metadata: Metadata = {
   title: 'MONI - Dashboard',
-  description: 'App de finanzas personales para Paraguay'
+  description: 'App de finanzas personales para Paraguay',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Moni',
+    startupImage: [
+      {
+        url: '/pwd.jpg',
+        media:
+          '(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)'
+      }
+    ]
+  },
+  applicationName: 'Moni',
+  icons: {
+    icon: '/pwd.jpg',
+    apple: '/pwd.jpg'
+  }
 };
 
 export const viewport: Viewport = {
-  themeColor: META_THEME_COLORS.light
+  themeColor: META_THEME_COLORS.light,
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
 };
 
 /**

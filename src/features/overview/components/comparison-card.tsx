@@ -79,10 +79,10 @@ export function ComparisonCard({
               className={cn(
                 'gap-1',
                 change > 0
-                  ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-900/20 dark:text-green-400'
+                  ? 'border-[var(--card-income-border)] bg-[var(--card-income-bg)] text-[var(--success)]'
                   : change < 0
-                    ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-400'
-                    : 'border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-800 dark:bg-gray-800/20 dark:text-gray-400'
+                    ? 'border-[var(--card-expense-border)] bg-[var(--card-expense-bg)] text-[var(--error)]'
+                    : 'bg-muted text-muted-foreground border-border'
               )}
             >
               {change > 0 ? (
@@ -102,20 +102,20 @@ export function ComparisonCard({
               className={cn(
                 'h-3 w-3',
                 trend === 'up'
-                  ? 'text-green-600'
+                  ? 'text-[var(--success)]'
                   : trend === 'down'
-                    ? 'text-red-600'
-                    : 'text-gray-600'
+                    ? 'text-[var(--error)]'
+                    : 'text-muted-foreground'
               )}
             />
             <span
               className={cn(
                 'text-xs font-medium',
                 trend === 'up'
-                  ? 'text-green-600'
+                  ? 'text-[var(--success)]'
                   : trend === 'down'
-                    ? 'text-red-600'
-                    : 'text-gray-600'
+                    ? 'text-[var(--error)]'
+                    : 'text-muted-foreground'
               )}
             >
               {trendLabel}

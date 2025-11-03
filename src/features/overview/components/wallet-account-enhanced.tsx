@@ -13,7 +13,7 @@ interface WalletAccountEnhancedProps {
   currentBalance: number;
   transactions: number;
   updatedAt: string;
-  color: 'purple' | 'orange';
+  color: 'primary' | 'info' | 'success' | 'warning';
   className?: string;
 }
 
@@ -26,18 +26,27 @@ export function WalletAccountEnhanced({
   className
 }: WalletAccountEnhancedProps) {
   const iconBgClasses = {
-    purple: 'bg-purple-500/10',
-    orange: 'bg-orange-500/10'
+    primary: 'bg-[var(--card-featured-bg)]',
+    info: 'bg-[var(--card-moneytag-bg)]',
+    success: 'bg-[var(--card-income-bg)]',
+    warning: 'bg-[var(--card-warning-bg)]'
   };
 
   const iconColorClasses = {
-    purple: 'text-purple-500',
-    orange: 'text-orange-500'
+    primary: 'text-[var(--purple)]',
+    info: 'text-[var(--info)]',
+    success: 'text-[var(--success)]',
+    warning: 'text-[var(--warning)]'
   };
 
   const badgeColorClasses = {
-    purple: 'bg-purple-500/10 text-purple-700 hover:bg-purple-500/20',
-    orange: 'bg-orange-500/10 text-orange-700 hover:bg-orange-500/20'
+    primary:
+      'bg-[var(--card-featured-bg)] text-[var(--purple)] border border-[var(--card-featured-border)]',
+    info: 'bg-[var(--card-moneytag-bg)] text-[var(--info)] border border-[var(--card-moneytag-border)]',
+    success:
+      'bg-[var(--card-income-bg)] text-[var(--success)] border border-[var(--card-income-border)]',
+    warning:
+      'bg-[var(--card-warning-bg)] text-[var(--warning)] border border-[var(--card-warning-border)]'
   };
 
   return (

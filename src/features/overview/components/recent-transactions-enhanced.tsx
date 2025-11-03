@@ -223,16 +223,12 @@ export function RecentTransactionsEnhanced({
                         {transaction.account}
                       </p>
                       <Badge
-                        variant={
-                          transaction.type === 'income'
-                            ? 'default'
-                            : 'destructive'
-                        }
+                        variant='secondary'
                         className={cn(
                           'px-2 py-0 text-xs',
                           transaction.type === 'income'
-                            ? 'bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400'
+                            ? 'border border-[var(--card-income-border)] bg-[var(--card-income-bg)] text-[var(--success)] hover:bg-[var(--card-income-bg)]'
+                            : 'border border-[var(--card-expense-border)] bg-[var(--card-expense-bg)] text-[var(--error)] hover:bg-[var(--card-expense-bg)]'
                         )}
                       >
                         {transaction.category}
@@ -249,8 +245,8 @@ export function RecentTransactionsEnhanced({
                         className={cn(
                           'flex items-center gap-1 text-sm font-semibold',
                           transaction.type === 'income'
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-red-600 dark:text-red-400'
+                            ? 'text-[var(--success)]'
+                            : 'text-[var(--error)]'
                         )}
                       >
                         {transaction.type === 'income' ? (
