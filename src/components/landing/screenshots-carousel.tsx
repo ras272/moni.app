@@ -25,7 +25,7 @@ const screenshots: Screenshot[] = [
     description: 'Controla tus gastos e ingresos en tiempo real',
     badge: 'Dashboard',
     icon: <BarChart3 size={14} />,
-    backgroundClassName: 'bg-gradient-to-br from-blue-500 to-blue-700'
+    image: '/dashboard.png'
   },
   {
     id: 2,
@@ -43,17 +43,17 @@ const screenshots: Screenshot[] = [
     description: 'Divide gastos con amigos fácilmente',
     badge: 'MoniTags',
     icon: <Users size={14} />,
-    backgroundClassName: 'bg-gradient-to-br from-purple-500 to-purple-700'
-  },
-  {
-    id: 4,
-    title: 'Reportes',
-    subtitle: 'Analiza tus finanzas',
-    description: 'Gráficos y estadísticas detalladas',
-    badge: 'Reportes',
-    icon: <Wallet size={14} />,
-    backgroundClassName: 'bg-gradient-to-br from-orange-500 to-orange-700'
+    image: '/grupos.png'
   }
+  // {
+  //   id: 4,
+  //   title: 'Reportes',
+  //   subtitle: 'Analiza tus finanzas',
+  //   description: 'Gráficos y estadísticas detalladas',
+  //   badge: 'Reportes',
+  //   icon: <Wallet size={14} />,
+  //   backgroundClassName: 'bg-gradient-to-br from-orange-500 to-orange-700'
+  // }
 ];
 
 const variants = {
@@ -128,78 +128,85 @@ export default function ScreenshotsCarousel() {
     return () => clearInterval(timer);
   }, [internalPage, interval]);
 
-  const visibleScreenshots = [-1, 0, 1].map(
-    (offset) => screenshots[wrap(0, screenshots.length, activeIndex + offset)]
-  );
+  const visibleScreenshots = [-1, 0, 1].map((offset) => {
+    const wrappedIndex = wrap(0, screenshots.length, activeIndex + offset);
+    return {
+      screenshot: screenshots[wrappedIndex],
+      uniqueKey: `${screenshots[wrappedIndex].id}-${offset}-${activeIndex}`,
+      position: offset
+    };
+  });
 
   return (
     <div className='relative flex h-[600px] w-full items-center justify-center md:h-[650px]'>
       <AnimatePresence initial={false} custom={direction}>
-        {visibleScreenshots.map((screenshot, index) => (
-          <motion.div
-            key={screenshot.id}
-            custom={direction}
-            variants={variants}
-            initial='hidden'
-            animate={index === 1 ? 'center' : index === 0 ? 'left' : 'right'}
-            exit='hidden'
-            style={{
-              width: '280px',
-              height: '500px'
-            }}
-            className='absolute top-1/2 left-1/2 origin-center -translate-y-1/2 will-change-transform md:h-[580px] md:w-[320px]'
-          >
-            <div className='relative h-full w-full transform-gpu overflow-hidden rounded-3xl shadow-2xl'>
-              {screenshot.backgroundClassName ? (
-                <div
-                  className={`flex h-full w-full items-center justify-center ${screenshot.backgroundClassName}`}
-                >
-                  {/* Placeholder para screenshot real */}
-                  <div className='text-center text-white'>
-                    <div className='mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm'>
-                      {screenshot.icon}
+        {visibleScreenshots.map(
+          ({ screenshot, uniqueKey, position }, index) => (
+            <motion.div
+              key={uniqueKey}
+              custom={direction}
+              variants={variants}
+              initial='hidden'
+              animate={index === 1 ? 'center' : index === 0 ? 'left' : 'right'}
+              exit='hidden'
+              style={{
+                width: '280px',
+                height: '500px'
+              }}
+              className='absolute top-1/2 left-1/2 origin-center -translate-y-1/2 will-change-transform md:h-[580px] md:w-[320px]'
+            >
+              <div className='relative h-full w-full transform-gpu overflow-hidden rounded-3xl shadow-2xl'>
+                {screenshot.backgroundClassName ? (
+                  <div
+                    className={`flex h-full w-full items-center justify-center ${screenshot.backgroundClassName}`}
+                  >
+                    {/* Placeholder para screenshot real */}
+                    <div className='text-center text-white'>
+                      <div className='mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20'>
+                        {screenshot.icon}
+                      </div>
+                      <p className='text-lg font-semibold'>
+                        Screenshot próximamente
+                      </p>
                     </div>
-                    <p className='text-lg font-semibold'>
-                      Screenshot próximamente
-                    </p>
                   </div>
+                ) : screenshot.image ? (
+                  <Image
+                    src={screenshot.image}
+                    alt={screenshot.title}
+                    width={400}
+                    height={600}
+                    className='h-full w-full object-cover'
+                  />
+                ) : null}
+
+                {/* Badge */}
+                <div className='absolute top-4 left-4 z-[3]'>
+                  <span className='flex flex-row items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs font-medium text-white'>
+                    {screenshot.icon}
+                    {screenshot.badge}
+                  </span>
                 </div>
-              ) : screenshot.image ? (
-                <Image
-                  src={screenshot.image}
-                  alt={screenshot.title}
-                  width={400}
-                  height={600}
-                  className='h-full w-full object-cover'
-                />
-              ) : null}
 
-              {/* Badge */}
-              <div className='absolute top-4 left-4 z-[3]'>
-                <span className='flex flex-row items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-xl'>
-                  {screenshot.icon}
-                  {screenshot.badge}
-                </span>
+                {/* Content */}
+                <div className='absolute bottom-0 z-[3] w-full overflow-hidden rounded-b-3xl p-6 text-white'>
+                  <p className='mb-1 text-center text-xl font-bold md:text-2xl'>
+                    {screenshot.title}
+                  </p>
+                  <p className='text-center text-sm opacity-90'>
+                    {screenshot.subtitle}
+                  </p>
+                  <p className='mt-2 text-center text-xs opacity-75'>
+                    {screenshot.description}
+                  </p>
+                </div>
+
+                {/* Simplified blur gradient - mejor performance */}
+                <div className='pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/2 rounded-b-3xl bg-gradient-to-t from-black/40 to-transparent'></div>
               </div>
-
-              {/* Content */}
-              <div className='absolute bottom-0 z-[3] w-full overflow-hidden rounded-b-3xl p-6 text-white'>
-                <p className='mb-1 text-center text-xl font-bold md:text-2xl'>
-                  {screenshot.title}
-                </p>
-                <p className='text-center text-sm opacity-90'>
-                  {screenshot.subtitle}
-                </p>
-                <p className='mt-2 text-center text-xs opacity-75'>
-                  {screenshot.description}
-                </p>
-              </div>
-
-              {/* Simplified blur gradient - mejor performance */}
-              <div className='pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/2 rounded-b-3xl bg-gradient-to-t from-black/40 to-transparent backdrop-blur-sm'></div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          )
+        )}
       </AnimatePresence>
     </div>
   );
