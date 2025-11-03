@@ -7,6 +7,7 @@ import { PageTransition } from '@/components/layout/page-transition';
 import { Toaster } from '@/components/ui/sonner';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { createClient } from '@/lib/supabase/server';
+import NextTopLoader from 'nextjs-toploader';
 
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
@@ -51,6 +52,13 @@ export default async function DashboardLayout({
   return (
     <NuqsAdapter>
       <Providers activeThemeValue={activeThemeValue as string}>
+        <NextTopLoader
+          color='#1F7D67'
+          showSpinner={false}
+          height={3}
+          crawlSpeed={200}
+          speed={200}
+        />
         <Toaster />
         <KBar>
           <SidebarProvider defaultOpen={defaultOpen}>
