@@ -4,6 +4,9 @@ import HeroSection from '@/components/landing/hero-section';
 import { ThreeStepProcess } from '@/components/landing/three-step-process';
 import { Features } from '@/components/landing/features';
 import { ScreenshotsSection } from '@/components/landing/screenshots-section';
+import { PricingSection } from '@/components/landing/pricing-section';
+import { FAQSection } from '@/components/landing/faq-section';
+import { Footer } from '@/components/landing/footer';
 
 /**
  * Landing page
@@ -23,11 +26,16 @@ export default async function Page() {
 
   // Mostrar landing para usuarios no autenticados
   return (
-    <main className='min-h-screen overflow-x-hidden bg-white'>
-      <HeroSection />
-      <ThreeStepProcess />
-      <Features />
-      <ScreenshotsSection />
-    </main>
+    <>
+      <main className='min-h-screen overflow-x-hidden bg-white'>
+        <HeroSection />
+        <ThreeStepProcess />
+        <Features />
+        <ScreenshotsSection />
+        <PricingSection />
+        <FAQSection />
+      </main>
+      <Footer />
+    </>
   );
 }

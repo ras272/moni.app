@@ -28,8 +28,17 @@ export const metadata: Metadata = {
   },
   applicationName: 'Moni',
   icons: {
-    icon: '/icon-192x192.png',
-    apple: '/icon-192x192.png'
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      {
+        url: '/favicons/android-chrome-192x192.png',
+        sizes: '192x192',
+        type: 'image/png'
+      }
+    ],
+    apple: '/favicons/apple-touch-icon.png',
+    shortcut: '/favicon.ico'
   }
 };
 

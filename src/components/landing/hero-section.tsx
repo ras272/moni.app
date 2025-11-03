@@ -7,7 +7,7 @@ import NewItemsLoading from './new-items-loading';
 import WordAnimator from './word-animator';
 
 const HeroSection = () => {
-  const words = ['Simple', 'Rápido', 'Inteligente'];
+  const words = ['Simple', 'Rapida', 'Inteligente'];
 
   return (
     <section className='relative h-screen overflow-hidden overflow-x-hidden bg-white pb-20'>
