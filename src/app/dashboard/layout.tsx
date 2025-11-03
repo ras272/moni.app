@@ -1,6 +1,7 @@
 import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
+import { MobileNav } from '@/components/layout/mobile-nav';
 import Providers from '@/components/layout/providers';
 import { PageTransition } from '@/components/layout/page-transition';
 import { Toaster } from '@/components/ui/sonner';
@@ -56,6 +57,7 @@ export default async function DashboardLayout({
             <AppSidebar />
             <SidebarInset>
               <Header />
+              <MobileNav />
               {/* page main content with blur fade transition */}
               <PageTransition>{children}</PageTransition>
               {/* page main content ends */}

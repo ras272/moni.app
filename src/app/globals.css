@@ -296,3 +296,15 @@
   --animate-shimmer-slide: shimmer-slide var(--speed, 3s) ease-in-out infinite;
   --animate-spin-around: spin-around var(--speed, 3s) linear infinite;
 }
+
+/* Hide scrollbar for mobile nav */
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
