@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: 'Moni',
     startupImage: [
       {
-        url: '/pwd.jpg',
+        url: '/icon-512x512.png',
         media:
           '(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)'
       }
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   },
   applicationName: 'Moni',
   icons: {
-    icon: '/pwd.jpg',
-    apple: '/pwd.jpg'
+    icon: '/icon-192x192.png',
+    apple: '/icon-192x192.png'
   }
 };
 
