@@ -5,45 +5,67 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import SignUpForm from './sign-up-form';
 import EmailVerificationSuccess from './email-verification-success';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { InstallPrompt } from '@/components/pwa/install-prompt';
 
 export default function SignUpViewPage() {
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+  // Mostrar prompt de instalación PWA después de registro exitoso
+  useEffect(() => {
+    if (registeredEmail) {
+      // Esperar 2 segundos para que el usuario vea la confirmación primero
+      const timer = setTimeout(() => {
+        setShowInstallPrompt(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [registeredEmail]);
 
   // Si ya se registró, mostrar pantalla de verificación
   if (registeredEmail) {
     return (
-      <div className='relative flex h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
-        <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
-          <div className='absolute inset-0 bg-zinc-900' />
-          <div className='relative z-20 flex items-center text-lg font-medium'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              className='mr-2 h-6 w-6'
-            >
-              <path d='M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3' />
-            </svg>
-            MONI
+      <>
+        <div className='relative flex h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
+          <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
+            <div className='absolute inset-0 bg-zinc-900' />
+            <div className='relative z-20 flex items-center text-lg font-medium'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='mr-2 h-6 w-6'
+              >
+                <path d='M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3' />
+              </svg>
+              MONI
+            </div>
+            <div className='relative z-20 mt-auto'>
+              <blockquote className='space-y-2'>
+                <p className='text-lg'>
+                  &ldquo;Verificar tu email es rápido y te protege. ¡Gracias por
+                  confiar en MONI!&rdquo;
+                </p>
+              </blockquote>
+            </div>
           </div>
-          <div className='relative z-20 mt-auto'>
-            <blockquote className='space-y-2'>
-              <p className='text-lg'>
-                &ldquo;Verificar tu email es rápido y te protege. ¡Gracias por
-                confiar en MONI!&rdquo;
-              </p>
-            </blockquote>
+          <div className='flex h-full items-center justify-center p-4 lg:p-8'>
+            <EmailVerificationSuccess email={registeredEmail} />
           </div>
         </div>
-        <div className='flex h-full items-center justify-center p-4 lg:p-8'>
-          <EmailVerificationSuccess email={registeredEmail} />
-        </div>
-      </div>
+
+        {/* Prompt de instalación PWA */}
+        <InstallPrompt
+          open={showInstallPrompt}
+          onOpenChange={setShowInstallPrompt}
+        />
+      </>
     );
   }
 
