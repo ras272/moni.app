@@ -30,6 +30,14 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
+    title: 'Recurrentes',
+    url: '/dashboard/recurrentes',
+    icon: 'refresh',
+    shortcut: ['e', 'e'],
+    isActive: false,
+    items: []
+  },
+  {
     title: 'Cuentas',
     url: '/dashboard/cuentas',
     icon: 'wallet',

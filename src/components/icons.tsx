@@ -37,7 +37,8 @@ import {
   Notification01Icon,
   Logout01Icon,
   ImageUpload01Icon,
-  Message01Icon
+  Message01Icon,
+  RepeatIcon
 } from 'hugeicons-react';
 
 export type Icon = React.ComponentType<any>;
@@ -77,5 +78,6 @@ export const Icons = {
   receipt: Money01Icon,
   tags: DiscountTag01Icon,
   wallet: Wallet01Icon,
-  message: Message01Icon
+  message: Message01Icon,
+  refresh: RepeatIcon
 };

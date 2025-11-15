@@ -136,3 +136,67 @@ export type GroupDebt = {
   creditor_name: string;
   debt_amount: number;
 };
+
+// =====================================================
+// TYPES: Recurring Transactions
+// =====================================================
+
+export type RecurrenceFrequency =
+  | 'daily' // Diario
+  | 'weekly' // Semanal
+  | 'biweekly' // Quincenal (cada 2 semanas)
+  | 'monthly' // Mensual
+  | 'yearly'; // Anual
+
+export type RecurringTransaction = {
+  id: string;
+  profile_id: string;
+
+  // Detalles de la transacción template
+  type: TransactionType;
+  amount: number;
+  currency: string;
+  description: string;
+  merchant: string | null;
+  category_id: string | null;
+  account_id: string;
+  to_account_id: string | null;
+  notes: string | null;
+
+  // Configuración de recurrencia
+  frequency: RecurrenceFrequency;
+  interval_count: number; // Cada cuántos períodos (default: 1)
+  day_of_period: number | null; // Día del mes (1-31) o día de semana (1-7)
+  start_date: string; // Fecha de inicio (DATE)
+  end_date: string | null; // Fecha de fin (DATE) - NULL = sin fin
+
+  // Control de estado
+  is_active: boolean;
+  last_generated_date: string | null; // Última fecha en que se generó (DATE)
+  next_occurrence_date: string; // Próxima fecha de generación (DATE)
+
+  created_at: string;
+  updated_at: string;
+};
+
+export type RecurringTransactionWithRelations = RecurringTransaction & {
+  category: Category | null;
+  account: Account;
+  to_account: Account | null;
+};
+
+export type RecurringTransactionHistory = {
+  id: string;
+  recurring_transaction_id: string;
+  transaction_id: string;
+  generated_at: string; // TIMESTAMPTZ
+  scheduled_date: string; // DATE - Fecha programada
+  actual_date: string; // DATE - Fecha de creación real
+  created_at: string;
+};
+
+export type RecurringTransactionHistoryWithRelations =
+  RecurringTransactionHistory & {
+    recurring_transaction: RecurringTransaction;
+    transaction: Transaction;
+  };
