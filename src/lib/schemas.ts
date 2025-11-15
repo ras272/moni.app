@@ -37,7 +37,7 @@ export const recurringTransactionSchema = z
       .max(255, {
         message: 'La descripción no puede exceder 255 caracteres.'
       }),
-    monto: z.coerce
+    monto: z
       .number({
         required_error: 'El monto es requerido.',
         invalid_type_error: 'El monto debe ser un número.'
