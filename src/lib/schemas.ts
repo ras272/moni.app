@@ -64,14 +64,13 @@ export const recurringTransactionSchema = z
       .number()
       .int()
       .min(1, { message: 'El intervalo debe ser al menos 1.' })
-      .max(12, { message: 'El intervalo no puede exceder 12.' })
-      .default(1),
+      .max(12, { message: 'El intervalo no puede exceder 12.' }),
     diaPeriodo: z.number().int().min(1).max(31).optional(),
     fechaInicio: z.date({
       required_error: 'La fecha de inicio es requerida.'
     }),
     fechaFin: z.date().optional(),
-    tieneFechaFin: z.boolean().default(false)
+    tieneFechaFin: z.boolean()
   })
   .refine(
     (data) => {
