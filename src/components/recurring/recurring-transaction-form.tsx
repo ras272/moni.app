@@ -212,7 +212,7 @@ export function RecurringTransactionForm({
         name='notas'
         label='Notas adicionales'
         placeholder='Información adicional sobre esta recurrencia...'
-        rows={3}
+        config={{ rows: 3 }}
       />
 
       {/* Configuración de Recurrencia */}

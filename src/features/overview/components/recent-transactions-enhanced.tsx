@@ -169,7 +169,7 @@ export function RecentTransactionsEnhanced({
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
 
   return (
-    <Card className='w-full transition-shadow duration-300 hover:shadow-md'>
+    <Card className='shadow-modern w-full rounded-xl'>
       <CardHeader className='pb-3'>
         <div className='flex items-center justify-between'>
           <CardTitle className='text-lg font-semibold'>
@@ -190,13 +190,18 @@ export function RecentTransactionsEnhanced({
                 </p>
               </div>
             ) : (
-              transactions.map((transaction) => (
+              transactions.map((transaction, index) => (
                 <div
                   key={transaction.id}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg border p-3 transition-all duration-200',
-                    hoveredId === transaction.id && '-translate-y-0.5 shadow-md'
+                    'animate-in fade-in slide-in-from-left-4 flex items-center gap-3 rounded-xl border p-3 transition-all duration-300',
+                    hoveredId === transaction.id &&
+                      'shadow-modern-lg -translate-y-1'
                   )}
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                    animationFillMode: 'both'
+                  }}
                   onMouseEnter={() => setHoveredId(transaction.id)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
@@ -243,7 +248,7 @@ export function RecentTransactionsEnhanced({
                     <div className='text-right'>
                       <p
                         className={cn(
-                          'flex items-center gap-1 text-sm font-semibold',
+                          'font-numbers flex items-center gap-1 text-sm font-semibold',
                           transaction.type === 'income'
                             ? 'text-[var(--success)]'
                             : 'text-[var(--error)]'

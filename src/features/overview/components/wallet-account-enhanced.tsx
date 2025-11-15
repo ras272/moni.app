@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit2, Wallet, FileText, Clock } from 'lucide-react';
+import { Wallet, FileText, Clock, ArrowUpRight } from 'lucide-react';
 import { formatCurrencyPY } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
@@ -50,17 +50,41 @@ export function WalletAccountEnhanced({
   };
 
   return (
-    <Card className={cn('relative', className)}>
-      <CardHeader className='pb-3'>
+    <Card
+      className={cn(
+        'group shadow-modern hover:shadow-modern-lg relative overflow-hidden rounded-2xl border-2 transition-all duration-300 hover:-translate-y-1',
+        className
+      )}
+    >
+      {/* Background gradient on hover */}
+      <div
+        className={cn(
+          'absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100',
+          iconBgClasses[color]
+        )}
+        style={{
+          background: `linear-gradient(135deg, transparent 0%, ${
+            color === 'primary'
+              ? 'var(--purple)'
+              : color === 'info'
+                ? 'var(--info)'
+                : color === 'success'
+                  ? 'var(--success)'
+                  : 'var(--warning)'
+          }08 100%)`
+        }}
+      />
+
+      <CardHeader className='relative pt-5 pb-3'>
         <div className='flex items-start justify-between'>
           <div className='flex items-center gap-3'>
             <div
               className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-lg',
+                'flex h-12 w-12 items-center justify-center rounded-xl shadow-sm transition-transform duration-200 hover:scale-110 hover:rotate-3',
                 iconBgClasses[color]
               )}
             >
-              <Wallet className={cn('h-5 w-5', iconColorClasses[color])} />
+              <Wallet className={cn('h-6 w-6', iconColorClasses[color])} />
             </div>
             <div>
               <CardTitle className='text-base font-semibold'>{name}</CardTitle>
@@ -74,27 +98,34 @@ export function WalletAccountEnhanced({
               </div>
             </div>
           </div>
-          <Button variant='ghost' size='icon' className='h-8 w-8'>
-            <Edit2 className='h-4 w-4' />
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-9 w-9 rounded-full transition-transform hover:scale-110 active:scale-95'
+          >
+            <ArrowUpRight className='h-4 w-4' />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className='space-y-4'>
+
+      <CardContent className='relative space-y-4 pb-5'>
         {/* Balance Principal */}
         <div>
-          <p className='text-muted-foreground mb-1 text-xs'>Saldo Disponible</p>
-          <p className='text-3xl font-bold tabular-nums'>
+          <p className='text-muted-foreground mb-2 text-xs font-medium'>
+            Saldo Disponible
+          </p>
+          <p className='font-numbers text-3xl font-extrabold tracking-tight tabular-nums'>
             {formatCurrencyPY(currentBalance)}
           </p>
         </div>
 
         {/* Footer con metadata */}
         <div className='text-muted-foreground flex items-center justify-between border-t pt-3 text-xs'>
-          <div className='flex items-center gap-1.5'>
+          <div className='flex items-center gap-1.5 transition-transform hover:scale-105'>
             <FileText className='h-3.5 w-3.5' />
             <span>{transactions.toLocaleString()} transacciones</span>
           </div>
-          <div className='flex items-center gap-1.5'>
+          <div className='flex items-center gap-1.5 transition-transform hover:scale-105'>
             <Clock className='h-3.5 w-3.5' />
             <span>{updatedAt}</span>
           </div>

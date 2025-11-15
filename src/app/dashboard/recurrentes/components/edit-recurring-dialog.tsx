@@ -171,7 +171,7 @@ export function EditRecurringDialog({
             name='notas'
             label='Notas'
             placeholder='Notas adicionales...'
-            rows={3}
+            config={{ rows: 3 }}
           />
 
           {/* Fecha de fin */}

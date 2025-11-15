@@ -44,7 +44,9 @@ export function ComparisonCard({
   const change = calculateChange();
 
   return (
-    <Card className={cn('relative', className)}>
+    <Card
+      className={cn('shadow-modern card-hover relative rounded-xl', className)}
+    >
       <CardHeader className='pb-3'>
         <div className='flex items-start justify-between'>
           <div className='flex items-center gap-2'>
@@ -54,7 +56,7 @@ export function ComparisonCard({
             </CardDescription>
           </div>
         </div>
-        <CardTitle className='text-3xl font-bold tabular-nums'>
+        <CardTitle className='font-numbers text-3xl font-extrabold tracking-tight tabular-nums'>
           {showCurrency ? formatCurrencyPY(currentValue) : currentValue}
           {!showCurrency && trendLabel && (
             <span className='text-muted-foreground ml-1 text-base font-normal'>

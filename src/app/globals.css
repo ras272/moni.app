@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark, .dark *));
 
 :root {
-  --radius: 0.625rem;
-  /* Verde Paraguayo Theme - Fondos y Neutros */
-  --background: oklch(0.99 0.002 240); /* #f8fafc - Fondo principal */
+  --radius: 0.75rem;
+  /* Verde Paraguayo Theme - Fondos y Neutros (Más modernos) */
+  --background: oklch(0.98 0.002 240); /* #F1F5F9 - Fondo gris suave moderno */
   --foreground: oklch(0.24 0.015 257); /* #1e293b - Texto principal */
   --card: oklch(1 0 0); /* #ffffff - Cards, modales */
   --card-foreground: oklch(0.24 0.015 257); /* #1e293b - Texto en cards */
@@ -39,12 +39,12 @@
   --input: oklch(0.92 0.005 240); /* #e2e8f0 - Input borders */
   --ring: oklch(0.38 0.11 165); /* #01674f - Focus rings */
 
-  /* Charts - Variedad de colores */
-  --chart-1: oklch(0.68 0.15 160); /* #10b981 - Verde suave */
-  --chart-2: oklch(0.71 0.17 70); /* #f59e0b - Naranja */
-  --chart-3: oklch(0.6 0.2 250); /* #3b82f6 - Azul info */
-  --chart-4: oklch(0.55 0.13 164); /* #059669 - Verde claro */
-  --chart-5: oklch(0.81 0.14 85); /* #fbbf24 - Naranja suave */
+  /* Charts - Variedad de colores (Más vibrantes) */
+  --chart-1: oklch(0.68 0.18 160); /* #10b981 - Verde más vibrante */
+  --chart-2: oklch(0.71 0.19 70); /* #f59e0b - Naranja más intenso */
+  --chart-3: oklch(0.62 0.24 250); /* #3b82f6 - Azul más vibrante */
+  --chart-4: oklch(0.58 0.16 164); /* #059669 - Verde claro más intenso */
+  --chart-5: oklch(0.81 0.16 85); /* #fbbf24 - Naranja suave más vibrante */
 
   /* Sidebar */
   --sidebar: oklch(1 0 0); /* #ffffff - Sidebar background */
@@ -60,22 +60,22 @@
   --sidebar-border: oklch(0.92 0.005 240); /* #e2e8f0 - Sidebar border */
   --sidebar-ring: oklch(0.38 0.11 165); /* #01674f - Sidebar focus */
 
-  /* Verde Paraguayo Palette - Colores Específicos */
+  /* Verde Paraguayo Palette - Colores Específicos (Más vibrantes) */
   --verde-principal: oklch(
     0.38 0.11 165
   ); /* #01674f - Logo y botones primarios */
-  --verde-claro: oklch(0.55 0.13 164); /* #059669 - Hover states */
-  --verde-suave: oklch(0.68 0.15 160); /* #10b981 - Success, positivos */
-  --mint: oklch(0.87 0.12 160); /* #6ee7b7 - Backgrounds suaves, cards hover */
-  --naranja-calido: oklch(
-    0.71 0.17 70
-  ); /* #f59e0b - CTAs secundarios, alertas */
-  --naranja-suave: oklch(0.81 0.14 85); /* #fbbf24 - Notificaciones, badges */
-  --success: oklch(0.68 0.15 160); /* #10b981 - Operaciones exitosas */
-  --warning: oklch(0.71 0.17 70); /* #f59e0b - Alertas */
-  --error: oklch(0.63 0.25 25); /* #ef4444 - Errores */
-  --info: oklch(0.6 0.2 250); /* #3b82f6 - Información */
-  --purple: oklch(0.58 0.2 290); /* #8b5cf6 - Morado para premium */
+  --verde-claro: oklch(0.58 0.16 164); /* #059669 - Hover states más vibrante */
+  --verde-suave: oklch(0.68 0.18 160); /* #10b981 - Success más vibrante */
+  --mint: oklch(0.87 0.14 160); /* #6ee7b7 - Backgrounds suaves más vibrante */
+  --naranja-calido: oklch(0.71 0.19 70); /* #f59e0b - CTAs más intenso */
+  --naranja-suave: oklch(0.81 0.16 85); /* #fbbf24 - Badges más vibrante */
+  --success: oklch(
+    0.68 0.18 160
+  ); /* #10b981 - Operaciones exitosas más vibrante */
+  --warning: oklch(0.71 0.19 70); /* #f59e0b - Alertas más intenso */
+  --error: oklch(0.65 0.26 25); /* #ef4444 - Errores más vibrante */
+  --info: oklch(0.62 0.24 250); /* #3b82f6 - Información más vibrante */
+  --purple: oklch(0.58 0.22 290); /* #8b5cf6 - Morado más vibrante */
 
   /* Cards - Colores específicos por tipo */
   --card-income-bg: oklch(0.97 0.01 160); /* #f0fdf4 - Verde muy claro */
@@ -145,10 +145,10 @@
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -215,6 +215,22 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  /* Tipografía para encabezados */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+
+  /* Tipografía para números grandes */
+  .font-numbers {
+    font-family: var(--font-numbers);
   }
 
   /* Hide scrollbar */
@@ -306,5 +322,70 @@
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Sombras modernas multicapa */
+  .shadow-modern {
+    box-shadow:
+      0 1px 2px 0 rgb(0 0 0 / 0.03),
+      0 2px 8px 0 rgb(0 0 0 / 0.04),
+      0 4px 16px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .shadow-modern-lg {
+    box-shadow:
+      0 2px 4px 0 rgb(0 0 0 / 0.03),
+      0 4px 12px 0 rgb(0 0 0 / 0.05),
+      0 8px 24px 0 rgb(0 0 0 / 0.07);
+  }
+
+  /* Hover effects suaves */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 8px 0 rgb(0 0 0 / 0.05),
+      0 8px 20px 0 rgb(0 0 0 / 0.07),
+      0 12px 32px 0 rgb(0 0 0 / 0.09);
+  }
+
+  /* Animación de carga de barras */
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Gradientes para barras */
+  .gradient-bar-green {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  }
+
+  .gradient-bar-red {
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  .gradient-bar-blue {
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  .gradient-bar-orange {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  .gradient-bar-purple {
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
   }
 }

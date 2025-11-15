@@ -13,6 +13,7 @@ import {
   Flame
 } from 'lucide-react';
 import { CreateMonitagBanner } from '@/components/monitags';
+import { WalletAccountsContainer } from './wallet-accounts-container';
 
 /**
  * Helper function to convert date to relative time string
@@ -110,7 +111,7 @@ export async function DashboardRedesigned() {
       <div className='flex flex-1 flex-col space-y-6'>
         {/* Header */}
         <div className='flex items-center justify-between'>
-          <h2 className='text-2xl font-bold tracking-tight'>
+          <h2 className='text-foreground text-3xl font-extrabold tracking-tight'>
             ¡Hola! Bienvenido a tu Dashboard 👋
           </h2>
         </div>
@@ -161,28 +162,7 @@ export async function DashboardRedesigned() {
           {/* RIGHT COLUMN */}
           <div className='space-y-6'>
             {/* Wallet Accounts */}
-            <div>
-              <div className='mb-4'>
-                <h3 className='text-lg font-semibold'>Tus cuentas</h3>
-              </div>
-              <div className='space-y-4'>
-                {walletAccounts.map((wallet) => (
-                  <WalletAccountEnhanced key={wallet.id} {...wallet} />
-                ))}
-                {walletAccounts.length === 0 && (
-                  <div className='flex min-h-[200px] items-center justify-center rounded-lg border border-dashed'>
-                    <div className='text-center'>
-                      <p className='text-muted-foreground text-sm'>
-                        No hay cuentas disponibles
-                      </p>
-                      <Button variant='link' className='mt-2'>
-                        Crear primera cuenta
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <WalletAccountsContainer walletAccounts={walletAccounts} />
 
             {/* Top Categorías de Gasto */}
             <TopExpenseCategories categories={topCategories} />
