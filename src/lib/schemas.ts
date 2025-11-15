@@ -26,9 +26,7 @@ export type TransactionFormValues = z.infer<typeof transactionSchema>;
 export const recurringTransactionSchema = z
   .object({
     // Detalles de la transacción
-    tipo: z.enum(['EXPENSE', 'INCOME'], {
-      required_error: 'Debes seleccionar el tipo de transacción.'
-    }),
+    tipo: z.enum(['EXPENSE', 'INCOME']),
     descripcion: z
       .string()
       .min(3, {
@@ -56,10 +54,7 @@ export const recurringTransactionSchema = z
     notas: z.string().max(500).optional().or(z.literal('')),
 
     // Configuración de recurrencia
-    frecuencia: z.enum(['daily', 'weekly', 'biweekly', 'monthly', 'yearly'], {
-      required_error: 'Debes seleccionar la frecuencia.',
-      invalid_type_error: 'Frecuencia inválida.'
-    }),
+    frecuencia: z.enum(['daily', 'weekly', 'biweekly', 'monthly', 'yearly']),
     intervalo: z
       .number()
       .int()
