@@ -38,7 +38,7 @@ export function RecurringTransactionForm({
     defaultValues: {
       tipo: 'EXPENSE',
       descripcion: '',
-      monto: '' as any, // Will be coerced to number by zod
+      monto: 0,
       categoria: '',
       cuenta: '',
       comercio: '',
