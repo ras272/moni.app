@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   DropdownMenu,
