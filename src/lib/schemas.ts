@@ -36,10 +36,7 @@ export const recurringTransactionSchema = z
         message: 'La descripción no puede exceder 255 caracteres.'
       }),
     monto: z
-      .number({
-        required_error: 'El monto es requerido.',
-        invalid_type_error: 'El monto debe ser un número.'
-      })
+      .number()
       .min(1, {
         message: 'El monto debe ser mayor a 0 (en Guaraníes).'
       })
@@ -61,9 +58,7 @@ export const recurringTransactionSchema = z
       .min(1, { message: 'El intervalo debe ser al menos 1.' })
       .max(12, { message: 'El intervalo no puede exceder 12.' }),
     diaPeriodo: z.number().int().min(1).max(31).optional(),
-    fechaInicio: z.date({
-      required_error: 'La fecha de inicio es requerida.'
-    }),
+    fechaInicio: z.date(),
     fechaFin: z.date().optional(),
     tieneFechaFin: z.boolean()
   })
