@@ -32,6 +32,10 @@ import { handleIncome } from '@/lib/whatsapp/handlers/income';
 import { handleGetBalance } from '@/lib/whatsapp/handlers/balance';
 import { handleGetSummary } from '@/lib/whatsapp/handlers/summary';
 import { handleHelp } from '@/lib/whatsapp/handlers/help';
+import {
+  handleAITransaction,
+  looksLikeTransaction
+} from '@/lib/whatsapp/handlers/ai-transaction';
 
 // =====================================================
 // GET - VERIFICACIÓN DE WEBHOOK
@@ -220,7 +224,32 @@ export async function POST(request: NextRequest) {
       parsed_currency: parsed.currency
     });
 
-    // 12. Ejecutar handler correspondiente
+    // 12. NUEVO: Intentar con IA si el mensaje parece una transacción en lenguaje natural
+    // (solo si no es un comando explícito como "ayuda", "resumen", etc.)
+    if (parsed.intent === 'unknown' && looksLikeTransaction(messageText)) {
+      console.log('🤖 Message looks like transaction, trying AI extraction...');
+      const aiResponse = await handleAITransaction(
+        connection.profile_id,
+        messageText
+      );
+
+      // Si la IA pudo procesar el mensaje, enviar respuesta y terminar
+      if (aiResponse.success) {
+        await sendWhatsAppMessage(from, aiResponse.message);
+        await logOutboundMessage(connection.id, aiResponse.message, {
+          method: 'ai',
+          source: 'handleAITransaction'
+        });
+        return NextResponse.json({ success: true });
+      }
+
+      // Si la IA falló, continuar con el sistema tradicional
+      console.log(
+        '⚠️ AI extraction failed, falling back to traditional parsing'
+      );
+    }
+
+    // 13. Ejecutar handler correspondiente (sistema tradicional)
     let response;
 
     switch (parsed.intent) {
@@ -281,10 +310,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
     }
 
-    // 13. Enviar respuesta al usuario
+    // 14. Enviar respuesta al usuario
     await sendWhatsAppMessage(from, response.message);
 
-    // 14. Log mensaje saliente
+    // 15. Log mensaje saliente
     await logOutboundMessage(
       connection.id,
       response.message,
