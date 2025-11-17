@@ -158,7 +158,7 @@ export async function handleAITransaction(
           ? 'transfer'
           : 'expense';
 
-    const { error: transactionError } = await supabase
+    const { error: transactionError } = await (supabase
       .from('transactions')
       .insert({
         profile_id: profileId,
@@ -174,7 +174,7 @@ export async function handleAITransaction(
         created_at: new Date().toISOString()
       })
       .select()
-      .single();
+      .single() as any);
 
     if (transactionError) {
       console.error('Error creating transaction:', transactionError);
