@@ -34,19 +34,19 @@ async function getCategoryIdByName(
 ): Promise<string | null> {
   const supabase = getSupabaseAdmin();
 
-  const { data: category, error } = await supabase
+  const { data, error } = await supabase
     .from('categories')
     .select('id')
     .eq('profile_id', profileId)
     .ilike('name', `%${categoryName}%`)
     .eq('is_active', true)
-    .single();
+    .maybeSingle();
 
-  if (error || !category) {
+  if (error || !data) {
     return null;
   }
 
-  return category.id;
+  return data.id;
 }
 
 /**
