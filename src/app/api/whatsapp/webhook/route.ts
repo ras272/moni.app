@@ -231,19 +231,22 @@ export async function POST(request: NextRequest) {
       parsed_currency: parsed.currency
     });
 
-    // 12. PRIORIDAD: Si el mensaje usa lenguaje natural (mil/lucas/k), usar IA
-    // Esto evita que el parser tradicional malinterprete "50 mil" como 50 millones
+    // 12. PRIORIDAD: Usar IA si usa lenguaje natural O si el parser tradicional falla
     const hasNaturalLanguage = /\d+\s*(mil|lucas|k|miles)/i.test(messageText);
+    const traditionalParserFailed =
+      parsed.intent === 'unknown' ||
+      (parsed.intent === 'add_expense' && !parsed.amount) ||
+      (parsed.intent === 'add_income' && !parsed.amount);
 
     if (
-      hasNaturalLanguage &&
+      (hasNaturalLanguage || traditionalParserFailed) &&
       looksLikeTransaction(messageText) &&
       parsed.intent !== 'help' &&
       parsed.intent !== 'get_balance' &&
       parsed.intent !== 'get_summary'
     ) {
       console.log(
-        '🤖 Natural language detected, using AI extraction (priority)...'
+        '🤖 Using AI extraction (natural language or parser failed)...'
       );
       const aiResponse = await handleAITransaction(
         connection.profile_id,
