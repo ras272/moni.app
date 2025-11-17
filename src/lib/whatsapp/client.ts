@@ -11,46 +11,6 @@ const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID!;
 const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
 
 // =====================================================
-// INDICADOR DE "ESCRIBIENDO..."
-// =====================================================
-
-/**
- * Muestra el indicador de "escribiendo..." en WhatsApp
- * @param to - Número de teléfono del destinatario
- */
-export async function sendTypingIndicator(
-  to: string
-): Promise<{ success: boolean }> {
-  try {
-    if (!PHONE_NUMBER_ID || !ACCESS_TOKEN) {
-      return { success: false };
-    }
-
-    const url = `${WHATSAPP_API_URL}/${PHONE_NUMBER_ID}/messages`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to,
-        type: 'text',
-        text: { body: '...' } // WhatsApp mostrará "escribiendo..."
-      })
-    });
-
-    return { success: response.ok };
-  } catch (error) {
-    console.error('Failed to send typing indicator:', error);
-    return { success: false };
-  }
-}
-
-// =====================================================
 // ENVIAR MENSAJE SIMPLE
 // =====================================================
 
