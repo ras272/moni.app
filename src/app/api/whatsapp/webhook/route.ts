@@ -230,10 +230,21 @@ export async function POST(request: NextRequest) {
       parsed.intent === 'unknown' ||
       (parsed.intent === 'add_expense' && !parsed.amount) ||
       (parsed.intent === 'add_income' && !parsed.amount);
+    const looksLikeTx = looksLikeTransaction(messageText);
+
+    // DEBUG: Enviar info por WhatsApp
+    await sendWhatsAppMessage(
+      from,
+      `🔍 DEBUG:\n` +
+        `hasNaturalLang: ${hasNaturalLanguage}\n` +
+        `parserFailed: ${traditionalParserFailed}\n` +
+        `looksLikeTx: ${looksLikeTx}\n` +
+        `intent: ${parsed.intent}`
+    );
 
     if (
       (hasNaturalLanguage || traditionalParserFailed) &&
-      looksLikeTransaction(messageText) &&
+      looksLikeTx &&
       parsed.intent !== 'help' &&
       parsed.intent !== 'get_balance' &&
       parsed.intent !== 'get_summary'
