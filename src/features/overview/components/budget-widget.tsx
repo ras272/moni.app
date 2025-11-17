@@ -18,120 +18,118 @@ export async function BudgetWidget() {
 
   if (topBudgets.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2 text-lg'>
-            <TrendingUp className='h-5 w-5' />
-            Presupuestos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='flex flex-col items-center justify-center py-8 text-center'>
-            <p className='text-muted-foreground mb-4 text-sm'>
-              No tienes presupuestos configurados
-            </p>
-            <Link href='/dashboard/presupuestos'>
-              <Button size='sm'>Crear presupuesto</Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <h3 className='text-lg font-semibold'>Presupuestos</h3>
+        </div>
+        <Card>
+          <CardContent className='py-12'>
+            <div className='flex flex-col items-center justify-center text-center'>
+              <p className='text-muted-foreground mb-3 text-sm'>
+                No tienes presupuestos configurados
+              </p>
+              <Link href='/dashboard/presupuestos'>
+                <Button size='sm'>Crear presupuesto</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className='flex flex-row items-center justify-between pb-3'>
-        <CardTitle className='flex items-center gap-2 text-lg'>
-          <TrendingUp className='h-5 w-5' />
-          Presupuestos
-        </CardTitle>
+    <div className='space-y-4'>
+      <div className='flex items-center justify-between'>
+        <h3 className='text-lg font-semibold'>Presupuestos</h3>
         <Link href='/dashboard/presupuestos'>
           <Button variant='ghost' size='sm' className='h-8 text-xs'>
             Ver todos
           </Button>
         </Link>
-      </CardHeader>
-      <CardContent className='space-y-4'>
-        {topBudgets.map((budget) => {
-          const percentageUsed =
-            budget.current_period.budget_amount > 0
-              ? (budget.current_period.spent /
-                  budget.current_period.budget_amount) *
-                100
-              : 0;
+      </div>
+      <Card>
+        <CardContent className='space-y-4 pt-6'>
+          {topBudgets.map((budget) => {
+            const percentageUsed =
+              budget.current_period.budget_amount > 0
+                ? (budget.current_period.spent /
+                    budget.current_period.budget_amount) *
+                  100
+                : 0;
 
-          const variant = getBudgetStatusVariant(percentageUsed);
-          const isOverBudget = percentageUsed > 100;
-          const isWarning = percentageUsed >= 80;
+            const variant = getBudgetStatusVariant(percentageUsed);
+            const isOverBudget = percentageUsed > 100;
+            const isWarning = percentageUsed >= 80;
 
-          return (
-            <div key={budget.id} className='space-y-2'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-2'>
-                  <span className='text-sm font-medium'>
-                    {budget.category_name || 'General'}
-                  </span>
-                  {isOverBudget && (
-                    <AlertCircle className='text-destructive h-4 w-4' />
-                  )}
-                  {!isOverBudget && !isWarning && (
-                    <CheckCircle2 className='h-4 w-4 text-green-500' />
-                  )}
-                </div>
-                <div className='text-right'>
-                  <p className='text-muted-foreground text-xs'>
-                    {formatBudgetAmount(budget.current_period.spent)} /{' '}
-                    {formatBudgetAmount(budget.current_period.budget_amount)}
-                  </p>
-                </div>
-              </div>
-
-              <div className='space-y-1'>
-                <Progress
-                  value={Math.min(percentageUsed, 100)}
-                  className={
-                    variant === 'destructive'
-                      ? '[&>div]:bg-destructive h-2'
-                      : variant === 'warning'
-                        ? 'h-2 [&>div]:bg-yellow-500'
-                        : 'h-2 [&>div]:bg-green-500'
-                  }
-                />
+            return (
+              <div key={budget.id} className='space-y-2'>
                 <div className='flex items-center justify-between'>
-                  <p className='text-muted-foreground text-xs'>
-                    {percentageUsed.toFixed(0)}% usado
-                  </p>
-                  <p className='text-muted-foreground text-xs'>
-                    {budget.current_period.days_remaining} días restantes
-                  </p>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-sm font-medium'>
+                      {budget.category_name || 'General'}
+                    </span>
+                    {isOverBudget && (
+                      <AlertCircle className='text-destructive h-4 w-4' />
+                    )}
+                    {!isOverBudget && !isWarning && (
+                      <CheckCircle2 className='h-4 w-4 text-green-500' />
+                    )}
+                  </div>
+                  <div className='text-right'>
+                    <p className='text-muted-foreground text-xs'>
+                      {formatBudgetAmount(budget.current_period.spent)} /{' '}
+                      {formatBudgetAmount(budget.current_period.budget_amount)}
+                    </p>
+                  </div>
                 </div>
+
+                <div className='space-y-1'>
+                  <Progress
+                    value={Math.min(percentageUsed, 100)}
+                    className={
+                      variant === 'destructive'
+                        ? '[&>div]:bg-destructive h-2'
+                        : variant === 'warning'
+                          ? 'h-2 [&>div]:bg-yellow-500'
+                          : 'h-2 [&>div]:bg-green-500'
+                    }
+                  />
+                  <div className='flex items-center justify-between'>
+                    <p className='text-muted-foreground text-xs'>
+                      {percentageUsed.toFixed(0)}% usado
+                    </p>
+                    <p className='text-muted-foreground text-xs'>
+                      {budget.current_period.days_remaining} días restantes
+                    </p>
+                  </div>
+                </div>
+
+                {isOverBudget && (
+                  <p className='text-destructive text-xs'>
+                    Excedido por{' '}
+                    {formatBudgetAmount(
+                      budget.current_period.spent -
+                        budget.current_period.budget_amount
+                    )}
+                  </p>
+                )}
               </div>
+            );
+          })}
 
-              {isOverBudget && (
-                <p className='text-destructive text-xs'>
-                  Excedido por{' '}
-                  {formatBudgetAmount(
-                    budget.current_period.spent -
-                      budget.current_period.budget_amount
-                  )}
-                </p>
-              )}
+          {allBudgets.length > 3 && (
+            <div className='pt-2 text-center'>
+              <Link href='/dashboard/presupuestos'>
+                <Button variant='link' size='sm' className='h-8 text-xs'>
+                  Ver {allBudgets.length - 3} presupuesto
+                  {allBudgets.length - 3 > 1 ? 's' : ''} más
+                </Button>
+              </Link>
             </div>
-          );
-        })}
-
-        {allBudgets.length > 3 && (
-          <div className='pt-2 text-center'>
-            <Link href='/dashboard/presupuestos'>
-              <Button variant='link' size='sm' className='h-8 text-xs'>
-                Ver {allBudgets.length - 3} presupuesto
-                {allBudgets.length - 3 > 1 ? 's' : ''} más
-              </Button>
-            </Link>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

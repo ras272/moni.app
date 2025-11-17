@@ -1,11 +1,11 @@
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { ComparisonCard } from './comparison-card';
-import { WalletAccountEnhanced } from './wallet-account-enhanced';
 import { RecentTransactionsEnhanced } from './recent-transactions-enhanced';
 import { TopExpenseCategories } from './financial-health';
 import { IncomeExpenseChart } from './income-expense-chart';
 import { BudgetWidget } from './budget-widget';
+import { UpcomingPayments } from './upcoming-payments';
 import { getDashboardData } from '@/lib/supabase/dashboard-unified';
 import { getDailyStats } from '@/lib/supabase/daily-stats';
 import {
@@ -15,7 +15,6 @@ import {
   Flame
 } from 'lucide-react';
 import { CreateMonitagBanner } from '@/components/monitags';
-import { WalletAccountsContainer } from './wallet-accounts-container';
 
 /**
  * Helper function to convert date to relative time string
@@ -117,65 +116,107 @@ export async function DashboardRedesigned() {
         {/* Header */}
         <div className='flex items-center justify-between'>
           <h2 className='text-foreground text-3xl font-extrabold tracking-tight'>
-            ¡Hola! Bienvenido a tu Dashboard 👋
+            ¡Hola Jack! Tu resumen financiero 👋
           </h2>
         </div>
 
         {/* Banner de Monitag */}
         <CreateMonitagBanner />
 
-        {/* Main Grid - 2 Columns */}
+        {/* Fila 1: INGRESOS | GASTOS | AHORRO | BALANCE */}
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+          {/* Card 1: Ingresos */}
+          <ComparisonCard
+            title='Ingresos'
+            icon={<TrendingUp className='h-4 w-4' />}
+            currentValue={comparison.income.current}
+            previousValue={comparison.income.previous}
+            subtitle='vs Mes anterior'
+            trend={comparison.income.change >= 0 ? 'up' : 'down'}
+            trendLabel={`${comparison.income.change >= 0 ? '+' : ''}${comparison.income.change.toFixed(1)}%`}
+          />
+
+          {/* Card 2: Gastos */}
+          <ComparisonCard
+            title='Gastos'
+            icon={<TrendingDown className='h-4 w-4' />}
+            currentValue={comparison.expenses.current}
+            previousValue={comparison.expenses.previous}
+            subtitle='vs Mes anterior'
+            trend={comparison.expenses.change <= 0 ? 'up' : 'down'}
+            trendLabel={`${comparison.expenses.change >= 0 ? '+' : ''}${comparison.expenses.change.toFixed(1)}%`}
+          />
+
+          {/* Card 3: Ahorro */}
+          <ComparisonCard
+            title={
+              monthlyStats.currentMonth.income -
+                monthlyStats.currentMonth.expenses >=
+              0
+                ? 'Ahorraste'
+                : 'Déficit'
+            }
+            icon={<WalletIcon className='h-4 w-4' />}
+            currentValue={Math.abs(
+              monthlyStats.currentMonth.income -
+                monthlyStats.currentMonth.expenses
+            )}
+            subtitle='Este mes'
+            trend={
+              monthlyStats.currentMonth.income -
+                monthlyStats.currentMonth.expenses >=
+              0
+                ? 'up'
+                : 'down'
+            }
+            trendLabel={`${(((monthlyStats.currentMonth.income - monthlyStats.currentMonth.expenses) / monthlyStats.currentMonth.income) * 100).toFixed(0)}% tasa`}
+          />
+
+          {/* Card 4: Balance Promedio */}
+          <ComparisonCard
+            title='Balance Promedio'
+            icon={<WalletIcon className='h-4 w-4' />}
+            currentValue={comparison.weeklyAverageBalance}
+            subtitle='Últimas 4 semanas'
+            trend='up'
+            trendLabel='Creciendo'
+          />
+        </div>
+
+        {/* Fila 2: RACHA DE AHORRO | TREND MINI-CHART */}
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
-          {/* LEFT COLUMN */}
-          <div className='space-y-6'>
-            {/* Chart de Ingresos vs Gastos - Enhanced */}
-            <IncomeExpenseChart
-              currentIncome={comparison.income.current}
-              previousIncome={comparison.income.previous}
-              currentExpenses={comparison.expenses.current}
-              previousExpenses={comparison.expenses.previous}
-              dailyData={dailyStats}
-            />
+          {/* Racha de Ahorro */}
+          <ComparisonCard
+            title='Racha de Ahorro'
+            icon={<Flame className='h-4 w-4' />}
+            currentValue={comparison.savingsStreak}
+            showCurrency={false}
+            subtitle='Meses consecutivos ahorrando'
+            trendLabel={comparison.savingsStreak > 0 ? 'meses' : ''}
+            trend={comparison.savingsStreak > 0 ? 'up' : 'neutral'}
+          />
 
-            {/* Cards pequeñas debajo del chart */}
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-              {/* Card 3: Balance Promedio Semanal */}
-              <ComparisonCard
-                title='Balance Promedio Semanal'
-                icon={<WalletIcon className='h-4 w-4' />}
-                currentValue={comparison.weeklyAverageBalance}
-                subtitle='Últimas 4 semanas'
-                trend='up'
-                trendLabel='Creciendo'
-              />
+          {/* Trend Chart (Placeholder - podemos mejorarlo después) */}
+          <ComparisonCard
+            title='Balance Total'
+            icon={<WalletIcon className='h-4 w-4' />}
+            currentValue={dashboardData.sidebarStats.totalBalance}
+            subtitle='Todas tus cuentas'
+            trend='up'
+            trendLabel='Total'
+          />
+        </div>
 
-              {/* Card 4: Racha de Ahorro */}
-              <ComparisonCard
-                title='Racha de Ahorro'
-                icon={<Flame className='h-4 w-4' />}
-                currentValue={comparison.savingsStreak}
-                showCurrency={false}
-                subtitle='Meses consecutivos ahorrando'
-                trendLabel={comparison.savingsStreak > 0 ? 'meses' : ''}
-                trend={comparison.savingsStreak > 0 ? 'up' : 'neutral'}
-              />
-            </div>
+        {/* Fila 3: TRANSACCIONES | PROXIMOS PAGOS */}
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+          <RecentTransactionsEnhanced transactions={recentTransactions} />
+          <UpcomingPayments />
+        </div>
 
-            {/* Transacciones Recientes */}
-            <RecentTransactionsEnhanced transactions={recentTransactions} />
-          </div>
-
-          {/* RIGHT COLUMN */}
-          <div className='space-y-6'>
-            {/* Wallet Accounts */}
-            <WalletAccountsContainer walletAccounts={walletAccounts} />
-
-            {/* Budget Widget */}
-            <BudgetWidget />
-
-            {/* Top Categorías de Gasto */}
-            <TopExpenseCategories categories={topCategories} />
-          </div>
+        {/* Fila 4: CATEGORÍAS | PRESUPUESTOS */}
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+          <TopExpenseCategories categories={topCategories} />
+          <BudgetWidget />
         </div>
       </div>
     </PageContainer>

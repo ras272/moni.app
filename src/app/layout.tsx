@@ -85,6 +85,7 @@ export default async function RootLayout({
           isScaled ? 'theme-scaled' : '',
           fontVariables
         )}
+        suppressHydrationWarning
       >
         {/* ThemeProvider es crítico para evitar flash */}
         <ThemeProvider

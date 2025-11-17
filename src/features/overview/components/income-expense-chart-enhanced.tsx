@@ -192,7 +192,7 @@ export function IncomeExpenseChartEnhanced({
   return (
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-lg font-semibold'>Ingresos vs Gastos</h3>
+        <h3 className='text-lg font-semibold'>Resumen Financiero</h3>
         <p className='text-muted-foreground text-sm'>vs Mes anterior</p>
       </div>
 

@@ -14,7 +14,38 @@ export function calculateInitialNextOccurrence(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Si la fecha de inicio es hoy o futura, usar esa fecha
+  // Para transacciones mensuales con día específico del mes
+  if (frequency === 'monthly' && dayOfPeriod) {
+    const targetDay = dayOfPeriod;
+    const currentDay = start.getDate();
+
+    // Obtener el último día del mes actual
+    const lastDayOfCurrentMonth = new Date(
+      start.getFullYear(),
+      start.getMonth() + 1,
+      0
+    ).getDate();
+
+    // Ajustar el día objetivo si excede el último día del mes
+    const adjustedDay = Math.min(targetDay, lastDayOfCurrentMonth);
+
+    // Si el día objetivo no ha pasado en el mes actual, usar ese día
+    if (currentDay <= adjustedDay) {
+      const nextOccurrence = new Date(start);
+      nextOccurrence.setDate(adjustedDay);
+      return nextOccurrence.toISOString().split('T')[0];
+    }
+
+    // Si el día ya pasó, ir al siguiente mes
+    return calculateNextOccurrence(
+      startDate,
+      frequency,
+      intervalCount,
+      dayOfPeriod
+    );
+  }
+
+  // Para otras frecuencias, si la fecha de inicio es hoy o futura, usar esa fecha
   if (start >= today) {
     return startDate;
   }

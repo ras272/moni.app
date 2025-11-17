@@ -61,6 +61,7 @@ function FormInput<
               max={max}
               disabled={disabled}
               {...field}
+              value={field.value ?? ''}
               onChange={(e) => {
                 if (type === 'number') {
                   const value = e.target.value;

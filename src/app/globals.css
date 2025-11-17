@@ -7,9 +7,9 @@
 :root {
   --radius: 0.75rem;
   /* Verde Paraguayo Theme - Fondos y Neutros (Más modernos) */
-  --background: oklch(0.98 0.002 240); /* #F1F5F9 - Fondo gris suave moderno */
+  --background: oklch(1 0 0); /* #FFFFFF - Fondo blanco */
   --foreground: oklch(0.24 0.015 257); /* #1e293b - Texto principal */
-  --card: oklch(1 0 0); /* #ffffff - Cards, modales */
+  --card: oklch(0.99 0 0); /* #FCFCFC - Cards gris muy claro */
   --card-foreground: oklch(0.24 0.015 257); /* #1e293b - Texto en cards */
   --popover: oklch(1 0 0); /* #ffffff - Popovers */
   --popover-foreground: oklch(0.24 0.015 257); /* #1e293b - Texto en popovers */
@@ -47,7 +47,7 @@
   --chart-5: oklch(0.81 0.16 85); /* #fbbf24 - Naranja suave más vibrante */
 
   /* Sidebar */
-  --sidebar: oklch(1 0 0); /* #ffffff - Sidebar background */
+  --sidebar: oklch(0.99 0 0); /* #FCFCFC - Sidebar background */
   --sidebar-foreground: oklch(0.24 0.015 257); /* #1e293b - Sidebar text */
   --sidebar-primary: oklch(0.38 0.11 165); /* #01674f - Sidebar active */
   --sidebar-primary-foreground: oklch(

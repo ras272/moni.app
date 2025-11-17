@@ -53,38 +53,38 @@ export function TopExpenseCategories({
   categories
 }: TopExpenseCategoriesProps) {
   return (
-    <Card className='shadow-modern rounded-xl'>
-      <CardHeader>
+    <Card className='shadow-modern mt-[1.5rem] rounded-xl'>
+      <CardHeader className='px-4 py-3 pb-2'>
         <div className='flex items-center justify-between'>
           <div>
-            <CardTitle className='text-lg font-semibold'>
+            <CardTitle className='text-sm font-semibold'>
               Top Categorías de Gasto
             </CardTitle>
-            <p className='text-muted-foreground mt-1 text-xs'>
+            <p className='text-muted-foreground text-xs'>
               Donde se va tu dinero
             </p>
           </div>
           <Tabs defaultValue='month'>
-            <TabsList>
-              <TabsTrigger value='month' className='text-xs'>
+            <TabsList className='h-7'>
+              <TabsTrigger value='month' className='h-6 px-2 text-xs'>
                 Este Mes
               </TabsTrigger>
-              <TabsTrigger value='60d' className='text-xs'>
+              <TabsTrigger value='60d' className='h-6 px-2 text-xs'>
                 60D
               </TabsTrigger>
-              <TabsTrigger value='90d' className='text-xs'>
+              <TabsTrigger value='90d' className='h-6 px-2 text-xs'>
                 90D
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className='space-y-4'>
+      <CardContent className='px-4 py-3 pt-0'>
+        <div className='space-y-1.5'>
           {categories.map((category, index) => (
             <div
               key={index}
-              className='animate-in fade-in slide-in-from-right-4 space-y-2'
+              className='animate-in fade-in slide-in-from-right-4 space-y-1'
               style={{
                 animationDelay: `${index * 100}ms`,
                 animationFillMode: 'both'
@@ -124,7 +124,7 @@ export function TopExpenseCategories({
           ))}
 
           {categories.length === 0 && (
-            <div className='flex min-h-[120px] items-center justify-center'>
+            <div className='flex min-h-[60px] items-center justify-center'>
               <p className='text-muted-foreground text-sm'>
                 No hay gastos para mostrar
               </p>
