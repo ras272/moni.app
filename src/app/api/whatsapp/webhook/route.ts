@@ -224,10 +224,20 @@ export async function POST(request: NextRequest) {
       parsed_currency: parsed.currency
     });
 
-    // 12. NUEVO: Intentar con IA si el mensaje parece una transacción en lenguaje natural
-    // (solo si no es un comando explícito como "ayuda", "resumen", etc.)
-    if (parsed.intent === 'unknown' && looksLikeTransaction(messageText)) {
-      console.log('🤖 Message looks like transaction, trying AI extraction...');
+    // 12. PRIORIDAD: Si el mensaje usa lenguaje natural (mil/lucas/k), usar IA
+    // Esto evita que el parser tradicional malinterprete "50 mil" como 50 millones
+    const hasNaturalLanguage = /\d+\s*(mil|lucas|k|miles)/i.test(messageText);
+
+    if (
+      hasNaturalLanguage &&
+      looksLikeTransaction(messageText) &&
+      parsed.intent !== 'help' &&
+      parsed.intent !== 'get_balance' &&
+      parsed.intent !== 'get_summary'
+    ) {
+      console.log(
+        '🤖 Natural language detected, using AI extraction (priority)...'
+      );
       const aiResponse = await handleAITransaction(
         connection.profile_id,
         messageText
