@@ -255,9 +255,9 @@ export function looksLikeTransaction(message: string): boolean {
     lowerMessage.includes(keyword)
   );
 
-  // Detectar si menciona montos ("50 mil", "120 lucas", "75k", etc)
+  // Detectar si menciona montos ("50 mil", "120 lucas", "75k", "250", etc)
   const hasMoney =
-    /\d+\s*(mil|lucas|k|miles)/i.test(message) || /\d{4,}/.test(message);
+    /\d+\s*(mil|lucas|k|miles)/i.test(message) || /\d{3,}/.test(message); // 3+ dígitos (no 1-2 para evitar falsos positivos)
 
   return hasKeyword && hasMoney;
 }
