@@ -44,16 +44,7 @@ export function BudgetCard({
   const period = budget.current_period;
   const variant = getBudgetStatusVariant(period.percentage_used);
   const daysRemaining = period.days_remaining;
-  const projectedSpending = calculateProjectedSpending({
-    ...budget,
-    percentage_used: period.percentage_used,
-    period_end: period.period_end,
-    budget_amount: period.budget_amount,
-    spent_amount: period.spent,
-    remaining_amount: period.remaining,
-    is_over_budget: period.is_over_budget,
-    rollover_amount: period.rollover_from_previous
-  } as any);
+  const projectedSpending = calculateProjectedSpending(budget);
   const willExceedBudget = projectedSpending > period.budget_amount;
 
   const categoryName = budget.category_name || 'General';

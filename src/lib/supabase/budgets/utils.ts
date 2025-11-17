@@ -192,17 +192,17 @@ export function getTotalDaysInPeriod(
  */
 export function calculateProjectedSpending(budget: BudgetStatus): number {
   const daysElapsed = getDaysElapsedInPeriod(
-    budget.period_start,
-    budget.period_end
+    budget.current_period.period_start,
+    budget.current_period.period_end
   );
   const totalDays = getTotalDaysInPeriod(
-    budget.period_start,
-    budget.period_end
+    budget.current_period.period_start,
+    budget.current_period.period_end
   );
 
   if (daysElapsed === 0 || totalDays === 0) return 0;
 
-  const dailyAverage = budget.spent_amount / daysElapsed;
+  const dailyAverage = budget.current_period.spent / daysElapsed;
   return Math.round(dailyAverage * totalDays);
 }
 
@@ -263,10 +263,12 @@ export function getBudgetAlertMessage(percentageUsed: number): string {
 export function sortBudgetsByPriority(budgets: BudgetStatus[]): BudgetStatus[] {
   return [...budgets].sort((a, b) => {
     // Primero los que están sobre budget
-    if (a.is_over_budget && !b.is_over_budget) return -1;
-    if (!a.is_over_budget && b.is_over_budget) return 1;
+    if (a.current_period.is_over_budget && !b.current_period.is_over_budget)
+      return -1;
+    if (!a.current_period.is_over_budget && b.current_period.is_over_budget)
+      return 1;
 
     // Luego por porcentaje usado (mayor a menor)
-    return b.percentage_used - a.percentage_used;
+    return b.current_period.percentage_used - a.current_period.percentage_used;
   });
 }

@@ -90,13 +90,12 @@ export async function BudgetWidget() {
               <div className='space-y-1'>
                 <Progress
                   value={Math.min(percentageUsed, 100)}
-                  className='h-2'
-                  indicatorClassName={
+                  className={
                     variant === 'destructive'
-                      ? 'bg-destructive'
+                      ? '[&>div]:bg-destructive h-2'
                       : variant === 'warning'
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500'
+                        ? 'h-2 [&>div]:bg-yellow-500'
+                        : 'h-2 [&>div]:bg-green-500'
                   }
                 />
                 <div className='flex items-center justify-between'>

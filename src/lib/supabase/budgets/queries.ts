@@ -103,6 +103,7 @@ export async function getBudgetStatus(): Promise<BudgetStatus[]> {
 
       return {
         id: budget.id,
+        profile_id: budget.profile_id,
         category_id: budget.category_id,
         category_name: budget.category?.name || null,
         category_icon: budget.category?.icon || null,
