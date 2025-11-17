@@ -161,9 +161,10 @@ function parseIncome(
 export function parseAmount(text: string): number {
   // Orden de prioridad: millones > miles > números normales
   const patterns = [
-    { regex: /(\d+[\.,]?\d*)\s*m(?:illones?)?/i, multiplier: 1_000_000 },
-    { regex: /(\d+[\.,]?\d*)\s*k/i, multiplier: 1_000 },
-    { regex: /(\d+[\.,]?\d*)\s+mil/i, multiplier: 1_000 },
+    // IMPORTANTE: "mil" debe ir ANTES que "millones" para evitar que "50 mil" matchee como "50 m(illones)"
+    { regex: /(\d+[\.,]?\d*)\s+(?:mil|lucas)\b/i, multiplier: 1_000 }, // "50 mil", "50 lucas"
+    { regex: /(\d+[\.,]?\d*)\s*millones?\b/i, multiplier: 1_000_000 }, // "50 millones" (palabra completa)
+    { regex: /(\d+[\.,]?\d*)\s*k\b/i, multiplier: 1_000 }, // "50k"
     { regex: /(\d{1,3}(?:[\.,]\d{3})+)/, multiplier: 1 }, // Con separadores
     { regex: /(\d+)/, multiplier: 1 } // Sin separadores
   ];
