@@ -243,13 +243,16 @@ export async function POST(request: NextRequest) {
       );
 
       try {
+        console.log('🤖 Calling handleAITransaction...');
         const aiResponse = await handleAITransaction(
           connection.profile_id,
           messageText
         );
+        console.log('🤖 AI Response:', aiResponse);
 
         // Si la IA pudo procesar el mensaje, enviar respuesta y terminar
         if (aiResponse.success) {
+          console.log('✅ AI succeeded, sending response');
           await sendWhatsAppMessage(from, aiResponse.message);
           await logOutboundMessage(connection.id, aiResponse.message, {
             method: 'ai',
@@ -262,9 +265,15 @@ export async function POST(request: NextRequest) {
         console.log(
           '⚠️ AI extraction failed, falling back to traditional parsing'
         );
+        console.log('AI failure reason:', aiResponse.message);
       } catch (aiError: any) {
         console.error('❌ AI handler crashed:', aiError);
         console.error('Stack:', aiError.stack);
+        // Enviar error por WhatsApp para debugging
+        await sendWhatsAppMessage(
+          from,
+          `🐛 DEBUG: IA crasheó\n${aiError.message}\n\nUsando sistema tradicional...`
+        );
         // Continuar con sistema tradicional
       }
     }
