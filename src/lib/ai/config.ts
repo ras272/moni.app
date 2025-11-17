@@ -7,7 +7,7 @@
 
 export const AI_CONFIG = {
   // 🎚️ Feature Flags - Cambiar a true para activar
-  ENABLED: false, // Master switch - DESACTIVADO (debugging)
+  ENABLED: true, // Master switch - ACTIVADO (con mejor error handling)
   USE_RULES_FIRST: true, // Siempre intentar con reglas primero
   USE_AI_FALLBACK: true, // Usar IA si las reglas fallan
 

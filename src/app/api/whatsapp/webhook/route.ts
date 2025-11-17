@@ -241,25 +241,32 @@ export async function POST(request: NextRequest) {
       console.log(
         '🤖 Using AI extraction (natural language or parser failed)...'
       );
-      const aiResponse = await handleAITransaction(
-        connection.profile_id,
-        messageText
-      );
 
-      // Si la IA pudo procesar el mensaje, enviar respuesta y terminar
-      if (aiResponse.success) {
-        await sendWhatsAppMessage(from, aiResponse.message);
-        await logOutboundMessage(connection.id, aiResponse.message, {
-          method: 'ai',
-          source: 'handleAITransaction'
-        });
-        return NextResponse.json({ success: true });
+      try {
+        const aiResponse = await handleAITransaction(
+          connection.profile_id,
+          messageText
+        );
+
+        // Si la IA pudo procesar el mensaje, enviar respuesta y terminar
+        if (aiResponse.success) {
+          await sendWhatsAppMessage(from, aiResponse.message);
+          await logOutboundMessage(connection.id, aiResponse.message, {
+            method: 'ai',
+            source: 'handleAITransaction'
+          });
+          return NextResponse.json({ success: true });
+        }
+
+        // Si la IA falló, continuar con el sistema tradicional
+        console.log(
+          '⚠️ AI extraction failed, falling back to traditional parsing'
+        );
+      } catch (aiError: any) {
+        console.error('❌ AI handler crashed:', aiError);
+        console.error('Stack:', aiError.stack);
+        // Continuar con sistema tradicional
       }
-
-      // Si la IA falló, continuar con el sistema tradicional
-      console.log(
-        '⚠️ AI extraction failed, falling back to traditional parsing'
-      );
     }
 
     // 13. Ejecutar handler correspondiente (sistema tradicional)
