@@ -18,7 +18,11 @@ import {
   updateLastMessage
 } from '@/lib/whatsapp/auth/linking';
 import { linkPhoneToProfile } from '@/lib/whatsapp/auth/linking';
-import { sendWhatsAppMessage, cleanPhoneNumber } from '@/lib/whatsapp/client';
+import {
+  sendWhatsAppMessage,
+  cleanPhoneNumber,
+  sendTypingIndicator
+} from '@/lib/whatsapp/client';
 import {
   logInboundMessage,
   logOutboundMessage,
@@ -125,6 +129,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`📨 Message received from ${from}: ${messageText}`);
+
+    // 4.5 Mostrar "escribiendo..." inmediatamente
+    await sendTypingIndicator(from);
 
     // 5. Buscar conexión del usuario
     console.log('🔍 Looking up connection for phone:', from);
