@@ -34,8 +34,7 @@ async function getCategoryIdByName(
 ): Promise<string | null> {
   const supabase = getSupabaseAdmin();
 
-  // @ts-ignore
-  const { data: category } = await supabase
+  const { data: category, error } = await supabase
     .from('categories')
     .select('id')
     .eq('profile_id', profileId)
@@ -43,7 +42,11 @@ async function getCategoryIdByName(
     .eq('is_active', true)
     .single();
 
-  return category?.id || null;
+  if (error || !category) {
+    return null;
+  }
+
+  return category.id;
 }
 
 /**
@@ -111,7 +114,6 @@ export async function handleAITransaction(
     // 5. Buscar cuentas del usuario
     const supabase = getSupabaseAdmin();
 
-    // @ts-ignore
     const { data: allAccounts, error: accountsError } = await supabase
       .from('accounts')
       .select('id, name, currency')
@@ -156,8 +158,7 @@ export async function handleAITransaction(
           ? 'transfer'
           : 'expense';
 
-    // @ts-ignore
-    const { data: transaction, error: transactionError } = await supabase
+    const { error: transactionError } = await supabase
       .from('transactions')
       .insert({
         profile_id: profileId,
