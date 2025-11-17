@@ -46,7 +46,7 @@ async function getCategoryIdByName(
     return null;
   }
 
-  return data.id;
+  return (data as { id: string }).id;
 }
 
 /**
