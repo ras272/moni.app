@@ -1,11 +1,11 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 
 /**
  * Cliente de Supabase para Server Components
  * Maneja cookies automáticamente para mantener sesión
  */
 export async function createClient() {
+  const { cookies } = await import('next/headers');
   const cookieStore = await cookies();
 
   return createServerClient(

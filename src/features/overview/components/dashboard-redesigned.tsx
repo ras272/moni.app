@@ -5,7 +5,9 @@ import { WalletAccountEnhanced } from './wallet-account-enhanced';
 import { RecentTransactionsEnhanced } from './recent-transactions-enhanced';
 import { TopExpenseCategories } from './financial-health';
 import { IncomeExpenseChart } from './income-expense-chart';
+import { BudgetWidget } from './budget-widget';
 import { getDashboardData } from '@/lib/supabase/dashboard-unified';
+import { getDailyStats } from '@/lib/supabase/daily-stats';
 import {
   TrendingDown,
   TrendingUp,
@@ -48,7 +50,10 @@ export async function DashboardRedesigned() {
   // ✨ OPTIMIZACIÓN: Obtener TODOS los datos en UNA SOLA QUERY
   // Antes: 4+ queries individuales (~2000ms)
   // Ahora: 1 query optimizada (~500ms)
-  const dashboardData = await getDashboardData();
+  const [dashboardData, dailyStats] = await Promise.all([
+    getDashboardData(),
+    getDailyStats()
+  ]);
 
   // Transformar datos para el formato esperado por los componentes
   const { monthlyStats, walletAccounts } = dashboardData;
@@ -123,12 +128,13 @@ export async function DashboardRedesigned() {
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
           {/* LEFT COLUMN */}
           <div className='space-y-6'>
-            {/* Chart de Ingresos vs Gastos */}
+            {/* Chart de Ingresos vs Gastos - Enhanced */}
             <IncomeExpenseChart
               currentIncome={comparison.income.current}
               previousIncome={comparison.income.previous}
               currentExpenses={comparison.expenses.current}
               previousExpenses={comparison.expenses.previous}
+              dailyData={dailyStats}
             />
 
             {/* Cards pequeñas debajo del chart */}
@@ -163,6 +169,9 @@ export async function DashboardRedesigned() {
           <div className='space-y-6'>
             {/* Wallet Accounts */}
             <WalletAccountsContainer walletAccounts={walletAccounts} />
+
+            {/* Budget Widget */}
+            <BudgetWidget />
 
             {/* Top Categorías de Gasto */}
             <TopExpenseCategories categories={topCategories} />

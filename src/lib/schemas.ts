@@ -7,7 +7,18 @@ export const transactionSchema = z.object({
   monto: z.number().min(1, {
     message: 'El monto debe ser mayor a 0 (en Guaraníes).'
   }),
-  fecha: z.date(),
+  fecha: z.date().refine(
+    (date) => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(23, 59, 59, 999); // Final del día de mañana
+      return date <= tomorrow;
+    },
+    {
+      message:
+        'No podés crear transacciones con fechas tan lejanas en el futuro.'
+    }
+  ),
   categoria: z.string().min(1, {
     message: 'Debes seleccionar una categoría.'
   }),
