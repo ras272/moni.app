@@ -183,6 +183,7 @@ export async function handleAITransaction(
         success: false,
         message:
           '❌ Error al guardar la transacción.\n\n' +
+          `DEBUG: ${JSON.stringify(transactionError, null, 2)}\n\n` +
           'Por favor intenta de nuevo más tarde.'
       };
     }
