@@ -160,22 +160,19 @@ export async function handleAITransaction(
 
     const { error: transactionError } = await (
       supabase.from('transactions') as any
-    )
-      .insert({
-        profile_id: profileId,
-        account_id: accountToUse.id,
-        type: transactionType,
-        amount: tx.amount,
-        description: tx.merchant || tx.notes || 'Transacción desde WhatsApp',
-        category_id: categoryId,
-        merchant: tx.merchant,
-        notes: tx.notes,
-        currency: 'PYG',
-        date: new Date().toISOString().split('T')[0],
-        created_at: new Date().toISOString()
-      })
-      .select()
-      .single();
+    ).insert({
+      profile_id: profileId,
+      account_id: accountToUse.id,
+      type: transactionType,
+      amount: tx.amount,
+      description: tx.merchant || tx.notes || 'Transacción desde WhatsApp',
+      category_id: categoryId,
+      merchant: tx.merchant,
+      notes: tx.notes,
+      currency: 'PYG',
+      date: new Date().toISOString().split('T')[0],
+      created_at: new Date().toISOString()
+    });
 
     if (transactionError) {
       console.error('Error creating transaction:', transactionError);
@@ -183,7 +180,6 @@ export async function handleAITransaction(
         success: false,
         message:
           '❌ Error al guardar la transacción.\n\n' +
-          `DEBUG: ${JSON.stringify(transactionError, null, 2)}\n\n` +
           'Por favor intenta de nuevo más tarde.'
       };
     }
