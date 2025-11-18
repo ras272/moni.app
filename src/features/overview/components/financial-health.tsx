@@ -45,7 +45,7 @@ const getCategoryIcon = (categoryName: string) => {
     inversiones: <TrendingUp className='h-4 w-4' />
   };
 
-  const normalizedName = categoryName.toLowerCase();
+  const normalizedName = (categoryName || '').toLowerCase();
   return iconMap[normalizedName] || <DollarSign className='h-4 w-4' />;
 };
 

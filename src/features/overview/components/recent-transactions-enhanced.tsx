@@ -49,7 +49,7 @@ interface RecentTransactionsEnhancedProps {
 }
 
 const getCategoryIcon = (category: string) => {
-  const categoryLower = category.toLowerCase();
+  const categoryLower = (category || '').toLowerCase();
 
   // Comida y Bebidas
   if (

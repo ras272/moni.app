@@ -16,7 +16,9 @@ export interface AccountInfo {
  * - Elimina acentos
  * - Elimina espacios extra
  */
-export function normalizeString(str: string): string {
+export function normalizeString(str: string | null | undefined): string {
+  if (!str) return '';
+
   return str
     .toLowerCase()
     .normalize('NFD')
@@ -61,6 +63,9 @@ export function fuzzyMatchAccount(
   let bestScore = threshold;
 
   for (const account of accounts) {
+    // Skip accounts with null/undefined names
+    if (!account.name) continue;
+
     const accountNormalized = normalizeString(account.name);
 
     // Match exacto

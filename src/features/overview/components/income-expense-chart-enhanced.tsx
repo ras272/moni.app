@@ -198,7 +198,9 @@ export function IncomeExpenseChartEnhanced({
 
       <dl className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
         {summary.map((item) => {
-          const sanitizedName = item.name.toLowerCase().replace(/\s+/g, '-');
+          const sanitizedName = (item.name || '')
+            .toLowerCase()
+            .replace(/\s+/g, '-');
           const gradientId = `gradient-${sanitizedName}`;
           const Icon = item.icon;
 
