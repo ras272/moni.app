@@ -45,7 +45,7 @@ async function getCategoryIdByName(
     .maybeSingle();
 
   if (matchedCategory) {
-    return matchedCategory.id;
+    return (matchedCategory as { id: string }).id;
   }
 
   // 2. Si no encuentra, buscar cualquier categoría del tipo correcto
@@ -59,7 +59,7 @@ async function getCategoryIdByName(
     .limit(1)
     .maybeSingle();
 
-  return fallbackCategory?.id || null;
+  return (fallbackCategory as { id: string } | null)?.id || null;
 }
 
 /**
