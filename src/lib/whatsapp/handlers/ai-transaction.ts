@@ -30,23 +30,36 @@ import {
  */
 async function getCategoryIdByName(
   categoryName: string,
-  profileId: string
+  profileId: string,
+  transactionType: 'expense' | 'income' = 'expense'
 ): Promise<string | null> {
   const supabase = getSupabaseAdmin();
 
-  const { data, error } = await supabase
+  // 1. Buscar match parcial con el nombre de categoría
+  const { data: matchedCategory } = await supabase
     .from('categories')
-    .select('id')
+    .select('id, name')
     .eq('profile_id', profileId)
     .ilike('name', `%${categoryName}%`)
     .eq('is_active', true)
     .maybeSingle();
 
-  if (error || !data) {
-    return null;
+  if (matchedCategory) {
+    return matchedCategory.id;
   }
 
-  return (data as { id: string }).id;
+  // 2. Si no encuentra, buscar cualquier categoría del tipo correcto
+  const categoryType = transactionType === 'expense' ? 'expense' : 'income';
+  const { data: fallbackCategory } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('profile_id', profileId)
+    .eq('type', categoryType)
+    .eq('is_active', true)
+    .limit(1)
+    .maybeSingle();
+
+  return fallbackCategory?.id || null;
 }
 
 /**
@@ -144,19 +157,23 @@ export async function handleAITransaction(
         allAccounts[0];
     }
 
-    // 7. Obtener category_id si se detectó categoría
-    let categoryId: string | null = null;
-    if (tx.category) {
-      categoryId = await getCategoryIdByName(tx.category, profileId);
-    }
-
-    // 8. Crear la transacción
+    // 7. Determinar tipo de transacción
     const transactionType =
       tx.type === 'income'
         ? 'income'
         : tx.type === 'transfer'
           ? 'transfer'
           : 'expense';
+
+    // 8. Obtener category_id si se detectó categoría
+    let categoryId: string | null = null;
+    if (tx.category) {
+      categoryId = await getCategoryIdByName(
+        tx.category,
+        profileId,
+        transactionType === 'income' ? 'income' : 'expense'
+      );
+    }
 
     const insertData = {
       profile_id: profileId,

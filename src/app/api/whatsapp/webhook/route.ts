@@ -232,25 +232,6 @@ export async function POST(request: NextRequest) {
       (parsed.intent === 'add_income' && !parsed.amount);
     const looksLikeTx = looksLikeTransaction(messageText);
 
-    // DEBUG: Enviar info por WhatsApp
-    const regexTest = /\d+\s*(mil|lucas|k|miles)/i.test(messageText);
-    const regexMatch = messageText.match(/\d+\s*(mil|lucas|k|miles)/i);
-
-    await sendWhatsAppMessage(
-      from,
-      `🔍 DEBUG:\n` +
-        `Msg: "${messageText}"\n` +
-        `Chars: [${Array.from(messageText)
-          .map((c) => c.charCodeAt(0))
-          .slice(0, 30)
-          .join(',')}]\n` +
-        `RegexTest: ${regexTest}\n` +
-        `Match: ${regexMatch ? regexMatch[0] : 'null'}\n` +
-        `hasNL: ${hasNaturalLanguage}\n` +
-        `pFailed: ${traditionalParserFailed}\n` +
-        `intent: ${parsed.intent}`
-    );
-
     if (
       (hasNaturalLanguage || traditionalParserFailed) &&
       looksLikeTx &&
@@ -258,30 +239,18 @@ export async function POST(request: NextRequest) {
       parsed.intent !== 'get_balance' &&
       parsed.intent !== 'get_summary'
     ) {
-      // DEBUG: Confirmar que entra al bloque de IA
-      await sendWhatsAppMessage(from, '✅ Entrando a bloque de IA...');
-
       console.log(
         '🤖 Using AI extraction (natural language or parser failed)...'
       );
 
       try {
-        console.log('🤖 Calling handleAITransaction...');
         const aiResponse = await handleAITransaction(
           connection.profile_id,
           messageText
         );
-        console.log('🤖 AI Response:', aiResponse);
-
-        // DEBUG: Mostrar respuesta de IA
-        await sendWhatsAppMessage(
-          from,
-          `🤖 AI Response:\nsuccess: ${aiResponse.success}\nmessage: ${aiResponse.message.substring(0, 100)}`
-        );
 
         // Si la IA pudo procesar el mensaje, enviar respuesta y terminar
         if (aiResponse.success) {
-          console.log('✅ AI succeeded, sending response');
           await sendWhatsAppMessage(from, aiResponse.message);
           await logOutboundMessage(connection.id, aiResponse.message, {
             method: 'ai',
@@ -294,15 +263,9 @@ export async function POST(request: NextRequest) {
         console.log(
           '⚠️ AI extraction failed, falling back to traditional parsing'
         );
-        console.log('AI failure reason:', aiResponse.message);
       } catch (aiError: any) {
         console.error('❌ AI handler crashed:', aiError);
         console.error('Stack:', aiError.stack);
-        // Enviar error por WhatsApp para debugging
-        await sendWhatsAppMessage(
-          from,
-          `🐛 DEBUG: IA crasheó\n${aiError.message}\n\nUsando sistema tradicional...`
-        );
         // Continuar con sistema tradicional
       }
     }
