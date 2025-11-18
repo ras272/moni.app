@@ -273,6 +273,12 @@ export async function POST(request: NextRequest) {
         );
         console.log('🤖 AI Response:', aiResponse);
 
+        // DEBUG: Mostrar respuesta de IA
+        await sendWhatsAppMessage(
+          from,
+          `🤖 AI Response:\nsuccess: ${aiResponse.success}\nmessage: ${aiResponse.message.substring(0, 100)}`
+        );
+
         // Si la IA pudo procesar el mensaje, enviar respuesta y terminar
         if (aiResponse.success) {
           console.log('✅ AI succeeded, sending response');
