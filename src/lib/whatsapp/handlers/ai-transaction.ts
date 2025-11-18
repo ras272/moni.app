@@ -158,9 +158,7 @@ export async function handleAITransaction(
           ? 'transfer'
           : 'expense';
 
-    const { error: transactionError } = await (
-      supabase.from('transactions') as any
-    ).insert({
+    const insertData = {
       profile_id: profileId,
       account_id: accountToUse.id,
       type: transactionType,
@@ -172,14 +170,25 @@ export async function handleAITransaction(
       currency: 'PYG',
       date: new Date().toISOString().split('T')[0],
       created_at: new Date().toISOString()
-    });
+    };
+
+    console.log('🔍 Attempting insert with data:', insertData);
+
+    const { error: transactionError } = await (
+      supabase.from('transactions') as any
+    ).insert(insertData);
 
     if (transactionError) {
-      console.error('Error creating transaction:', transactionError);
+      console.error('❌ Error creating transaction:', transactionError);
       return {
         success: false,
         message:
           '❌ Error al guardar la transacción.\n\n' +
+          `DEBUG Insert:\n` +
+          `Code: ${transactionError.code}\n` +
+          `Message: ${transactionError.message}\n` +
+          `Details: ${JSON.stringify(transactionError.details)}\n` +
+          `Hint: ${transactionError.hint}\n\n` +
           'Por favor intenta de nuevo más tarde.'
       };
     }
