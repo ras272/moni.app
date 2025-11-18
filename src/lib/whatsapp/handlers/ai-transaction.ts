@@ -168,11 +168,9 @@ export async function handleAITransaction(
       merchant: tx.merchant,
       notes: tx.notes,
       currency: 'PYG',
-      date: new Date().toISOString().split('T')[0],
-      created_at: new Date().toISOString()
+      status: 'completed',
+      transaction_date: new Date().toISOString().split('T')[0]
     };
-
-    console.log('🔍 Attempting insert with data:', insertData);
 
     const { error: transactionError } = await (
       supabase.from('transactions') as any
@@ -184,11 +182,6 @@ export async function handleAITransaction(
         success: false,
         message:
           '❌ Error al guardar la transacción.\n\n' +
-          `DEBUG Insert:\n` +
-          `Code: ${transactionError.code}\n` +
-          `Message: ${transactionError.message}\n` +
-          `Details: ${JSON.stringify(transactionError.details)}\n` +
-          `Hint: ${transactionError.hint}\n\n` +
           'Por favor intenta de nuevo más tarde.'
       };
     }
