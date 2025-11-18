@@ -233,12 +233,21 @@ export async function POST(request: NextRequest) {
     const looksLikeTx = looksLikeTransaction(messageText);
 
     // DEBUG: Enviar info por WhatsApp
+    const regexTest = /\d+\s*(mil|lucas|k|miles)/i.test(messageText);
+    const regexMatch = messageText.match(/\d+\s*(mil|lucas|k|miles)/i);
+
     await sendWhatsAppMessage(
       from,
       `🔍 DEBUG:\n` +
-        `hasNaturalLang: ${hasNaturalLanguage}\n` +
-        `parserFailed: ${traditionalParserFailed}\n` +
-        `looksLikeTx: ${looksLikeTx}\n` +
+        `Msg: "${messageText}"\n` +
+        `Chars: [${Array.from(messageText)
+          .map((c) => c.charCodeAt(0))
+          .slice(0, 30)
+          .join(',')}]\n` +
+        `RegexTest: ${regexTest}\n` +
+        `Match: ${regexMatch ? regexMatch[0] : 'null'}\n` +
+        `hasNL: ${hasNaturalLanguage}\n` +
+        `pFailed: ${traditionalParserFailed}\n` +
         `intent: ${parsed.intent}`
     );
 
