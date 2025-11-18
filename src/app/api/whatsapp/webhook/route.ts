@@ -258,6 +258,9 @@ export async function POST(request: NextRequest) {
       parsed.intent !== 'get_balance' &&
       parsed.intent !== 'get_summary'
     ) {
+      // DEBUG: Confirmar que entra al bloque de IA
+      await sendWhatsAppMessage(from, '✅ Entrando a bloque de IA...');
+
       console.log(
         '🤖 Using AI extraction (natural language or parser failed)...'
       );
